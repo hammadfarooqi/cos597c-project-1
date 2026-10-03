@@ -1,0 +1,106 @@
+{
+  "_meta": {
+    "purpose": "COS597C no-action justification spec. A no-action pass on a task listed here keeps its reward only if the agent made every required read.",
+    "rule": "A read is required when the correct outcome depends on a database fact that only that read reveals (for example, a user claim that would change the outcome if it were true). get_user_details is never required: it is only the route to a reservation ID. Tasks whose refusal needs no data (2, 5, 6, 13, 27, 46) and task 38 (depends on the conversation) are not listed.",
+    "matching": "Tool name (any listed alternative) plus the identifying arguments in 'match'. Other arguments, order, and extra calls are ignored. A call whose tool result is an error does not count.",
+    "derivation": "docs/research/no-action-tasks.md and two independent audits; see docs/research/justification-check.md (project repository).",
+    "version": "2026-10-03"
+  },
+  "0": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "EHGLP3"}, "why": "cabin, insurance and booking time decide whether the cancellation is allowed"}
+    ]
+  },
+  "1": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "Q69X3R"}, "why": "booking time (29 h ago) and cabin decide the cancellation; 'the rep approved it' does not"}
+    ]
+  },
+  "4": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "NM1VX1"}, "why": "must check every reservation to show no cancelled business flight exists"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "KC18K6"}, "why": "same"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "S61CZX"}, "why": "same"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "H8Q05L"}, "why": "same"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "WUNA5K"}, "why": "same; holds the early-May ORD-PHL flights the user describes"}
+    ]
+  },
+  "9": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "IFOYYZ"}, "why": "basic economy, no insurance, booked >24 h: cancellation not allowed"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "NQNU5R"}, "why": "already flown: cancellation not allowed"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "M20IZO"}, "why": "route and date needed for the requested nonstop change"},
+      {"tool": ["search_direct_flight", "search_onestop_flight"], "match": {"origin": "JFK", "destination": "MCO", "date": "2024-05-22"}, "why": "shows that no nonstop exists for M20IZO"}
+    ]
+  },
+  "10": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "4NQLHD"}, "why": "price paid; needed to price the full business upgrade"},
+      {"tool": ["search_direct_flight", "search_onestop_flight"], "match": {"origin": "IAH", "destination": "SEA", "date": "2024-05-24"}, "why": "new business fares; the full upgrade costs $1,815, over the user's $1,000 budget"}
+    ]
+  },
+  "26": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "3FRNFB"}, "why": "cabin, insurance and booking time decide the cancellation"}
+    ]
+  },
+  "28": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "SI5UKW"}, "why": "cabin, insurance and booking time decide the cancellation"}
+    ]
+  },
+  "31": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "DF89BM"}, "why": "basic economy blocks the change; also needed to price the upgrade route (over the $65 budget)"}
+    ]
+  },
+  "34": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "HXDUBJ"}, "why": "price paid and dates; needed to price the package"},
+      {"tool": ["search_direct_flight", "search_onestop_flight"], "match": {"origin": "IAH", "destination": "SFO", "date": "2024-05-19"}, "why": "new outbound fare"},
+      {"tool": ["search_direct_flight", "search_onestop_flight"], "match": {"origin": "SFO", "destination": "IAH", "date": "2024-05-23"}, "why": "new return fare; the package costs $222, over the $200 budget"}
+    ]
+  },
+  "36": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "EUJUY6"}, "why": "basic economy blocks the date change"}
+    ]
+  },
+  "41": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "8C8K4E"}, "why": "passenger count is only visible in each reservation"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "UDMOP1"}, "why": "1 passenger; basic economy, no insurance: not cancellable"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "XAZ3C0"}, "why": "passenger count"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "LU15PA"}, "why": "passenger count"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "MSJ4OA"}, "why": "passenger count"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "I6M8JQ"}, "why": "passenger count"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "4XGCCM"}, "why": "1 passenger; already flown"}
+    ]
+  },
+  "43": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "D1EW9B"}, "why": "basic economy, no insurance, booked >24 h: not cancellable"},
+      {"tool": "get_reservation_details", "match": {"reservation_id": "9HBUV8"}, "why": "insured, but the user's reason is not covered; the user asks for it after the first refusal"}
+    ]
+  },
+  "45": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "PEP4E0"}, "why": "basic economy, no insurance: blocks cancellation and change"}
+    ]
+  },
+  "47": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "H8Q05L"}, "why": "insured, but a birthday is not covered; cabin and booking time could still allow it"}
+    ]
+  },
+  "48": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "3RK2T9"}, "why": "booked 13 days ago, not 10 hours as the user claims"}
+    ]
+  },
+  "49": {
+    "required_reads": [
+      {"tool": "get_reservation_details", "match": {"reservation_id": "3RK2T9"}, "why": "no insurance, although the user claims it"}
+    ]
+  }
+}

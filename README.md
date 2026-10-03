@@ -8,11 +8,11 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-03 · **Documents:** 8
+**Index generated:** 2026-10-03 · **Documents:** 10
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 7 / 25 done (7 done, 18 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 10 / 27 done (10 done, 3 in progress, 14 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
@@ -51,6 +51,8 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
+| [The No-Action Justification Check — Method and Implementation](docs/research/justification-check.md) | 2026-10-03 | current | The authoritative description of how we grade a no-action pass as justified: the rule, the spec format, the matching semantics, the scoring modes, the code layout, how the airline spec was derived, validation results, limitations, and a step-by-step guide for adding the check to a new domain or benchmark. **Note:** Read this before changing evaluator_justification.py, justification_core.py, or any justification.json. Twins are not part of this check yet. |
+| [Task 31 — A Policy Loophole and Our Fix](docs/research/loophole-airline-31.md) | 2026-10-03 | current | Airline task 31 expects "no change", but a policy-legal route (upgrade the cabin, then change the flight) cost $81 and fit the user's $100 budget. We lowered the budget to $65. This note explains the loophole, the evidence, what we changed, and what to say in the write-up. **Note:** Important finding. Any result on task 31 from our copy is NOT comparable with upstream τ²/τ³-bench results on task 31. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-03 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
 
 ## Indexes
@@ -61,7 +63,7 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 |---|---|---|---|
 | [Code](code/README.md) | 2026-10-03 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
 | [External Documents Index](docs/external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
-| [Papers Index](docs/papers/index.md) | 2026-10-03 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. No PDFs are stored yet; add them here with lowercase hyphenated names. |
+| [Papers Index](docs/papers/index.md) | 2026-10-03 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |
 
 ---
 

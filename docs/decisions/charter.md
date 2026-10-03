@@ -79,7 +79,8 @@ We use two mechanisms. Both are deterministic. Neither uses an LLM judge.
    (`initial_state.initialization_data`).
 
 A no-action pass is **justified** when the agent ran the mandatory reads **and** passes the
-twin. Reads alone are not enough: an agent that reads everything and then refuses everything
+twin. The read check is implemented: `docs/research/justification-check.md` (rule, spec format,
+scoring modes, code, and how to reuse it on another benchmark). Reads alone are not enough: an agent that reads everything and then refuses everything
 passes them. That agent is the reason the twins exist.
 
 Not every task can have a clean twin. Tasks 6 and 46 have no write tool at all, and the
@@ -132,10 +133,12 @@ All scoring stays automatic and rule-based.
 
 ## 6. Open questions
 
-1. **Which reads are "necessary"?** Partly answered: start from the reads listed in the task
+1. **Which reads are "necessary"?** Answered for airline: the rule in
+   `docs/research/justification-check.md` §2.1 and the 16-task spec. Background: start from the reads listed in the task
    files (15 of 23 tasks) and add reads for the other 8 (`docs/research/no-action-tasks.md` §3).
-   Still open: some listed reads may be over-specified (task 41 lists all 7 reservations), and
-   we have not decided whether reads must happen *before* the refusal.
+   Still open: in tasks 2, 5, 6, 27, 38 the policy blocks the request without any data, so the
+   listed reads reflect the author's intent, not necessity. We have not decided whether to keep
+   them, or whether reads must happen *before* the refusal.
 2. **How do we score a pair?** Options: the original counts only if its twin also passes; or
    report original, twin, and pair rates side by side. Decide before M1.6.
 3. **What counts as a twin failure?** A twin can fail because the agent refused, transferred, or

@@ -27,6 +27,11 @@ This note supports the two mechanisms chosen on 2026-10-03 (`docs/decisions/deci
 
 Evidence for the numbers here: `docs/research/findings-log.md` §4–§6.
 
+**Implemented:** the required reads are now in
+`code/tau2-bench/data/tau2/domains/airline/justification.json`. The final per-task list and the
+rule behind it: `docs/research/justification-check.md`. Where that file differs from §3 below, it
+wins.
+
 ---
 
 ## 1. Facts that apply to all 23 tasks
@@ -82,7 +87,7 @@ tasks (for example 3RK2T9 in tasks 40, 48, and 49).
 | 26 | cancel MCO→CLT with refund | 3FRNFB basic economy, no insurance, booked 05-06 | — | user, `get_reservation_details(3FRNFB)` | DB flip: 3FRNFB `cabin=business` → cancel |
 | 27 | compensation for delayed HAT039 | user will not change or cancel | user | — | Script flip only |
 | 28 | cancel SI5UKW, any refund | basic economy, no insurance | — | `get_reservation_details(SI5UKW)` | DB flip: SI5UKW `cabin=business` → cancel |
-| 31 | change JFK May 17 flight to nonstop | DF89BM basic economy | — | user, `get_reservation_details(DF89BM)` | DB flip: DF89BM `cabin=economy` → change allowed; but the user's <$100 limit may still block it. Check the price first |
+| 31 | change JFK May 17 flight to nonstop | DF89BM basic economy | — | user, `get_reservation_details(DF89BM)` | **Loophole-exposed (Cao 2026, L6):** an upgrade-then-change route costs $81, under the cap. The maintainers say this workaround "should be disallowed", so the gold holds, but the user script does not block it (findings-log §9–§10). **Fixed 2026-10-03: budget lowered to $65** (`docs/research/loophole-airline-31.md`). Natural contrast: task 32 |
 | 34 | many changes, "insurance waives fees" | total cost >$200 | — | `get_reservation_details(HXDUBJ)` | Natural: **33** (partial) |
 | 36 | change EUJUY6 date (bereavement) | basic economy; first leg already flown | EUJUY6 | — | Weak: two facts block the change |
 | 38 | compensation for delay | user will not change or cancel | user, 4OG6T3 | — | Script flip only |
@@ -109,9 +114,16 @@ tasks (for example 3RK2T9 in tasks 40, 48, and 49).
 
 ## 5. Weak points
 
-- "Necessary" is our judgment. A gold read can be over-specified. Example: task 41 requires all
-  7 reservation reads, but only the 1-passenger reservations decide the outcome. Review each
-  gold list before we make it mandatory.
+- "Necessary" is our judgment. Two different meanings matter:
+  - **Needed to find the fact.** Each reservation fact has only one tool route
+    (`get_reservation_details(id)`), and membership has only `get_user_details`. So a listed
+    read is rarely replaceable. Task 41 lists all 7 reservations, and all 7 are needed: the
+    passenger count is only visible after the read.
+  - **Needed to refuse at all.** In some tasks the policy blocks the request whatever the data
+    says: 6 (insurance cannot be added after booking), and the compensation tasks 2, 5, 27, 38
+    (the user will not change or cancel). An agent can refuse correctly without a read. Their
+    listed reads come from the task author's intent (for example "Agent verifies that the
+    flight was delayed"), not from logical necessity. Decide per task before M1.9.
 - The reads-only mechanism cannot tell *why* an agent refused. An agent that reads everything
   and then refuses everything passes it. The twins exist to catch that agent.
 - Task 39, our best natural twin, may have a gold error: it expects a cancel of MSJ4OA (economy,

@@ -28,6 +28,14 @@ summary: >-
 | `pyproject.toml`, `uv.lock` | `websockets` is a core dependency. | Upstream imports it from core code. |
 | `.gitignore` | `data/simulations/` is tracked. | Shared results. |
 | `.env.example` | Adds `PI_KEY`, `PI_API_BASE`. | Prime Intellect inference. |
+| `src/tau2/evaluator/justification_core.py` | New. Benchmark-agnostic rule for the justification check (no tau2 imports). | Reusable on other benchmarks. `docs/research/justification-check.md` |
+| `src/tau2/evaluator/evaluator_justification.py` | New. tau2 adapter: loads the domain spec, extracts agent calls, gates the reward. | `docs/research/justification-check.md` |
+| `src/tau2/evaluator/evaluator.py` | `evaluate_simulation()` = unchanged upstream scorer (`_evaluate_simulation_upstream`) + justification gate. | Single hook for runs, `evaluate-trajs`, gym. |
+| `src/tau2/data_model/simulation.py` | `RewardInfo` gains `original_reward`, `justification`, `scoring_mode`; new `JustificationCheck`, `RequiredReadCheck`. | Both scores always saved. Old results still load. |
+| `src/tau2/cli.py` | `--original-scoring` on `run` and `evaluate-trajs` (sets `TAU2_ORIGINAL_SCORING=1`). | Upstream scoring stays reproducible. |
+| `data/tau2/domains/airline/justification.json` | New. Required reads for 16 airline no-action tasks. | `docs/research/justification-check.md` §7 |
+| `tests/test_justification.py` | New. Core unit tests, spec validation, null-agent end-to-end in both modes. | |
+| `data/tau2/domains/airline/tasks.json` | Task 31: user budget $100 → $65; `description.notes` explains why. | Closes a policy loophole. See `docs/research/loophole-airline-31.md`. Task 31 results are not comparable with upstream. |
 
 When you change upstream code, add a row here.
 
@@ -68,6 +76,19 @@ The key is redacted in the saved results. Check anyway before you commit:
 `git diff --cached | grep -E 'pit_|sk-'` must print nothing.
 
 Then add an entry to `docs/research/findings-log.md`.
+
+## Scoring modes (COS597C justification check)
+
+Justified scoring is the default: on a no-action task listed in
+`data/tau2/domains/<domain>/justification.json`, a pass becomes 0 when a required read is
+missing. Add `--original-scoring` to `tau2 run` or `tau2 evaluate-trajs` for upstream scoring.
+Every result saves both `reward` and `original_reward`, plus `scoring_mode` and the per-read
+`justification`. Method: `docs/research/justification-check.md`.
+
+```bash
+uv run tau2 evaluate-trajs data/simulations/<run>/results.json --fresh-tasks -o data/simulations/<run>_justified
+uv run pytest tests/test_justification.py -q
+```
 
 ## Upstream documentation
 

@@ -1097,6 +1097,23 @@ class SimulationNote(BaseModel):
         return "\n".join(lines)
 
 
+class RequiredReadCheck(BaseModel):
+    """One required read and whether the agent made it (COS597C)."""
+
+    tools: list[str] = Field(description="Tool names; any one satisfies the read.")
+    match: dict = Field(description="Identifying arguments that must match.")
+    why: str = Field(default="", description="The fact this read reveals.")
+    met: bool = Field(description="Whether a successful matching call was found.")
+
+
+class JustificationCheck(BaseModel):
+    """Result of the no-action justification check (COS597C)."""
+
+    justified: bool = Field(description="True if every required read was made.")
+    reads: list[RequiredReadCheck] = Field(description="Each required read and result.")
+    spec_source: str = Field(description="Path of the spec file that was applied.")
+
+
 class RewardInfo(BaseModel):
     """
     The reward received by the agent.
@@ -1142,6 +1159,31 @@ class RewardInfo(BaseModel):
     info: Annotated[
         Optional[dict],
         Field(description="Additional information about the reward.", default=None),
+    ]
+    # COS597C: no-action justification check. See tau2/evaluator/evaluator_justification.py.
+    original_reward: Annotated[
+        Optional[float],
+        Field(
+            description="The reward under upstream scoring, before the justification gate. "
+            "None in results produced before the gate existed.",
+            default=None,
+        ),
+    ]
+    justification: Annotated[
+        Optional[JustificationCheck],
+        Field(
+            description="Required-read check for no-action tasks listed in the domain's "
+            "justification spec. None when the task is not in the spec.",
+            default=None,
+        ),
+    ]
+    scoring_mode: Annotated[
+        Optional[str],
+        Field(
+            description="'justified' (reward = original_reward gated by the justification "
+            "check) or 'original' (upstream scoring). None in older results.",
+            default=None,
+        ),
     ]
 
     @property

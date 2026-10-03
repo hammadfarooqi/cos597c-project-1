@@ -83,3 +83,37 @@ plan an LLM judge.
 `docs/research/no-action-tasks.md`
 **Replaces:** the three-check rubric in `docs/external/2026-10-02-proposal-formalization.pdf`,
 as restated in the charter §2 of 2026-10-03.
+
+## 2026-10-03 — Lower task 31's budget from $100 to $65 to close a policy loophole
+**By:** Hammad + Claude
+**Why:** In airline task 31 a policy-legal route (upgrade the cabin to economy, then change to a
+nonstop) costs $81 net and fit the user's $100 budget, which contradicts the expected "no
+change". The policy is ambiguous on whether the two steps compose, and the benchmark answers
+that ambiguity both ways (task 32 yes, task 45 no). Every legal route costs at least $81, so a
+$65 budget makes "no change" correct under both readings. We chose $65 over $80 (a $1 margin is
+too thin for a simulated user) and over a "no upgrade" user line (it takes one side of the
+ambiguity).
+**Affects:** `code/tau2-bench/data/tau2/domains/airline/tasks.json` (task 31) ·
+`docs/research/loophole-airline-31.md` · `docs/research/findings-log.md` §12 · `code/README.md`
+**Replaces:** —
+
+## 2026-10-03 — Implement the justification check as a reward gate after upstream scoring
+**By:** Hammad + Claude
+**Why:** We want a check that is automatic, rule-based, generalizable to other benchmarks, and
+leaves upstream scoring intact and reproducible. Choices:
+- `reward_basis` is untouched; ACTION is not turned on.
+- A wrapper around the unchanged upstream scorer gates the reward.
+- One JSON spec per domain. Tasks not in it are unchanged.
+- Matching uses the tool name (alternatives allowed) and only the identifying arguments.
+  Failed calls do not count; order is ignored.
+- Justified scoring is the default. `--original-scoring` (an environment variable, inherited by
+  workers) restores upstream.
+- Both scores are always saved.
+- The core logic has no tau2 imports, so other benchmarks can reuse it.
+- The airline spec covers 16 tasks. It excludes the 6 tasks whose refusal needs no data (2, 5, 6,
+  13, 27, 46) and task 38 (depends on the conversation).
+**Affects:** `docs/research/justification-check.md` · `docs/research/findings-log.md` §12 ·
+`code/README.md` · `code/tau2-bench/src/tau2/evaluator/` · `code/tau2-bench/src/tau2/cli.py` ·
+`code/tau2-bench/src/tau2/data_model/simulation.py` ·
+`code/tau2-bench/data/tau2/domains/airline/justification.json`
+**Replaces:** —
