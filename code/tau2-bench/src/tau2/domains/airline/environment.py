@@ -1,12 +1,14 @@
 # Copyright Sierra
+from functools import partial
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from tau2.data_model.tasks import Task
 from tau2.domains.airline.data_model import FlightDB
 from tau2.domains.airline.tools import AirlineTools
 from tau2.domains.airline.utils import (
     AIRLINE_DB_PATH,
+    AIRLINE_POLICY_FLIPS_DIR,
     AIRLINE_POLICY_PATH,
     AIRLINE_TASK_SET_PATH,
     AIRLINE_TWIN_TASK_SET_PATH,
@@ -18,13 +20,15 @@ from tau2.utils import load_file
 def get_environment(
     db: Optional[FlightDB] = None,
     solo_mode: bool = False,
+    policy_path: Path = AIRLINE_POLICY_PATH,
 ) -> Environment:
+    """policy_path selects a policy variant (see get_policy_flip_environments)."""
     if solo_mode:
         raise ValueError("Airline domain does not support solo mode")
     if db is None:
         db = FlightDB.load(AIRLINE_DB_PATH)
     tools = AirlineTools(db)
-    with open(AIRLINE_POLICY_PATH, "r") as fp:
+    with open(policy_path, "r") as fp:
         policy = fp.read()
     return Environment(
         domain_name="airline",
@@ -69,3 +73,17 @@ def get_twin_tasks(task_split_name: Optional[str] = "base") -> list[Task]:
 
 def get_twin_tasks_split() -> dict[str, list[str]]:
     return load_file(AIRLINE_TWIN_TASK_SET_PATH.parent / "split_tasks_twins.json")
+
+
+def get_policy_flip_environments() -> dict[str, Callable[..., Environment]]:
+    """One environment per flipped policy (built by code/twins/generate.py).
+
+    Each has the airline tools and DB and a policy with one sentence changed.
+    Registered as the domain airline_pf_<flip id>.
+    """
+    if not AIRLINE_POLICY_FLIPS_DIR.exists():
+        return {}
+    return {
+        f"airline_pf_{p.stem}": partial(get_environment, policy_path=p)
+        for p in sorted(AIRLINE_POLICY_FLIPS_DIR.glob("*.md"))
+    }

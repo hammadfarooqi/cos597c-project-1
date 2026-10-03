@@ -7,10 +7,10 @@ review_by: 2026-10-31
 summary: >-
   How we generate counterfactual twins for the airline no-action tasks: the policy oracle, the
   per-task specs, the one-field DB search, and the validation with the real tau2 evaluator.
-  Coverage of all 23 tasks, the exclusions, and the plan for policy-based tasks.
+  Coverage of all 23 tasks, the exclusions, and policy-flip twins for policy-based tasks.
 note: >-
-  Extends docs/research/no-action-tasks.md §3 (per-task facts). Only DB-flip twins exist so far.
-  Policy-flip twins are a plan, not built.
+  Extends docs/research/no-action-tasks.md §3 (per-task facts). 11 DB-flip twins and 4
+  policy-flip twins are built (15 of 23 tasks).
 ---
 
 # Counterfactual Twins — Design and Coverage
@@ -18,7 +18,7 @@ note: >-
 **Last updated:** 2026-10-03
 
 Decisions: `docs/decisions/decisions-log.md`, 2026-10-03 (twins; pair scoring rule).
-Evidence: `docs/research/findings-log.md` §8. Code: `code/twins/`.
+Evidence: `docs/research/findings-log.md` §8 (DB flips), §9 (policy flips). Code: `code/twins/`.
 
 ---
 
@@ -45,7 +45,10 @@ Encoded so far:
   business cabin, insured with a covered reason (health or weather).
 - **Cancelled-flight certificate:** silver/gold, or insured, or business; $100 × passengers.
 
-Not encoded: flight changes, cabin changes, baggage, delay certificates.
+- **Delayed-flight certificate:** the same eligibility; a delayed flight; the user wants to
+  change or cancel (a switchable rule, see §6); $50 × passengers.
+
+Not encoded: flight changes, cabin changes, baggage.
 
 ## 3. The pipeline
 
@@ -82,7 +85,7 @@ uv run tau2 run --domain airline --task-set-name airline_twins --task-split-name
 | DB-decided, twin built | 0, 1, 9, 26, 28, 41, 43, 45, 47, 48, 49 | One-field DB flip. 22 valid flips, 11 primary. |
 | DB-decided, excluded | 31, 36 | The write is not unique: several flights fit, and the script names no payment method. |
 | DB-decided, tried and dropped | 4 | See §5. |
-| Policy rule + user intent | 2, 5, 27, 38 | Planned: policy flip (§6). |
+| Policy rule + user intent, twin built | 2, 5, 27, 38 | Policy flip `delay_no_change` (§6). |
 | Policy rule alone | 6, 13, 46 | 6: request flip possible. 13: also blocked by basic economy; write not unique. 46: no tool and no rule. |
 | Policy + price | 10, 34 | No clean twin. 10: the tool cannot change the cabin of one segment. 34: price-driven. |
 
@@ -99,7 +102,7 @@ transfer, so no model could pass. The static checks prove that the write is allo
 the verdicts flip. They cannot prove that the simulated user accepts the correct outcome. A live
 check with one strong model is needed for every new twin type.
 
-## 6. Plan: policy-flip twins
+## 6. Policy-flip twins
 
 For policy-based tasks no DB edit makes the request allowed. The decisive variable is the rule.
 Three kinds of twin change one thing:
@@ -120,11 +123,22 @@ One edit gives 4 twins, each with one correct write that the user accepts:
 | 5 | business reservation 3JA7XV | `send_certificate(mei_brown_7075, 200)` (4 passengers) |
 | 2, 38 | gold member | `send_certificate(noah_muller_9847, 50)` (1 passenger; the user claims 3) |
 
-tau2 gives one policy per domain, so these twins can run under a second registered domain with
-the same tools and DB and the one sentence replaced. Represent each rule as an ID, its exact
-sentence, and a predicate, and flip the text and the predicate together.
+**Built (findings-log §9).** `code/twins/policy_flips.yaml` gives each flip an id, the exact
+sentence, its replacement, and the oracle rule it toggles (`airline_policy.RULES`). The
+generator checks that the sentence occurs once in `policy.md`, writes the flipped policy to
+`code/tau2-bench/data/tau2/domains/airline/policy_flips/<id>.md`, and tau2 registers it as the
+domain `airline_pf_<id>` with the same tools and DB. Each flip has its own split
+(`pf_<id>`) in `split_tasks_twins.json`:
 
-The same idea applies to the DB-decided tasks: a **rule twin** (for example, "basic economy can
+```bash
+uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twins \
+  --task-split-name pf_delay_no_change ... --save-to airline_twins_pf_<model>
+```
+
+All 4 twins were passed by at least one model, so each user goal is reachable. First result:
+sonnet passes all 11 DB twins but only 2 of 4 policy twins; llama passes none.
+
+**Next:** the same idea applies to the DB-decided tasks: a **rule twin** (for example, "basic economy can
 be cancelled within 14 days") next to the **fact twin**. Each task then has a 2×2 design, and a
 failure can be attributed to the rule or to the fact.
 

@@ -106,3 +106,37 @@
   reason: health  # sick
   locked: []
   prefer: insured_and_covered  # makes the user's "I have insurance" claim true
+
+# ---- Policy-flip twins (policy_flips.yaml) ----
+# family "delay_certificate": the user complains about a delay and does not
+# want to change or cancel, so policy.md forbids the $50 certificate. The flip
+# removes that condition. The DB and the user script stay the same.
+#   user_id, target: the user and the reservation with the delayed flight.
+
+"2":
+  family: delay_certificate
+  flip: delay_no_change
+  user_id: noah_muller_9847  # gold
+  target: 4OG6T3  # HAT018 delayed; 1 passenger (the user claims 3)
+  wants_change_or_cancel: false
+
+"5":
+  family: delay_certificate
+  flip: delay_no_change
+  user_id: mei_brown_7075  # regular (claims gold); eligible via business cabin
+  target: 3JA7XV  # HAT045 delayed; 4 passengers
+  wants_change_or_cancel: false
+
+"27":
+  family: delay_certificate
+  flip: delay_no_change
+  user_id: ethan_martin_2396  # silver
+  target: M61CQM  # HAT039 delayed; 3 passengers
+  wants_change_or_cancel: false
+
+"38":
+  family: delay_certificate
+  flip: delay_no_change
+  user_id: noah_muller_9847  # gold
+  target: 4OG6T3  # HAT018 delayed; 1 passenger (the user claims 3)
+  wants_change_or_cancel: false

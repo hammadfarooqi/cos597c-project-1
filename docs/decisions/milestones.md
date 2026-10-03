@@ -66,8 +66,9 @@ The next thing each person is doing. Keep this short.
 | M1.13 | Scripted blanket-refuser agent (reads everything, refuses everything) as a test agent | ? | TBD | todo | charter §4 |
 | M1.14 | Re-score the 4 released upstream airline runs with `--fresh-tasks` before any use | Hammad + Claude | — | done | `docs/research/findings-log.md` §4 (outputs not committed, ~36 MB; command given) |
 | M1.15 | Twin generator: policy oracle, specs, one-field search, validation with the evaluator, `airline_twins` task set | Vatsal + Claude | — | done | `code/twins/` · `docs/research/counterfactual-twins.md` |
-| M1.16 | Policy-flip twins for the delay-compensation clause (tasks 2, 5, 27, 38) | Vatsal | TBD | todo | plan: `docs/research/counterfactual-twins.md` §6 |
+| M1.16 | Policy-flip twins for the delay-compensation clause (tasks 2, 5, 27, 38) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §9 · `code/twins/policy_flips.yaml` |
 | M1.17 | Re-run no-action tasks and twins with 4 trials; paired scores per trial | ? | TBD | todo | single-trial noise: findings-log §7, §8 |
+| M1.18 | More policy flips: rule twins for the DB-decided tasks (2×2 fact/rule design); request flip for task 6 | ? | TBD | todo | `docs/research/counterfactual-twins.md` §6 |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -94,3 +95,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-03 — Hammad + Claude — M1.1, M1.2, M1.14 done; M1.4 note; added M1.9–M1.13 (mandatory reads and twins).
 - 2026-10-03 — Vatsal + Claude — added M0.7 (done); M0.5 in progress (runs committed, hand grades missing).
 - 2026-10-03 — Vatsal + Claude — M1.11, M1.12 done (with exclusions); M1.3 in progress; added M1.15 (done), M1.16, M1.17.
+- 2026-10-03 — Vatsal + Claude — M1.16 done; added M1.18.

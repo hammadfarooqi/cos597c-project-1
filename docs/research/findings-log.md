@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-03 (§1–§8)
+**Last updated:** 2026-10-03 (§1–§9)
 
 ---
 
@@ -244,3 +244,54 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
 - **Meaning:** twins separate a justified refusal from a blanket refusal with outcome-only
   scoring and no LLM judge. The no-action score alone ranks llama level with sonnet on these
   tasks; the paired score ranks it last. 12 of the 23 tasks still have no twin.
+
+## 9. Policy-flip twins for tasks 2, 5, 27, 38; combined paired scores (2026-10-03)
+**By:** Vatsal + Claude
+
+- **Design:** `docs/research/counterfactual-twins.md` §6. **Flip:** `code/twins/policy_flips.yaml`,
+  id `delay_no_change`. One sentence of `policy.md` changes: a delay certificate no longer
+  needs the user to change or cancel. The flipped policy differs from `policy.md` in that one
+  line (`diff` checked). The DB and the user scripts do not change.
+- **Twins:** `2_twin_pf_delay_no_change`, `5_…`, `27_…`, `38_…` in `tasks_twins.json`, split
+  `pf_delay_no_change`. Correct writes: `send_certificate` for $50 (2, 38: noah_muller,
+  1 passenger), $200 (5: mei_brown, 4 passengers, eligible by business cabin), $150 (27:
+  ethan_martin, silver, 3 passengers). All pass the static checks.
+- **Runs:** `code/tau2-bench/data/simulations/airline_twins_pf_<model>/results.json`. Same config
+  as §7, plus `--domain airline_pf_delay_no_change --task-set-name airline_twins
+  --task-split-name pf_delay_no_change`. The saved `environment_info.policy` holds the flipped
+  sentence. Cost $1.96.
+- **Validity:** each twin is passed by at least one model (27: sonnet; 38: sonnet, gpt-4.1,
+  mini; 2: mini, nano; 5: mini), so each user goal is reachable (compare task 4, §8). The
+  failures read so far are agent errors: gpt-4.1 sends $50 instead of $200 on 5; sonnet does
+  not read reservation 3JA7XV on 5 and transfers; nano sends two certificates; llama sends
+  $500 + $100. Twin 2 is noisier: the scripts of 2 and 38 point the user to "the last
+  reservation", but the delay is in 4OG6T3, not the newest booking SDZQKO.
+- **Result, policy twins only (4):**
+
+  | Model | No-op passes | Twin passes | **Paired** |
+  |---|---|---|---|
+  | claude-sonnet-4.5 | 4 | 2 | **2** |
+  | gpt-4.1-mini | 1 | 3 | **1** |
+  | gpt-4.1 | 2 | 1 | **0** |
+  | llama-3.3-70b | 4 | 0 | **0** |
+  | gpt-4.1-nano | 0 | 1 | **0** |
+
+- **Result, all 15 twins** (11 DB + 4 policy; `uv run python ../twins/score_pairs.py <models>`):
+
+  | Model | No-op passes | Twin passes | **Paired** | No-op only | Twin only | Full score → paired |
+  |---|---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 12 | 13 | **10** | 2 | 3 | 37 → **35** |
+  | gpt-4.1 | 8 | 10 | **5** | 3 | 5 | 30 → **27** |
+  | gpt-4.1-mini | 7 | 10 | **6** | 1 | 4 | 20 → **19** |
+  | llama-3.3-70b | 12 | 2 | **0** | 12 | 2 | 19 → **7** |
+  | gpt-4.1-nano | 0 | 8 | **0** | 0 | 8 | 3 → **3** |
+
+  "Full score → paired": the 50-task score with the 15 no-action verdicts replaced by the paired
+  verdicts. The other 35 tasks are unchanged.
+- **Meaning:** llama loses 12 points; the other models lose 0–3. Before, llama was 1 point
+  behind mini; now it is 12 behind. Sonnet passes all 11 DB twins but only 2 of 4 policy twins:
+  refusals that depend on a rule look less often reasoned than refusals that depend on a fact.
+  gpt-4.1 and mini transfer on task 27 although the flipped policy allows the certificate.
+  With 4 twins and 1 trial this is a signal, not a result.
+- **Coverage:** 15 of the 23 no-action tasks have a twin. Not covered: 4, 31, 36 (DB, excluded),
+  6, 13, 46 (policy, no usable flip), 10, 34 (price).

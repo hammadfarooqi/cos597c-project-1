@@ -1,7 +1,9 @@
 """Generate counterfactual twins for airline no-action tasks.
 
-A twin is a copy of a no-action task in which one database field flips, so
-that the write the user pushes for becomes allowed. The user script stays the
+A twin is a copy of a no-action task in which one thing flips, so that the
+write the user pushes for becomes allowed. The thing is either a database
+field (DB-flip twin) or one sentence of the policy (policy-flip twin, see
+policy_flips.yaml; it runs under the domain airline_pf_<flip id>). The user script stays the
 same. An agent that refused the original for the right reason should make
 the write in the twin. An agent that refuses no matter what fails the twin.
 
@@ -11,6 +13,8 @@ Pipeline, per spec in specs/airline.yaml:
   3. Check that the oracle now allows that target.
   4. Build the twin task: same user script, the patch in
      initial_state.initialization_data, and the write added to the gold actions.
+  Policy-flip twins replace steps 2-3: the policy sentence and the matching
+  oracle rule flip together, and the DB stays the same.
   5. Validate with the real tau2 evaluator on synthetic trajectories:
        null trajectory     -> original 1, twin 0
        comply trajectory   -> original 0, twin 1   (reads + the write)
@@ -33,20 +37,27 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent))
 from airline_policy import (  # noqa: E402
     CANCEL_ENABLING_EDITS,
+    RULES,
     can_cancel,
     cancel_conditions,
     cancelled_flight_certificate,
+    delayed_flight_certificate,
 )
 
 from tau2.data_model.message import AssistantMessage, ToolCall  # noqa: E402
 from tau2.data_model.tasks import InitializationData, Task  # noqa: E402
 from tau2.domains.airline.environment import get_environment  # noqa: E402
-from tau2.domains.airline.utils import AIRLINE_DATA_DIR  # noqa: E402
+from tau2.domains.airline.utils import (  # noqa: E402
+    AIRLINE_DATA_DIR,
+    AIRLINE_POLICY_FLIPS_DIR,
+    AIRLINE_POLICY_PATH,
+)
 from tau2.evaluator.evaluator_env import EnvironmentEvaluator  # noqa: E402
 from tau2.utils import load_file  # noqa: E402
 
 HERE = Path(__file__).parent
 SPECS = HERE / "specs" / "airline.yaml"
+FLIPS = HERE / "policy_flips.yaml"
 OUT = AIRLINE_DATA_DIR / "tasks_twins.json"
 READ_TOOLS = {
     "get_user_details",
@@ -108,7 +119,9 @@ def patch_leaves(patch: dict, path=()) -> list[tuple]:
     return [path]
 
 
-def make_twin(task: dict, name: str, patch: dict, write: dict, why: str) -> dict:
+def make_twin(
+    task: dict, name: str, patch: dict, write: dict, why: str, domain: str
+) -> dict:
     tid = task["id"]
     twin = deepcopy(task)
     twin["id"] = f"{tid}_twin_{name}"
@@ -118,13 +131,18 @@ def make_twin(task: dict, name: str, patch: dict, write: dict, why: str) -> dict
             f"Counterfactual twin of airline task {tid}. {why} Correct outcome: {call}."
         ),
         "relevant_policies": None,
-        "notes": f"Original purpose: {task['description']['purpose']}",
+        "notes": f"Run with --domain {domain}. "
+        f"Original purpose: {task['description']['purpose']}",
     }
-    twin["initial_state"] = {
-        "initialization_data": {"agent_data": patch, "user_data": None},
-        "initialization_actions": None,
-        "message_history": None,
-    }
+    twin["initial_state"] = (
+        {
+            "initialization_data": {"agent_data": patch, "user_data": None},
+            "initialization_actions": None,
+            "message_history": None,
+        }
+        if patch
+        else None
+    )
     ec = twin["evaluation_criteria"]
     n = len(ec["actions"] or [])
     ec["actions"] = (ec["actions"] or []) + [
@@ -187,7 +205,7 @@ def cancel_candidates(base_db, tid, spec, report):
                 continue
             write = {"name": "cancel_reservation", "arguments": {"reservation_id": rid}}
             why = f"{rid}.{field} is set to {value!r}, so the cancellation is allowed."
-            yield row, cond, patch, write, why
+            yield row, cond, patch, write, why, "airline"
 
 
 def compensation_candidates(base_db, tid, spec, report):
@@ -206,22 +224,61 @@ def compensation_candidates(base_db, tid, spec, report):
         "name": "send_certificate",
         "arguments": {"user_id": uid, "amount": amount},
     }
-    yield row, spec["name"], patch, write, spec["why"]
+    yield row, spec["name"], patch, write, spec["why"], "airline"
 
 
-FAMILIES = {"cancel": cancel_candidates, "compensation": compensation_candidates}
+def load_flips() -> dict:
+    """Policy flips, each checked against policy.md."""
+    policy = AIRLINE_POLICY_PATH.read_text()
+    flips = yaml.safe_load(FLIPS.read_text())
+    for fid, f in flips.items():
+        n = policy.count(f["original"])
+        assert n == 1, f"flip {fid}: original sentence found {n} times in policy.md"
+        assert f["rule"] in RULES, f"flip {fid}: unknown oracle rule {f['rule']}"
+        f["policy"] = policy.replace(f["original"], f["replacement"])
+        f["rules"] = RULES | {f["rule"]: f["value"]}
+    return flips
 
 
-def build(specs: dict, tasks: dict) -> tuple[list[dict], list[dict]]:
+def delay_certificate_candidates(base_db, tid, spec, report, flips):
+    """Policy flip that makes a blocked delay certificate allowed."""
+    uid, rid, flip = spec["user_id"], spec["target"], flips[spec["flip"]]
+    wants = spec["wants_change_or_cancel"]
+    assert delayed_flight_certificate(base_db, uid, rid, wants) is None, (
+        f"task {tid}: oracle already allows a certificate; spec is wrong"
+    )
+    amount = delayed_flight_certificate(base_db, uid, rid, wants, flip["rules"])
+    row = {"task": tid, "target": rid, "flip": f"pf_{spec['flip']}"}
+    if amount is None:
+        report.append({**row, "status": "oracle still blocks"})
+        return
+    write = {
+        "name": "send_certificate",
+        "arguments": {"user_id": uid, "amount": amount},
+    }
+    why = f"Policy flip {spec['flip']!r}: {flip['replacement']}"
+    yield row, f"pf_{spec['flip']}", {}, write, why, f"airline_pf_{spec['flip']}"
+
+
+FAMILIES = {
+    "cancel": cancel_candidates,
+    "compensation": compensation_candidates,
+    "delay_certificate": delay_certificate_candidates,
+}
+
+
+def build(specs: dict, tasks: dict, flips: dict) -> tuple[list[dict], list[dict]]:
     base_db = db_dump(env_with(None))
     twins, report = [], []
     for tid, spec in specs.items():
         if spec["family"] not in FAMILIES:
             report.append({"task": tid, "status": "skipped: family not supported"})
             continue
-        gen = FAMILIES[spec["family"]](base_db, tid, spec, report)
-        for row, name, patch, write, why in gen:
-            twin = make_twin(tasks[tid], name, patch, write, why)
+        family = FAMILIES[spec["family"]]
+        args = (base_db, tid, spec, report)
+        gen = family(*args, flips) if "flip" in spec else family(*args)
+        for row, name, patch, write, why, domain in gen:
+            twin = make_twin(tasks[tid], name, patch, write, why, domain)
             ok, checks = validate(base_db, tasks[tid], twin, patch, write)
             primary = name == spec.get("prefer", name)
             report.append(
@@ -229,7 +286,7 @@ def build(specs: dict, tasks: dict) -> tuple[list[dict], list[dict]]:
                 | checks
             )
             if ok:
-                twins.append(twin | {"_primary": primary})
+                twins.append(twin | {"_primary": primary, "_domain": domain})
     return twins, report
 
 
@@ -239,7 +296,8 @@ def main():
     args = ap.parse_args()
     specs = yaml.safe_load(SPECS.read_text())
     tasks = {t["id"]: t for t in load_file(AIRLINE_DATA_DIR / "tasks.json")}
-    twins, report = build(specs, tasks)
+    flips = load_flips()
+    twins, report = build(specs, tasks, flips)
 
     print(f"{'task':>4} {'target':7} {'flip':20} {'status':18} primary  checks")
     for r in report:
@@ -259,16 +317,27 @@ def main():
     print(f"\n{len(twins)} valid twins ({n_primary} primary) from {len(specs)} specs")
 
     if not args.dry_run:
-        out = [{k: v for k, v in t.items() if k != "_primary"} for t in twins]
+        out = [{k: v for k, v in t.items() if not k.startswith("_")} for t in twins]
         OUT.write_text(json.dumps(out, indent=4) + "\n")
+        # "primary" stays DB-flip only: it runs under --domain airline. Each
+        # policy flip gets its own split, run under its own domain.
         split = {
             "base": [t["id"] for t in twins],
-            "primary": [t["id"] for t in twins if t["_primary"]],
+            "primary": [
+                t["id"] for t in twins if t["_primary"] and t["_domain"] == "airline"
+            ],
         }
+        for fid in flips:
+            split[f"pf_{fid}"] = [
+                t["id"] for t in twins if t["_domain"] == f"airline_pf_{fid}"
+            ]
         OUT.with_name("split_tasks_twins.json").write_text(
             json.dumps(split, indent=4) + "\n"
         )
-        print(f"wrote {OUT} and split_tasks_twins.json")
+        AIRLINE_POLICY_FLIPS_DIR.mkdir(exist_ok=True)
+        for fid, f in flips.items():
+            (AIRLINE_POLICY_FLIPS_DIR / f"{fid}.md").write_text(f["policy"])
+        print(f"wrote {OUT}, split_tasks_twins.json, and {len(flips)} flipped policies")
 
 
 if __name__ == "__main__":

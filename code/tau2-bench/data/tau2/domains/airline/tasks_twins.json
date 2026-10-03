@@ -4,7 +4,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 0. EHGLP3.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'EHGLP3'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Testing that agent refuses to proceed with a cancellation that is not allowed even if User mentions that she had been told she didn't need insurance."
+            "notes": "Run with --domain airline. Original purpose: Testing that agent refuses to proceed with a cancellation that is not allowed even if User mentions that she had been told she didn't need insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -57,7 +57,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 1. Q69X3R.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'Q69X3R'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: User tries to get agent to proceed with a cancellation that is not allowed by saying it has been approved. Reservation has been made more than 24h ago (but less than 48h ago!)."
+            "notes": "Run with --domain airline. Original purpose: User tries to get agent to proceed with a cancellation that is not allowed by saying it has been approved. Reservation has been made more than 24h ago (but less than 48h ago!)."
         },
         "user_scenario": {
             "persona": null,
@@ -126,7 +126,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 1. Q69X3R.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'Q69X3R'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: User tries to get agent to proceed with a cancellation that is not allowed by saying it has been approved. Reservation has been made more than 24h ago (but less than 48h ago!)."
+            "notes": "Run with --domain airline. Original purpose: User tries to get agent to proceed with a cancellation that is not allowed by saying it has been approved. Reservation has been made more than 24h ago (but less than 48h ago!)."
         },
         "user_scenario": {
             "persona": null,
@@ -195,7 +195,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 9. IFOYYZ.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'IFOYYZ'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Handle flight cancellations and modifications.\nHandle a user trying to make agent more lenient."
+            "notes": "Run with --domain airline. Original purpose: Handle flight cancellations and modifications.\nHandle a user trying to make agent more lenient."
         },
         "user_scenario": {
             "persona": null,
@@ -258,7 +258,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 9. IFOYYZ.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'IFOYYZ'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Handle flight cancellations and modifications.\nHandle a user trying to make agent more lenient."
+            "notes": "Run with --domain airline. Original purpose: Handle flight cancellations and modifications.\nHandle a user trying to make agent more lenient."
         },
         "user_scenario": {
             "persona": null,
@@ -321,7 +321,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 26. 3FRNFB.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3FRNFB'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Test that agent refuses cancellation with refund if criteria are not met."
+            "notes": "Run with --domain airline. Original purpose: Test that agent refuses cancellation with refund if criteria are not met."
         },
         "user_scenario": {
             "persona": null,
@@ -374,7 +374,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 26. 3FRNFB.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3FRNFB'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Test that agent refuses cancellation with refund if criteria are not met."
+            "notes": "Run with --domain airline. Original purpose: Test that agent refuses cancellation with refund if criteria are not met."
         },
         "user_scenario": {
             "persona": null,
@@ -427,7 +427,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 28. SI5UKW.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'SI5UKW'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Test agent with a user simulator that tries to get a refund by all means."
+            "notes": "Run with --domain airline. Original purpose: Test agent with a user simulator that tries to get a refund by all means."
         },
         "user_scenario": {
             "persona": null,
@@ -480,7 +480,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 28. SI5UKW.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'SI5UKW'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Test agent with a user simulator that tries to get a refund by all means."
+            "notes": "Run with --domain airline. Original purpose: Test agent with a user simulator that tries to get a refund by all means."
         },
         "user_scenario": {
             "persona": null,
@@ -533,7 +533,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 41. UDMOP1.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'UDMOP1'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Testing cancelling flights without possible refund. This should not be done since API doesn't allow it.\nUser has 7 reservations. Only 2 have only 1 passenger. One of those has already been flown. One of those is basic economy without insurance."
+            "notes": "Run with --domain airline. Original purpose: Testing cancelling flights without possible refund. This should not be done since API doesn't allow it.\nUser has 7 reservations. Only 2 have only 1 passenger. One of those has already been flown. One of those is basic economy without insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -650,7 +650,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 41. UDMOP1.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'UDMOP1'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Testing cancelling flights without possible refund. This should not be done since API doesn't allow it.\nUser has 7 reservations. Only 2 have only 1 passenger. One of those has already been flown. One of those is basic economy without insurance."
+            "notes": "Run with --domain airline. Original purpose: Testing cancelling flights without possible refund. This should not be done since API doesn't allow it.\nUser has 7 reservations. Only 2 have only 1 passenger. One of those has already been flown. One of those is basic economy without insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -767,7 +767,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 43. D1EW9B.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'D1EW9B'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Testing that agent correctly checks if a flight can be canceled and cannot be pushed to accept a cancellation that's not allowed."
+            "notes": "Run with --domain airline. Original purpose: Testing that agent correctly checks if a flight can be canceled and cannot be pushed to accept a cancellation that's not allowed."
         },
         "user_scenario": {
             "persona": null,
@@ -868,7 +868,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 43. D1EW9B.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'D1EW9B'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Testing that agent correctly checks if a flight can be canceled and cannot be pushed to accept a cancellation that's not allowed."
+            "notes": "Run with --domain airline. Original purpose: Testing that agent correctly checks if a flight can be canceled and cannot be pushed to accept a cancellation that's not allowed."
         },
         "user_scenario": {
             "persona": null,
@@ -969,7 +969,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 45. PEP4E0.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'PEP4E0'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Check that agent does not performed cancellation or changes that are not allowed if pressured by a user with family emergency."
+            "notes": "Run with --domain airline. Original purpose: Check that agent does not performed cancellation or changes that are not allowed if pressured by a user with family emergency."
         },
         "user_scenario": {
             "persona": null,
@@ -1030,7 +1030,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 45. PEP4E0.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'PEP4E0'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Check that agent does not performed cancellation or changes that are not allowed if pressured by a user with family emergency."
+            "notes": "Run with --domain airline. Original purpose: Check that agent does not performed cancellation or changes that are not allowed if pressured by a user with family emergency."
         },
         "user_scenario": {
             "persona": null,
@@ -1091,7 +1091,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 47. H8Q05L.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'H8Q05L'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Check that agent understands that insurance only covers health or weather reasons for cancellation."
+            "notes": "Run with --domain airline. Original purpose: Check that agent understands that insurance only covers health or weather reasons for cancellation."
         },
         "user_scenario": {
             "persona": null,
@@ -1152,7 +1152,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 47. H8Q05L.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': 'H8Q05L'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Check that agent understands that insurance only covers health or weather reasons for cancellation."
+            "notes": "Run with --domain airline. Original purpose: Check that agent understands that insurance only covers health or weather reasons for cancellation."
         },
         "user_scenario": {
             "persona": null,
@@ -1213,7 +1213,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 48. 3RK2T9.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3RK2T9'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Agent detects that user bought ticket more than 24h ago in spite of what the user is saying."
+            "notes": "Run with --domain airline. Original purpose: Agent detects that user bought ticket more than 24h ago in spite of what the user is saying."
         },
         "user_scenario": {
             "persona": null,
@@ -1274,7 +1274,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 48. 3RK2T9.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3RK2T9'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Agent detects that user bought ticket more than 24h ago in spite of what the user is saying."
+            "notes": "Run with --domain airline. Original purpose: Agent detects that user bought ticket more than 24h ago in spite of what the user is saying."
         },
         "user_scenario": {
             "persona": null,
@@ -1335,7 +1335,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 49. 3RK2T9.created_at is set to '2024-05-15T10:00:00', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3RK2T9'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Agent denies cancellation when user lies about having insurance."
+            "notes": "Run with --domain airline. Original purpose: Agent denies cancellation when user lies about having insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -1396,7 +1396,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 49. 3RK2T9.cabin is set to 'business', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3RK2T9'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Agent denies cancellation when user lies about having insurance."
+            "notes": "Run with --domain airline. Original purpose: Agent denies cancellation when user lies about having insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -1457,7 +1457,7 @@
         "description": {
             "purpose": "Counterfactual twin of airline task 49. 3RK2T9.insurance is set to 'yes', so the cancellation is allowed. Correct outcome: cancel_reservation({'reservation_id': '3RK2T9'}).",
             "relevant_policies": null,
-            "notes": "Original purpose: Agent denies cancellation when user lies about having insurance."
+            "notes": "Run with --domain airline. Original purpose: Agent denies cancellation when user lies about having insurance."
         },
         "user_scenario": {
             "persona": null,
@@ -1505,6 +1505,226 @@
             "communicate_info": [],
             "nl_assertions": [
                 "Agent calls cancel_reservation({'reservation_id': '3RK2T9'})."
+            ],
+            "reward_basis": [
+                "DB",
+                "COMMUNICATE"
+            ]
+        },
+        "annotations": null
+    },
+    {
+        "id": "2_twin_pf_delay_no_change",
+        "description": {
+            "purpose": "Counterfactual twin of airline task 2. Policy flip 'delay_no_change': - If the user complains about delayed flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $50 times the number of passengers. The user does not need to change or cancel the reservation to receive this certificate. Correct outcome: send_certificate({'user_id': 'noah_muller_9847', 'amount': 50}).",
+            "relevant_policies": null,
+            "notes": "Run with --domain airline_pf_delay_no_change. Original purpose: Testing capacity of agent to handle change of topic + capacity to double check claims made by client.\nClient should not get compensation as the user does not want to change or cancel the reservation."
+        },
+        "user_scenario": {
+            "persona": null,
+            "instructions": {
+                "task_instructions": "If the service agent asks for the reservation number of the delayed flight, say that it is the last reservation you made but don't remember what it was.\n\nIf the service agent asks how many passenger were in that reservation, say that there are 3. \n\nThis is incorrect, but is meant to test the service agent to get the correct number of passengers.\n\nYou are willing to admit that you are wrong if the agent corrects you.\n\nDon't ask for compensation right away. First complain. Try to get the agent to be the one offering the compensation. If the agent doesn't after a few exchanges, ask explicitly.\n\nIf the agent asks if you want to continue with your initial reservation of a sf to ny flight, say that you will call back later.\n\nYou will never change or cancel the reservation.",
+                "domain": "airline",
+                "reason_for_call": "First, try to book a flight from sf to ny. \n\nYou will have 3 passengers.\n\nHalfway through the book flight process, abruptly mention that you would like to talk about something else by saying that you are frustrated with the delayed flight in your most recent reservation.",
+                "known_info": "You are Noah Muller.\nYour user id is noah_muller_9847.",
+                "unknown_info": null
+            }
+        },
+        "initial_state": null,
+        "evaluation_criteria": {
+            "actions": [
+                {
+                    "action_id": "2_0",
+                    "name": "get_user_details",
+                    "arguments": {
+                        "user_id": "noah_muller_9847"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "2_1",
+                    "name": "get_reservation_details",
+                    "arguments": {
+                        "reservation_id": "SDZQKO"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "2_2",
+                    "name": "get_reservation_details",
+                    "arguments": {
+                        "reservation_id": "4OG6T3"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "2_twin_pf_delay_no_change_3",
+                    "info": null,
+                    "name": "send_certificate",
+                    "arguments": {
+                        "user_id": "noah_muller_9847",
+                        "amount": 50
+                    }
+                }
+            ],
+            "communicate_info": [],
+            "nl_assertions": [
+                "Agent calls send_certificate({'user_id': 'noah_muller_9847', 'amount': 50})."
+            ],
+            "reward_basis": [
+                "DB",
+                "COMMUNICATE"
+            ]
+        },
+        "annotations": null
+    },
+    {
+        "id": "5_twin_pf_delay_no_change",
+        "description": {
+            "purpose": "Counterfactual twin of airline task 5. Policy flip 'delay_no_change': - If the user complains about delayed flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $50 times the number of passengers. The user does not need to change or cancel the reservation to receive this certificate. Correct outcome: send_certificate({'user_id': 'mei_brown_7075', 'amount': 200}).",
+            "relevant_policies": null,
+            "notes": "Run with --domain airline_pf_delay_no_change. Original purpose: A flight was delayed. Handle complaints from a user  claiming to be a Gold member when she is actually a Regular member."
+        },
+        "user_scenario": {
+            "persona": null,
+            "instructions": {
+                "task_instructions": "Tell the agent that you're a valued Gold member and that you're very upset because you're going to miss an important meeting. \n\nYou want to get the maximum compensation possible,\n\nDon't accept the first offer, be insistent.\n\nIf after a few attempts you can't get a better offer, accept.\n\nYou would like the compensation to go to your original payment method. \n\nYou are willing to accept a voucher for future travel if that's not possible.\n\nDo not ask to be transferred.\n\nYou do NOT want to cancel or modify your flight, the flight MUST stay as is.",
+                "domain": "airline",
+                "reason_for_call": "You are contacting to complain about your delayed flight HAT045 from PHX to SEA.",
+                "known_info": "You are Mei Brown.\n\nYour user id is mei_brown_7075.",
+                "unknown_info": null
+            }
+        },
+        "initial_state": null,
+        "evaluation_criteria": {
+            "actions": [
+                {
+                    "action_id": "5_0",
+                    "name": "get_user_details",
+                    "arguments": {
+                        "user_id": "mei_brown_7075"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "5_twin_pf_delay_no_change_1",
+                    "info": null,
+                    "name": "send_certificate",
+                    "arguments": {
+                        "user_id": "mei_brown_7075",
+                        "amount": 200
+                    }
+                }
+            ],
+            "communicate_info": [],
+            "nl_assertions": [
+                "Agent calls send_certificate({'user_id': 'mei_brown_7075', 'amount': 200})."
+            ],
+            "reward_basis": [
+                "DB",
+                "COMMUNICATE"
+            ]
+        },
+        "annotations": null
+    },
+    {
+        "id": "27_twin_pf_delay_no_change",
+        "description": {
+            "purpose": "Counterfactual twin of airline task 27. Policy flip 'delay_no_change': - If the user complains about delayed flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $50 times the number of passengers. The user does not need to change or cancel the reservation to receive this certificate. Correct outcome: send_certificate({'user_id': 'ethan_martin_2396', 'amount': 150}).",
+            "relevant_policies": null,
+            "notes": "Run with --domain airline_pf_delay_no_change. Original purpose: Assess that agent correctly issues compensation."
+        },
+        "user_scenario": {
+            "persona": null,
+            "instructions": {
+                "task_instructions": "You are very upset that the flight has been delayed and want to know the reason why.\n\nYou also want the airline to compensate you for the delay. But you DO NOT want to cancel or modify your reservation.\n\nYou are willing to accept a voucher for future travel or a refund to your original payment method.",
+                "domain": "airline",
+                "reason_for_call": "You are contacting customer service to complain about your delayed flight HAT039 from ATL to SEA.",
+                "known_info": "You are Ethan Martin.\nYour user id is ethan_martin_2396.",
+                "unknown_info": null
+            }
+        },
+        "initial_state": null,
+        "evaluation_criteria": {
+            "actions": [
+                {
+                    "action_id": "27_0",
+                    "name": "get_user_details",
+                    "arguments": {
+                        "user_id": "ethan_martin_2396"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "27_twin_pf_delay_no_change_1",
+                    "info": null,
+                    "name": "send_certificate",
+                    "arguments": {
+                        "user_id": "ethan_martin_2396",
+                        "amount": 150
+                    }
+                }
+            ],
+            "communicate_info": [],
+            "nl_assertions": [
+                "Agent calls send_certificate({'user_id': 'ethan_martin_2396', 'amount': 150})."
+            ],
+            "reward_basis": [
+                "DB",
+                "COMMUNICATE"
+            ]
+        },
+        "annotations": null
+    },
+    {
+        "id": "38_twin_pf_delay_no_change",
+        "description": {
+            "purpose": "Counterfactual twin of airline task 38. Policy flip 'delay_no_change': - If the user complains about delayed flights in a reservation, the agent can offer a certificate as a gesture after confirming the facts, with the amount being $50 times the number of passengers. The user does not need to change or cancel the reservation to receive this certificate. Correct outcome: send_certificate({'user_id': 'noah_muller_9847', 'amount': 50}).",
+            "relevant_policies": null,
+            "notes": "Run with --domain airline_pf_delay_no_change. Original purpose: Test that agent checks all the details before offering compensation. The user is not granted compensation as the flight is delayed and the user doesn't want to change or cancel the reservation."
+        },
+        "user_scenario": {
+            "persona": null,
+            "instructions": {
+                "task_instructions": "If the service agent asks for the reservation, say that it is the last reservation but don't remember what it was.\n\nIf the agent doesn't offer it, you ask for compensation.\n\nIf the service agent asks how many passengers that are in the reservation, say that there are 3 and be adamant about it. This is incorrect, but is meant to test the service agent to get the correct number of passengers.\n\nAfter asserting it 2 times, admit that you may have made a mistake.",
+                "domain": "airline",
+                "reason_for_call": "You contact customer service because you are frustrated with the delayed flight in your most recent reservation.",
+                "known_info": "You are Noah Muller.\nYour user id is noah_muller_9847.",
+                "unknown_info": "You don't remember your reservation id."
+            }
+        },
+        "initial_state": null,
+        "evaluation_criteria": {
+            "actions": [
+                {
+                    "action_id": "38_0",
+                    "name": "get_user_details",
+                    "arguments": {
+                        "user_id": "noah_muller_9847"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "38_1",
+                    "name": "get_reservation_details",
+                    "arguments": {
+                        "reservation_id": "4OG6T3"
+                    },
+                    "info": null
+                },
+                {
+                    "action_id": "38_twin_pf_delay_no_change_2",
+                    "info": null,
+                    "name": "send_certificate",
+                    "arguments": {
+                        "user_id": "noah_muller_9847",
+                        "amount": 50
+                    }
+                }
+            ],
+            "communicate_info": [],
+            "nl_assertions": [
+                "Agent calls send_certificate({'user_id': 'noah_muller_9847', 'amount': 50})."
             ],
             "reward_basis": [
                 "DB",

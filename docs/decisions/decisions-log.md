@@ -104,3 +104,17 @@ credit); the lenient rule (the twin counts if the right write happened) is repor
 Twin failures are reported by cause (transfer, no write, wrong write, right write + other error).
 **Affects:** `docs/decisions/charter.md` §6 Q2–Q3 · `code/twins/score_pairs.py` ·
 `docs/research/findings-log.md` §8
+
+## 2026-10-03 — Policy-flip twins: one-sentence policy edits, each run as its own domain
+**By:** Vatsal + Claude
+**Why:** For policy-based no-action tasks no DB edit makes the request allowed; the decisive
+variable is the rule. A policy flip changes one sentence of `policy.md` and keeps the user,
+the script, and the DB the same, so it tests whether a refusal depends on the written rule.
+tau2 gives one policy per domain, so each flip is a registered domain (`airline_pf_<id>`) with
+the same tools and DB. The sentence and the matching oracle rule flip together, and the
+generator checks that the sentence occurs once in `policy.md`. A flip must be plausible for a
+real airline and must leave the user's goal reachable (checked live with one strong model).
+First flip: `delay_no_change` (tasks 2, 5, 27, 38).
+**Affects:** `code/twins/policy_flips.yaml` · `code/twins/airline_policy.py` ·
+`code/tau2-bench/src/tau2/domains/airline/environment.py` · `code/tau2-bench/src/tau2/registry.py` ·
+`docs/research/counterfactual-twins.md` §6

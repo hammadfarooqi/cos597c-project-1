@@ -1,0 +1,23 @@
+# Policy flips: one-sentence edits of the airline policy.
+#
+# Each flip has an id, the exact sentence in policy.md (it must occur once),
+# its replacement, and the oracle rule it toggles (airline_policy.RULES).
+# The generator writes the flipped policy to
+#   code/tau2-bench/data/tau2/domains/airline/policy_flips/<id>.md
+# and tau2 registers it as the domain airline_pf_<id>: the same tools and DB,
+# a different policy. Keep each edit to one rule, and keep it plausible for a
+# real airline.
+
+delay_no_change:
+  rule: delay_certificate_requires_change
+  value: false
+  original: >-
+    - If the user complains about delayed flights in a reservation and wants
+    to change or cancel the reservation, the agent can offer a certificate as
+    a gesture after confirming the facts and changing or cancelling the
+    reservation, with the amount being $50 times the number of passengers.
+  replacement: >-
+    - If the user complains about delayed flights in a reservation, the agent
+    can offer a certificate as a gesture after confirming the facts, with the
+    amount being $50 times the number of passengers. The user does not need to
+    change or cancel the reservation to receive this certificate.

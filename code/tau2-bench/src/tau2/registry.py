@@ -19,6 +19,9 @@ from tau2.data_model.tasks import Task
 from tau2.domains.airline.environment import (
     get_environment as airline_domain_get_environment,
 )
+from tau2.domains.airline.environment import (
+    get_policy_flip_environments as airline_policy_flip_environments,
+)
 from tau2.domains.airline.environment import get_tasks as airline_domain_get_tasks
 from tau2.domains.airline.environment import (
     get_tasks_split as airline_domain_get_tasks_split,
@@ -333,6 +336,8 @@ try:
         "airline_twins",
         get_task_splits=airline_twin_get_tasks_split,
     )
+    for name, get_env in airline_policy_flip_environments().items():
+        registry.register_domain(get_env, name)
 
     registry.register_domain(retail_domain_get_environment, "retail")
     registry.register_tasks(

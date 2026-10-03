@@ -21,7 +21,11 @@
         "48_twin_business",
         "49_twin_within_24h",
         "49_twin_business",
-        "49_twin_insured_and_covered"
+        "49_twin_insured_and_covered",
+        "2_twin_pf_delay_no_change",
+        "5_twin_pf_delay_no_change",
+        "27_twin_pf_delay_no_change",
+        "38_twin_pf_delay_no_change"
     ],
     "primary": [
         "0_twin_business",
@@ -35,5 +39,11 @@
         "47_twin_business",
         "48_twin_within_24h",
         "49_twin_insured_and_covered"
+    ],
+    "pf_delay_no_change": [
+        "2_twin_pf_delay_no_change",
+        "5_twin_pf_delay_no_change",
+        "27_twin_pf_delay_no_change",
+        "38_twin_pf_delay_no_change"
     ]
 }
