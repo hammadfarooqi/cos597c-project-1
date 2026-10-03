@@ -12,11 +12,17 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 7 / 25 done (7 done, 18 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 8 / 26 done (8 done, 1 in progress, 17 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
-## ✓ Audit clean
+## ⚠ Audit: 1 warning(s)
+
+```
+BROKEN LINK      CLAUDE.md  ->  code/tau2-bench/.env
+```
+
+Run `python3 tools/build_index.py` after fixing these.
 
 ---
 

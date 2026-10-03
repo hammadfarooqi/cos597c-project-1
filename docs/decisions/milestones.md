@@ -43,8 +43,9 @@ The next thing each person is doing. Keep this short.
 | M0.2 | Do-nothing agent and scripted user in tau2 | Hammad | — | done | `code/tau2-bench/src/tau2/agent/do_nothing_agent.py` |
 | M0.3 | Null-agent baseline, airline (23/50) | Hammad | — | done | `docs/research/findings-log.md` §1 · `code/tau2-bench/data/simulations/airline_do_nothing/` |
 | M0.4 | Null-agent baseline, retail (6/114) | ? | — | todo | Number is in the proposal, but the results file is not in the repository. Re-run and commit it. |
-| M0.5 | Commit the 5-model runs and hand grades behind the formalization table | ? | — | todo | Needed to validate any automatic grader (M1.4). |
+| M0.5 | Commit the 5-model runs and hand grades behind the formalization table | Vatsal | — | in progress | Runs: re-run and committed (M0.7). Hand grades: not yet in the repository. Needed for M1.4. |
 | M0.6 | GPT-4.1 airline run through Prime Intellect (25/50) | Hammad | — | done | `docs/research/findings-log.md` §2 · `code/tau2-bench/data/simulations/airline_gpt41_check/` |
+| M0.7 | Five-model airline runs, all 50 tasks, 1 trial (sonnet-4.5, gpt-4.1, mini, nano, llama-3.3-70b) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §7 · `code/tau2-bench/data/simulations/airline_<model>/` |
 
 ## M1 — Minimal goal: justified vs unjustified no-action in τ²-bench
 
@@ -88,3 +89,4 @@ Append one line per change to this file: date, who, which rows.
 
 - 2026-10-03 — Hammad + Claude — created; M0.1, M0.2, M0.3, M0.6 done.
 - 2026-10-03 — Hammad + Claude — M1.1, M1.2, M1.14 done; M1.4 note; added M1.9–M1.13 (mandatory reads and twins).
+- 2026-10-03 — Vatsal + Claude — added M0.7 (done); M0.5 in progress (runs committed, hand grades missing).

@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-03 (§1–§6)
+**Last updated:** 2026-10-03 (§1–§7)
 
 ---
 
@@ -139,3 +139,64 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
 - **Meaning:** natural twins already show that some no-action passes are not policy-driven. But
   each natural twin changes more than one thing (scope, requested action). Clean one-field
   twins are the next step.
+
+## 7. Five models, all 50 airline tasks, through Prime Intellect (2026-10-03)
+**By:** Vatsal + Claude
+
+- **Results:** `code/tau2-bench/data/simulations/airline_<model>/results.json` for
+  `claude-sonnet-4.5`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `llama-3.3-70b`.
+- **Config:** agent = the model; user simulator = `openai/gpt-4.1`; both through Prime
+  Intellect; temperature 0; seed 300; 1 trial; all 50 tasks. Same models as the formalization
+  pilot (charter §1). These are **new** runs, not the pilot trajectories.
+- **Command** (from `code/tau2-bench/`; the key goes in the process environment, not in
+  `llm_args`, so it never reaches `results.json`):
+
+  ```bash
+  export OPENAI_API_KEY=<Prime key> OPENAI_API_BASE=https://api.pinference.ai/api/v1
+  uv run tau2 run --domain airline \
+    --agent-llm openai/<prime model id> --agent-llm-args '{"temperature": 0.0}' \
+    --user-llm openai/openai/gpt-4.1 --user-llm-args '{"temperature": 0.0}' \
+    --num-trials 1 --seed 300 --max-concurrency 5 --save-to airline_<model>
+  ```
+
+  Prime model IDs: `anthropic/claude-sonnet-4.5`, `openai/gpt-4.1`, `openai/gpt-4.1-mini`,
+  `openai/gpt-4.1-nano`, `meta-llama/llama-3.3-70b-instruct`. The 23 no-action tasks ran first
+  (`--task-ids`); the other 27 were added to the same file with `--auto-resume`.
+- **Cost:** $30.53 total (sonnet $16.42, gpt-4.1 $7.16, llama $3.65, mini $2.29, nano $1.01),
+  from saved token counts × Prime list prices.
+- **Result.** "No-action" = the 23 tasks the null agent passes (§1). "Reads kept" = no-action
+  passes that also ran every read listed in the task file (the mandatory-read rule, §5):
+
+  | Model | All 50 | No-action (23) | Other (27) | Reads kept | Transfers on no-action |
+  |---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 37 | 20 | 17 | 20 | 12 |
+  | gpt-4.1 | 30 | 16 | 14 | 16 | 9 |
+  | gpt-4.1-mini | 20 | 13 | 7 | 13 | 10 |
+  | llama-3.3-70b | 19 | 19 | **0** | **8** | 22 |
+  | gpt-4.1-nano | 3 | 1 | 2 | 0 | 2 |
+
+- **llama-3.3-70b passes no task that needs an action**, but ties gpt-4.1-mini on the full
+  score (19 vs 20). All of its score comes from the no-action set. It transfers to a human in
+  22 of 23 no-action tasks, and 11 of its 19 passes miss a listed read. The mandatory-read rule
+  takes it from 19 to 8 and leaves the other models unchanged. This is the project's claim,
+  now with committed data.
+- **Single-trial scores are not stable.** On the 23 no-action tasks, against an earlier run of
+  the same config (Vatsal's survey, 2026-09-26, not in this repository):
+
+  | Model | Earlier | Now | Same verdict | Tasks that changed (earlier → now) |
+  |---|---|---|---|---|
+  | claude-sonnet-4.5 | 21 | 20 | 20/23 | 0 (0→1), 1 (1→0), 47 (1→0) |
+  | gpt-4.1 | 21 | 16 | 18/23 | 1, 38, 43, 48, 49 (all 1→0) |
+  | gpt-4.1-mini | 20 | 13 | 16/23 | 2, 10, 26, 36, 38, 43, 45 (all 1→0) |
+  | llama-3.3-70b | 21 | 19 | 21/23 | 6, 47 (1→0) |
+  | gpt-4.1-nano | 4 | 1 | 20/23 | 27, 31, 34 (1→0) |
+
+  gpt-4.1 now has three samples on this set: 21 (survey), 13 (§2), 16 (here). The configs
+  match, except that §2 passed the key in `llm_args`. This likely explains the gap noted in
+  §2 as run-to-run noise, not a setup error.
+- **Meaning:** the main effect (llama) is large enough to see in one trial. The smaller
+  differences are not: one model moved by 7 of 23 between two identical runs. Any claim about
+  ranking changes needs several trials per task (the released runs use 4).
+- **Weak points:** 1 trial only. The hand grades from the pilot are not in this repository,
+  so M1.4 still cannot run. The user simulator ends some episodes early (survey note); some
+  passes and failures may depend on it.

@@ -64,6 +64,22 @@ uv run tau2 run --domain airline \
   --num-trials 1 --save-to airline_gpt41_check
 ```
 
+**Alternative: keep the key out of `llm_args`.** Put the key in the process environment.
+LiteLLM reads it there, and tau2 never sees it. The five-model runs (`docs/research/findings-log.md` §7)
+used this method:
+
+```bash
+set -a; source .env; set +a
+export OPENAI_API_KEY="$PI_KEY" OPENAI_API_BASE="$PI_API_BASE"
+uv run tau2 run --domain airline \
+  --agent-llm openai/anthropic/claude-sonnet-4.5 --agent-llm-args '{"temperature": 0.0}' \
+  --user-llm  openai/openai/gpt-4.1 --user-llm-args '{"temperature": 0.0}' \
+  --num-trials 1 --seed 300 --max-concurrency 5 --save-to airline_claude-sonnet-4.5
+```
+
+To add tasks to an existing run, run again with the same `--save-to` and `--auto-resume`.
+Completed tasks are skipped.
+
 The key is redacted in the saved results. Check anyway before you commit:
 `git diff --cached | grep -E 'pit_|sk-'` must print nothing.
 
