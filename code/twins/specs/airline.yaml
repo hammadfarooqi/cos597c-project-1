@@ -1,0 +1,108 @@
+# Twin specs for airline no-action tasks: one entry per task.
+#
+# A spec says what the user pushes the agent to do, and which facts the
+# user's script fixes. The generator does the rest (search, build, validate).
+#
+#   family:  which policy rule applies. Only "cancel" is supported so far.
+#   targets: reservations the user asks to cancel and that the policy blocks.
+#   reason:  the user's stated reason, as a policy category:
+#            change_of_plan | health | weather | other.
+#   locked:  conditions the script contradicts. The generator never flips
+#            these, so the twin does not contradict what the user says.
+#   prefer:  the flip to use as the primary twin. Usually the one that makes
+#            the user's own claim true.
+#
+# family "compensation" gives an explicit patch instead of a search:
+#   user_id, target: the user and the reservation the claim is about.
+#   patch:   the DB edit (deep-merged). name/why: label and explanation.
+#
+# Excluded database-decided tasks (no clean twin):
+#   31: several nonstop JFK->DTW flights on 05-17 fit the $100 limit, and the
+#       script names no payment method. The gold write is not unique.
+#   36: several LAS->IAH->ORD combinations on 05-18, no payment method in the
+#       script, and the outbound leg is already flown. Same problem.
+#   4:  a twin that makes the user's claim true (WUNA5K business, HAT271 on
+#       05-10 cancelled) passes every static check, but the user script wants
+#       more than the $100 the policy allows. In live runs all 5 models
+#       offered $100 or tried to; the user refused and asked for a transfer,
+#       so no model could pass. The user's goal must be reachable, not only
+#       the write allowed. Tried and dropped, 2026-10-03.
+#
+# Source for facts: tasks.json, db.json, and docs/research/no-action-tasks.md.
+
+"0":
+  family: cancel
+  targets: [EHGLP3]
+  reason: change_of_plan
+  locked: [within_24h, insured_and_covered]  # script admits >24h and no insurance
+  prefer: business
+
+"1":
+  family: cancel
+  targets: [Q69X3R]  # "the one from Philadelphia to LaGuardia"
+  reason: change_of_plan
+  locked: []
+  prefer: within_24h  # booked 29 h before NOW; the twin moves it to 5 h
+
+"9":
+  family: cancel
+  targets: [IFOYYZ]  # NQNU5R is flown; M20IZO has no direct JFK->MCO flight on 05-22
+  reason: change_of_plan
+  locked: []
+  prefer: business
+
+"26":
+  family: cancel
+  targets: [3FRNFB]  # "MCO to CLT"
+  reason: change_of_plan
+  locked: []
+  prefer: business
+
+"28":
+  family: cancel
+  targets: [SI5UKW]
+  reason: change_of_plan
+  locked: []
+  prefer: business
+
+"41":
+  family: cancel
+  targets: [UDMOP1]  # 4XGCCM is the other 1-passenger reservation, but it is flown
+  reason: other      # "give up my seat for someone else"
+  locked: []
+  prefer: business
+
+"43":
+  family: cancel
+  targets: [D1EW9B]  # "the one from ATL to JFK"
+  reason: change_of_plan
+  locked: []
+  prefer: within_24h  # fits the "booked two flights by mistake" story
+
+"45":
+  family: cancel
+  targets: [PEP4E0]
+  reason: other  # "family emergency": not clearly the user's own health
+  locked: [insured_and_covered]  # script later tries to add insurance
+  prefer: business
+
+"47":
+  family: cancel
+  targets: [H8Q05L]
+  reason: other  # best friend's birthday: not covered by insurance
+  locked: []
+  prefer: business
+
+"48":
+  family: cancel
+  targets: [3RK2T9]
+  reason: change_of_plan
+  locked: []
+  prefer: within_24h  # makes the user's "booked 10 hours ago" claim true
+
+"49":
+  family: cancel
+  targets: [3RK2T9]
+  reason: health  # sick
+  locked: []
+  prefer: insured_and_covered  # makes the user's "I have insurance" claim true

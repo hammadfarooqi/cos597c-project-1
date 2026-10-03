@@ -83,3 +83,24 @@ plan an LLM judge.
 `docs/research/no-action-tasks.md`
 **Replaces:** the three-check rubric in `docs/external/2026-10-02-proposal-formalization.pdf`,
 as restated in the charter §2 of 2026-10-03.
+
+## 2026-10-03 — Generate twins from specs with a policy oracle; keep them in their own task set
+**By:** Vatsal + Claude
+**Why:** The airline tools do not enforce policy, so only an executable policy can show that a
+flip makes a write allowed. A short per-task spec, a one-field DB search, and validation with
+the real evaluator make each twin checkable. A separate task set (`airline_twins`) leaves the
+upstream `tasks.json` and `db.json` unchanged.
+A twin is built only when (1) the edit touches one fact, or only facts the user's script
+claims, (2) the correct write is unique, and (3) the user's goal is reachable. Tasks 31 and 36
+fail (2); task 4 fails (3).
+**Affects:** `code/twins/` · `docs/research/counterfactual-twins.md` · `code/README.md`
+
+## 2026-10-03 — Pair scoring: a no-action pass counts only if its twin also passes
+**By:** Vatsal + Claude
+**Why:** A pass on the original alone cannot tell a reasoned refusal from a refusal that
+happens no matter what. A twin pass with a failed original means the agent writes no matter
+what, so it is also a failure. The headline uses the strict rule (any twin failure removes the
+credit); the lenient rule (the twin counts if the right write happened) is reported next to it.
+Twin failures are reported by cause (transfer, no write, wrong write, right write + other error).
+**Affects:** `docs/decisions/charter.md` §6 Q2–Q3 · `code/twins/score_pairs.py` ·
+`docs/research/findings-log.md` §8

@@ -23,6 +23,12 @@ from tau2.domains.airline.environment import get_tasks as airline_domain_get_tas
 from tau2.domains.airline.environment import (
     get_tasks_split as airline_domain_get_tasks_split,
 )
+from tau2.domains.airline.environment import (
+    get_twin_tasks as airline_twin_get_tasks,
+)
+from tau2.domains.airline.environment import (
+    get_twin_tasks_split as airline_twin_get_tasks_split,
+)
 from tau2.domains.banking_knowledge.environment import (
     get_environment as knowledge_domain_get_environment,
 )
@@ -321,6 +327,11 @@ try:
         airline_domain_get_tasks,
         "airline",
         get_task_splits=airline_domain_get_tasks_split,
+    )
+    registry.register_tasks(
+        airline_twin_get_tasks,
+        "airline_twins",
+        get_task_splits=airline_twin_get_tasks_split,
     )
 
     registry.register_domain(retail_domain_get_environment, "retail")

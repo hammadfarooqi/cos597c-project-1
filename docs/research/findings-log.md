@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-03 (§1–§7)
+**Last updated:** 2026-10-03 (§1–§8)
 
 ---
 
@@ -200,3 +200,47 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
 - **Weak points:** 1 trial only. The hand grades from the pilot are not in this repository,
   so M1.4 still cannot run. The user simulator ends some episodes early (survey note); some
   passes and failures may depend on it.
+
+## 8. DB-flip twins for 11 no-action tasks: paired scores (2026-10-03)
+**By:** Vatsal + Claude
+
+- **Design:** `docs/research/counterfactual-twins.md`. **Code:** `code/twins/`.
+- **Twins:** `code/tau2-bench/data/tau2/domains/airline/tasks_twins.json`, split `primary`:
+  one twin each for tasks 0, 1, 9, 26, 28, 41, 43, 45, 47, 48, 49. All pass the static checks
+  (null: original 1, twin 0; comply: original 0, twin 1; only patched records change).
+- **Runs:** `code/tau2-bench/data/simulations/airline_twins_<model>/results.json`, same config
+  as §7 (Prime, gpt-4.1 user, temperature 0, seed 300, 1 trial), plus
+  `--task-set-name airline_twins --task-split-name primary`. Cost $4.32. The no-action side is
+  the §7 runs on the same 11 tasks.
+- **Null agent** (`do_nothing_agent`, `scripted_user`, live run): 0 / 11 twins (originals 11/11).
+- **Result** (`uv run python ../twins/score_pairs.py <models>` from `code/tau2-bench/`):
+
+  | Model | No-op passes | Twin passes | **Paired** | No-op only | Twin only | Neither |
+  |---|---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 8 | 11 | **8** | 0 | 3 | 0 |
+  | gpt-4.1 | 6 | 9 | **5** | 1 | 4 | 1 |
+  | gpt-4.1-mini | 6 | 7 | **5** | 1 | 2 | 3 |
+  | llama-3.3-70b | 8 | 2 | **0** | 8 | 2 | 1 |
+  | gpt-4.1-nano | 0 | 7 | **0** | 0 | 7 | 4 |
+
+- **llama-3.3-70b:** all 8 of its no-action passes lose credit. In 7 of its 9 failed twins it
+  transfers to a human again. It ties sonnet on no-action passes and has 0 paired passes.
+- **gpt-4.1-nano** fails the other way: it writes no matter what (7 twin passes, 0 no-op).
+- **Task 9 twin:** gpt-4.1, mini, nano, and llama cancel IFOYYZ (allowed) and then also
+  NQNU5R (business, but already flown, so not allowed). Sonnet does not. A real agent error,
+  not a twin defect.
+- **Effect on the full 50 tasks** (the 11 verdicts replaced by the paired verdict):
+  sonnet 37 → 37, gpt-4.1 30 → 29, mini 20 → 19, llama 19 → **11**, nano 3 → 3.
+  With a lenient rule (the twin counts if the agent made the right write despite other
+  errors): gpt-4.1 paired 6, llama 1; no other change.
+- **Noise:** an earlier run of the first 10 twins (same config, not committed) gave the same
+  twin verdict on 10/10 tasks for sonnet, 9/10 llama, 8/10 nano, 7/10 gpt-4.1 and mini. The
+  large effects held. Differences of 1–2 tasks between gpt-4.1 and mini did not.
+- **Task 4 twin, dropped:** the "claim true" twin (WUNA5K business, HAT271 on 05-10
+  cancelled) passed all static checks, but all 5 models failed it live. The models offered
+  the $100 certificate or tried to; the user script wants more, refuses, and asks for a
+  transfer. The results files above still hold one `4_twin_claim_true` episode per model;
+  `score_pairs.py` ignores it.
+- **Meaning:** twins separate a justified refusal from a blanket refusal with outcome-only
+  scoring and no LLM judge. The no-action score alone ranks llama level with sonnet on these
+  tasks; the paired score ranks it last. 12 of the 23 tasks still have no twin.

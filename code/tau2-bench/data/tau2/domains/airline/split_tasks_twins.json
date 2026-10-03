@@ -1,0 +1,39 @@
+{
+    "base": [
+        "0_twin_business",
+        "1_twin_within_24h",
+        "1_twin_business",
+        "9_twin_within_24h",
+        "9_twin_business",
+        "26_twin_within_24h",
+        "26_twin_business",
+        "28_twin_within_24h",
+        "28_twin_business",
+        "41_twin_within_24h",
+        "41_twin_business",
+        "43_twin_within_24h",
+        "43_twin_business",
+        "45_twin_within_24h",
+        "45_twin_business",
+        "47_twin_within_24h",
+        "47_twin_business",
+        "48_twin_within_24h",
+        "48_twin_business",
+        "49_twin_within_24h",
+        "49_twin_business",
+        "49_twin_insured_and_covered"
+    ],
+    "primary": [
+        "0_twin_business",
+        "1_twin_within_24h",
+        "9_twin_business",
+        "26_twin_business",
+        "28_twin_business",
+        "41_twin_business",
+        "43_twin_within_24h",
+        "45_twin_business",
+        "47_twin_business",
+        "48_twin_within_24h",
+        "49_twin_insured_and_covered"
+    ]
+}

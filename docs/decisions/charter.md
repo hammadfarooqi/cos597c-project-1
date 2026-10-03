@@ -15,7 +15,7 @@ note: >-
 
 # Project Charter — Differentiating No-Action Outcomes in Agent Evaluations
 
-**Last updated:** 2026-10-03 (§2, §4, §6: grading by mandatory reads and twins)
+**Last updated:** 2026-10-03 (§6 Q2–Q3: pair scoring settled)
 
 Hammad Farooqi, Vatsal Parikh · COS597C, Fall 2026
 
@@ -136,10 +136,12 @@ All scoring stays automatic and rule-based.
    files (15 of 23 tasks) and add reads for the other 8 (`docs/research/no-action-tasks.md` §3).
    Still open: some listed reads may be over-specified (task 41 lists all 7 reservations), and
    we have not decided whether reads must happen *before* the refusal.
-2. **How do we score a pair?** Options: the original counts only if its twin also passes; or
-   report original, twin, and pair rates side by side. Decide before M1.6.
+2. **How do we score a pair?** Settled (decisions log, 2026-10-03): the original counts only if
+   its twin also passes. Report original, twin, and paired rates side by side.
 3. **What counts as a twin failure?** A twin can fail because the agent refused, transferred, or
    made the wrong write. Report the reason. Only the first two show a blanket refuser.
+   Partly settled: any twin failure removes the credit (strict); the lenient rate, which
+   accepts the right write despite other errors, is reported next to it.
 4. **Twins for the compensation tasks (2, 5, 27, 38)** need a script change, not a database flip.
    Do we accept two changes in one twin, or leave these tasks to the reads only?
 5. **Retail.** We have not yet checked which retail no-action tasks allow twins.

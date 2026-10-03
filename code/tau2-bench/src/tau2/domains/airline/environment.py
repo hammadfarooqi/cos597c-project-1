@@ -9,6 +9,7 @@ from tau2.domains.airline.utils import (
     AIRLINE_DB_PATH,
     AIRLINE_POLICY_PATH,
     AIRLINE_TASK_SET_PATH,
+    AIRLINE_TWIN_TASK_SET_PATH,
 )
 from tau2.environment.environment import Environment
 from tau2.utils import load_file
@@ -51,3 +52,20 @@ def get_tasks_split() -> dict[str, list[str]]:
         / f"split_{Path(AIRLINE_TASK_SET_PATH).stem}.json"
     )
     return load_file(split_file)
+
+
+def get_twin_tasks(task_split_name: Optional[str] = "base") -> list[Task]:
+    """Counterfactual twins of the no-action tasks (built by code/twins/generate.py)."""
+    tasks = [Task.model_validate(t) for t in load_file(AIRLINE_TWIN_TASK_SET_PATH)]
+    if task_split_name is None:
+        return tasks
+    split = get_twin_tasks_split()
+    if task_split_name not in split:
+        raise ValueError(
+            f"Invalid task split name: {task_split_name}. Valid splits are: {split.keys()}"
+        )
+    return [task for task in tasks if task.id in split[task_split_name]]
+
+
+def get_twin_tasks_split() -> dict[str, list[str]]:
+    return load_file(AIRLINE_TWIN_TASK_SET_PATH.parent / "split_tasks_twins.json")

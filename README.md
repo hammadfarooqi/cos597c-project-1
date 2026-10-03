@@ -8,11 +8,11 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-03 · **Documents:** 8
+**Index generated:** 2026-10-03 · **Documents:** 9
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 8 / 26 done (8 done, 1 in progress, 17 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 11 / 29 done (11 done, 2 in progress, 16 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
@@ -57,6 +57,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
+| [Counterfactual Twins — Design and Coverage](docs/research/counterfactual-twins.md) | 2026-10-03 | current | How we generate counterfactual twins for the airline no-action tasks: the policy oracle, the per-task specs, the one-field DB search, and the validation with the real tau2 evaluator. Coverage of all 23 tasks, the exclusions, and the plan for policy-based tasks. **Note:** Extends docs/research/no-action-tasks.md §3 (per-task facts). Only DB-flip twins exist so far. Policy-flip twins are a plan, not built. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-03 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
 
 ## Indexes
