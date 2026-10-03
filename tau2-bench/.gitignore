@@ -9,7 +9,7 @@ dumps/
 dump.rdb
 *.rdg
 logs/
-data/simulations/*
+# COS597C: experiment results are tracked in this repo (see data/simulations/).
 data/exp/
 data/datasets/
 data/models/

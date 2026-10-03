@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import pandas as pd
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_serializer, model_validator
 from typing_extensions import Annotated
 
 if TYPE_CHECKING:
@@ -1204,6 +1204,21 @@ class RewardInfo(BaseModel):
         }
 
 
+_SECRET_LLM_ARG_KEYS = ("api_key", "token", "secret", "password")
+
+
+def _redact_llm_args(llm_args: Optional[dict]) -> Optional[dict]:
+    """Hide credentials (e.g. api_key) so they are never written to results files."""
+    if llm_args is None:
+        return None
+    return {
+        k: "<redacted>"
+        if any(s in k.lower() for s in _SECRET_LLM_ARG_KEYS) and v is not None
+        else v
+        for k, v in llm_args.items()
+    }
+
+
 class AgentInfo(BaseModel):
     """
     Agent information.
@@ -1218,6 +1233,10 @@ class AgentInfo(BaseModel):
         description="Voice synthesis and transcription settings for the agent",
         default=None,
     )
+
+    @field_serializer("llm_args")
+    def _serialize_llm_args(self, llm_args: Optional[dict]) -> Optional[dict]:
+        return _redact_llm_args(llm_args)
 
 
 class UserInfo(BaseModel):
@@ -1241,6 +1260,10 @@ class UserInfo(BaseModel):
         description="Runtime persona configuration for the user simulator",
         default=None,
     )
+
+    @field_serializer("llm_args")
+    def _serialize_llm_args(self, llm_args: Optional[dict]) -> Optional[dict]:
+        return _redact_llm_args(llm_args)
 
 
 class Info(BaseModel):
