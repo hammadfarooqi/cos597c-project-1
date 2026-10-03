@@ -4,16 +4,18 @@ type: charter
 status: current
 updated: 2026-10-03
 summary: >-
-  What we are doing, why the problem is real, the rubric for a "justified" no-action verdict, the
-  three goal tiers, and the open questions. Authoritative on scope.
+  What we are doing, why the problem is real, how we grade a "justified" no-action verdict
+  (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open
+  questions. Authoritative on scope.
 note: >-
   Built from the two proposals in docs/external/. The formalization (2026-10-02) narrowed the
-  initial proposal; see the decisions log for that change.
+  initial proposal. On 2026-10-03 the formalization's three-check rubric was replaced by two
+  mechanisms; see the decisions log.
 ---
 
 # Project Charter — Differentiating No-Action Outcomes in Agent Evaluations
 
-**Last updated:** 2026-10-03 (created from the two proposals)
+**Last updated:** 2026-10-03 (§2, §4, §6: grading by mandatory reads and twins)
 
 Hammad Farooqi, Vatsal Parikh · COS597C, Fall 2026
 
@@ -46,26 +48,46 @@ A hand-graded pilot on the 23 no-action airline tasks (from the formalization, 2
 The padding is **not equal across models**. llama-3.3-70b gets 21 wrong-reason passes (42% of
 airline). claude-sonnet-4.5 gets 4 (8%). Unequal padding can reorder a leaderboard.
 
-**Weak point:** the trajectories and hand grades behind this table are not yet in this
-repository. See `docs/decisions/milestones.md`, M0.5.
+**Weak points:**
+
+- The trajectories and grades behind this table are not yet in this repository. See
+  `docs/decisions/milestones.md`, M0.5.
+- The grades were made with Opus 5.5 against the formalization's three-check rubric, which §2 no
+  longer uses. Two of its wrong-reason patterns ("agreed to a forbidden write", "unneeded
+  transfer") are not what our mechanisms measure directly. Treat agreement with this table as a
+  sanity check, not as ground truth.
 
 ---
 
-## 2. The rubric: what makes a no-action verdict "justified"
+## 2. How we grade a no-action verdict
 
-The formalization grades each no-action trajectory on three checks:
+Decision: `docs/decisions/decisions-log.md`, 2026-10-03. Per-task detail:
+`docs/research/no-action-tasks.md`.
 
-1. **Evidence:** the agent ran the read tools it needed to learn the facts behind the refusal.
-2. **No forbidden writes:** the agent did not try, or agree, to run a write tool that policy
-   forbids.
-3. **No premature transfer:** the agent did not hand the user to a human before it did the
-   expected reasoning.
+We use two mechanisms. Both are deterministic. Neither uses an LLM judge.
 
-A pass is **justified** only if all three checks pass.
+1. **Mandatory necessary reads.** For each no-action task we list the reads that reveal the
+   decisive fact (for example `get_reservation_details(3RK2T9)` shows that the booking is
+   13 days old). A no-action pass counts only if the agent ran every listed read. 15 of the 23
+   tasks already list these reads, but the evaluator does not count them today
+   (`docs/research/findings-log.md` §5).
+2. **Counterfactual twin tasks.** For each no-action task we build a copy in which **only the
+   decisive fact** flips (for example, reservation 3RK2T9 now has insurance), so the correct
+   outcome becomes a write. The user script stays the same where possible. An agent that refused
+   for the right reason passes both tasks. An agent that refuses or transfers no matter what
+   fails the twin. tau2 supports the per-task database patch already
+   (`initial_state.initialization_data`).
 
-**Open:** the formalization lists check 2 as "tried or agreed to run forbidden write tools",
-which reads as the failure condition. This charter states each check as the condition to pass.
-Confirm this reading.
+A no-action pass is **justified** when the agent ran the mandatory reads **and** passes the
+twin. Reads alone are not enough: an agent that reads everything and then refuses everything
+passes them. That agent is the reason the twins exist.
+
+Not every task can have a clean twin. Tasks 6 and 46 have no write tool at all, and the
+compensation tasks (2, 5, 27, 38) turn on the user's intent, not on a database field. For these,
+only the mandatory reads apply, or the twin must change the user script.
+
+**Set aside** (decisions log, 2026-10-03): the formalization's "no forbidden writes" and "no
+premature transfer" checks.
 
 ---
 
@@ -83,15 +105,20 @@ Concrete steps and status: `docs/decisions/milestones.md`.
 
 ## 4. How we will know it works
 
-- **Null agent:** under the new evaluator, its no-action passes are all **unjustified**.
-- **Capable models:** the automatic justified/unjustified labels agree with the hand grades in
-  §1. Report the agreement rate and every disagreement.
-- **No false rejections:** a correct refusal that uses a different (valid) sequence of reads
-  than the reference trajectory is still graded justified.
+- **Null agent:** under the new evaluator, its no-action passes are all **unjustified**. (The
+  mandatory reads alone do this. It is a necessary test, not a strong one.)
+- **Scripted blanket refuser:** a scripted agent that runs every listed read and then refuses
+  every request must also be graded **unjustified** on every task that has a twin. This is the
+  test that the twins earn their cost.
+- **No false rejections:** a correct refusal that reaches the decisive fact through a different
+  valid sequence of reads is still graded justified. A twin fails only when the agent does not
+  make the correct write.
+- **Capable models:** report each model's pass rate on the originals, on the twins, and on the
+  pairs. Compare with the pilot grades in §1 as a sanity check.
 - **Ranking effect:** report each model's accuracy before and after, and whether the ranking
   changes.
 
-All scoring stays automatic.
+All scoring stays automatic and rule-based.
 
 ---
 
@@ -105,12 +132,18 @@ All scoring stays automatic.
 
 ## 6. Open questions
 
-1. How do we decide automatically which read tools are "necessary" for a task? From the
-   reference actions, from the policy, or from an LLM judge?
-2. Is a transfer to a human ever a justified no-action outcome? Some airline tasks may expect it.
-3. Do we grade with rules, an LLM judge, or both? An LLM judge adds cost and its own validity
-   problem.
-4. The initial proposal targeted τ³-bench and a general detector of reward/criteria mismatches.
+1. **Which reads are "necessary"?** Partly answered: start from the reads listed in the task
+   files (15 of 23 tasks) and add reads for the other 8 (`docs/research/no-action-tasks.md` §3).
+   Still open: some listed reads may be over-specified (task 41 lists all 7 reservations), and
+   we have not decided whether reads must happen *before* the refusal.
+2. **How do we score a pair?** Options: the original counts only if its twin also passes; or
+   report original, twin, and pair rates side by side. Decide before M1.6.
+3. **What counts as a twin failure?** A twin can fail because the agent refused, transferred, or
+   made the wrong write. Report the reason. Only the first two show a blanket refuser.
+4. **Twins for the compensation tasks (2, 5, 27, 38)** need a script change, not a database flip.
+   Do we accept two changes in one twin, or leave these tasks to the reads only?
+5. **Retail.** We have not yet checked which retail no-action tasks allow twins.
+6. The initial proposal targeted τ³-bench and a general detector of reward/criteria mismatches.
    The formalization narrowed to no-action verdicts. Does the detector idea come back for the
    Target or Stretch tier?
 

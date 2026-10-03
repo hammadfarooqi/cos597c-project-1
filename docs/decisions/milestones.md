@@ -50,14 +50,20 @@ The next thing each person is doing. Keep this short.
 
 | ID | Milestone | Owner | Due | Status | Evidence |
 |---|---|---|---|---|---|
-| M1.1 | List the airline no-action tasks and what each one expects (refusal, transfer, read-only answer) | ? | TBD | todo | |
-| M1.2 | Settle the rubric: how to detect "necessary reads", "forbidden write", "premature transfer" (charter §6, Q1–Q3) | ? | TBD | todo | |
+| M1.1 | List the airline no-action tasks and what each one expects (refusal, transfer, read-only answer) | Hammad + Claude | — | done | `docs/research/no-action-tasks.md` · `docs/research/findings-log.md` §5–§6 |
+| M1.2 | Settle the rubric: how to detect "necessary reads", "forbidden write", "premature transfer" (charter §6, Q1–Q3) | Hammad + Claude | — | done | `docs/decisions/decisions-log.md` 2026-10-03: mandatory reads + twins; forbidden-write and transfer checks set aside |
 | M1.3 | Implement the grader in the tau2 evaluator, reported next to the existing reward | ? | TBD | todo | |
-| M1.4 | Validate the grader against the hand grades (agreement rate, every disagreement) | ? | TBD | todo | needs M0.5 |
+| M1.4 | Validate the grader against the hand grades (agreement rate, every disagreement) | ? | TBD | todo | needs M0.5. Sanity check only: the pilot grades used the old rubric (charter §1) |
 | M1.5 | Null agent: all no-action passes graded unjustified, airline and retail | ? | TBD | todo | |
 | M1.6 | Re-score the 5 models; report accuracy and ranking before vs after | ? | TBD | todo | |
 | M1.7 | Extend to retail | ? | TBD | todo | |
 | M1.8 | Write-up of the Minimal result | ? | TBD | todo | |
+| M1.9 | Finalize the mandatory-read list per task: add reads for tasks 0, 10, 13, 26, 28, 31, 34, 46; review over-specified lists (e.g. 41) | ? | TBD | todo | proposal in `docs/research/no-action-tasks.md` §3 |
+| M1.10 | Score the natural twins as pairs (41↔39, 9↔37, 34↔33) on fresh runs; verify the task 39 gold (MSJ4OA) first | ? | TBD | todo | first look: `docs/research/findings-log.md` §6 |
+| M1.11 | Build the first clean DB-flip twins (tasks 48, 49) with `initial_state` patches; run them | ? | TBD | todo | |
+| M1.12 | Build the remaining DB-flip twins (0, 1, 4, 26, 28, 31, 41, 43, 45, 47) | ? | TBD | todo | needs M1.11 |
+| M1.13 | Scripted blanket-refuser agent (reads everything, refuses everything) as a test agent | ? | TBD | todo | charter §4 |
+| M1.14 | Re-score the 4 released upstream airline runs with `--fresh-tasks` before any use | Hammad + Claude | — | done | `docs/research/findings-log.md` §4 (outputs not committed, ~36 MB; command given) |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -81,3 +87,4 @@ The next thing each person is doing. Keep this short.
 Append one line per change to this file: date, who, which rows.
 
 - 2026-10-03 — Hammad + Claude — created; M0.1, M0.2, M0.3, M0.6 done.
+- 2026-10-03 — Hammad + Claude — M1.1, M1.2, M1.14 done; M1.4 note; added M1.9–M1.13 (mandatory reads and twins).

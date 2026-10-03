@@ -67,3 +67,19 @@ compare, through LiteLLM with model names like `openai/openai/gpt-4.1`.
 **Why:** Upstream imports `websockets` from core code (`tau2.data_model.simulation`), but lists
 it only under the `voice` extra. A fresh `uv sync` could not run `tau2`.
 **Affects:** `code/tau2-bench/pyproject.toml` · `code/tau2-bench/uv.lock`
+
+## 2026-10-03 — Grade "justified" with two mechanisms: mandatory necessary reads and counterfactual twins
+**By:** Hammad + Claude
+**Why:** These are the only two strategies we like so far. Mandatory reads are cheap and
+deterministic. They fail the null agent (`docs/research/findings-log.md` §5), but they cannot
+catch an agent that reads and then refuses everything. Twins catch that agent with outcome-only
+scoring and no LLM judge. Natural twins already show the effect (findings-log §6). tau2 can
+patch the database per task, so a twin needs no change to the shared `db.json`.
+The formalization's other two checks are set aside for now: "no forbidden writes" (the DB check
+already catches executed writes, findings-log §4; catching *agreement* needs an LLM judge) and
+"no premature transfer" (a transfer is required or expected in some no-action tasks). We do not
+plan an LLM judge.
+**Affects:** `docs/decisions/charter.md` §2, §4, §6 · `docs/decisions/milestones.md` M1 ·
+`docs/research/no-action-tasks.md`
+**Replaces:** the three-check rubric in `docs/external/2026-10-02-proposal-formalization.pdf`,
+as restated in the charter §2 of 2026-10-03.

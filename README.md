@@ -8,11 +8,11 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-03 · **Documents:** 7
+**Index generated:** 2026-10-03 · **Documents:** 8
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 4 / 19 done (4 done, 15 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 7 / 25 done (7 done, 18 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
@@ -26,7 +26,7 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Project Charter](docs/decisions/charter.md) | 2026-10-03 | current | What we are doing, why the problem is real, the rubric for a "justified" no-action verdict, the three goal tiers, and the open questions. Authoritative on scope. **Note:** Built from the two proposals in docs/external/. The formalization (2026-10-02) narrowed the initial proposal; see the decisions log for that change. |
+| [Project Charter](docs/decisions/charter.md) | 2026-10-03 | current | What we are doing, why the problem is real, how we grade a "justified" no-action verdict (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open questions. Authoritative on scope. **Note:** Built from the two proposals in docs/external/. The formalization (2026-10-02) narrowed the initial proposal. On 2026-10-03 the formalization's three-check rubric was replaced by two mechanisms; see the decisions log. |
 
 ## Milestones
 
@@ -44,6 +44,14 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 |---|---|---|---|
 | [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-03 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
 | [Findings Log](docs/research/findings-log.md) | 2026-10-03 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
+
+## Research
+
+*What we learned about the outside world. These CAN go stale.*
+
+| Document | Updated | Status | What it is |
+|---|---|---|---|
+| [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-03 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
 
 ## Indexes
 
