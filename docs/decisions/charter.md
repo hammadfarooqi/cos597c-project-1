@@ -2,7 +2,7 @@
 title: Project Charter
 type: charter
 status: current
-updated: 2026-10-03
+updated: 2026-10-08
 summary: >-
   What we are doing, why the problem is real, how we grade a "justified" no-action verdict
   (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open
@@ -15,7 +15,7 @@ note: >-
 
 # Project Charter — Differentiating No-Action Outcomes in Agent Evaluations
 
-**Last updated:** 2026-10-03 (§6 Q2–Q3: pair scoring settled)
+**Last updated:** 2026-10-08 (§6 Q1 reads answered for airline; Q2–Q4 settled: pair scoring, policy flips)
 
 Hammad Farooqi, Vatsal Parikh · COS597C, Fall 2026
 
@@ -79,7 +79,8 @@ We use two mechanisms. Both are deterministic. Neither uses an LLM judge.
    (`initial_state.initialization_data`).
 
 A no-action pass is **justified** when the agent ran the mandatory reads **and** passes the
-twin. Reads alone are not enough: an agent that reads everything and then refuses everything
+twin. The read check is implemented: `docs/research/justification-check.md` (rule, spec format,
+scoring modes, code, and how to reuse it on another benchmark). Reads alone are not enough: an agent that reads everything and then refuses everything
 passes them. That agent is the reason the twins exist.
 
 Not every task can have a clean twin. Tasks 6 and 46 have no write tool at all, and the
@@ -132,10 +133,12 @@ All scoring stays automatic and rule-based.
 
 ## 6. Open questions
 
-1. **Which reads are "necessary"?** Partly answered: start from the reads listed in the task
+1. **Which reads are "necessary"?** Answered for airline: the rule in
+   `docs/research/justification-check.md` §2.1 and the 16-task spec. Background: start from the reads listed in the task
    files (15 of 23 tasks) and add reads for the other 8 (`docs/research/no-action-tasks.md` §3).
-   Still open: some listed reads may be over-specified (task 41 lists all 7 reservations), and
-   we have not decided whether reads must happen *before* the refusal.
+   Still open: in tasks 2, 5, 6, 27, 38 the policy blocks the request without any data, so the
+   listed reads reflect the author's intent, not necessity. We have not decided whether to keep
+   them, or whether reads must happen *before* the refusal.
 2. **How do we score a pair?** Settled (decisions log, 2026-10-03): the original counts only if
    its twin also passes. Report original, twin, and paired rates side by side.
 3. **What counts as a twin failure?** A twin can fail because the agent refused, transferred, or
@@ -143,7 +146,8 @@ All scoring stays automatic and rule-based.
    Partly settled: any twin failure removes the credit (strict); the lenient rate, which
    accepts the right write despite other errors, is reported next to it.
 4. **Twins for the compensation tasks (2, 5, 27, 38)** need a script change, not a database flip.
-   Do we accept two changes in one twin, or leave these tasks to the reads only?
+   Settled (decisions log, 2026-10-03): a policy flip changes one sentence of `policy.md` and
+   keeps the user, the script, and the DB the same (`docs/research/counterfactual-twins.md` §6).
 5. **Retail.** We have not yet checked which retail no-action tasks allow twins.
 6. The initial proposal targeted τ³-bench and a general detector of reward/criteria mismatches.
    The formalization narrowed to no-action verdicts. Does the detector idea come back for the

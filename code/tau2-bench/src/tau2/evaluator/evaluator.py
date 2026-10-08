@@ -13,6 +13,7 @@ from tau2.evaluator.evaluator_env import (
     EnvironmentEvaluator,
     FullDuplexEnvironmentEvaluator,
 )
+from tau2.evaluator.evaluator_justification import apply_justification
 from tau2.evaluator.evaluator_nl_assertions import (
     FullDuplexNLAssertionsEvaluator,
     NLAssertionsEvaluator,
@@ -94,9 +95,49 @@ def evaluate_simulation(
     mode: CommunicationMode = CommunicationMode.HALF_DUPLEX,
     env_kwargs: dict = None,
     strict_replay: bool = True,
+    original_scoring: Optional[bool] = None,
 ) -> RewardInfo:
     """
-    Evaluate the simulation based on the evaluation type.
+    Evaluate the simulation: upstream scoring, then the COS597C justification gate.
+
+    Upstream scoring (`_evaluate_simulation_upstream`) is unchanged. Its reward is kept
+    in `RewardInfo.original_reward`. For no-action tasks listed in the domain's
+    `justification.json`, the reward is set to 0 when a required read is missing,
+    unless `original_scoring` is True (or `TAU2_ORIGINAL_SCORING=1` is set).
+    See `evaluator_justification.py`.
+    """
+    reward_info = _evaluate_simulation_upstream(
+        simulation=simulation,
+        task=task,
+        evaluation_type=evaluation_type,
+        solo_mode=solo_mode,
+        domain=domain,
+        mode=mode,
+        env_kwargs=env_kwargs,
+        strict_replay=strict_replay,
+    )
+    return apply_justification(
+        reward_info,
+        task_id=task.id,
+        simulation=simulation,
+        domain=domain,
+        full_duplex=mode == CommunicationMode.FULL_DUPLEX,
+        original_scoring=original_scoring,
+    )
+
+
+def _evaluate_simulation_upstream(
+    simulation: SimulationRun,
+    task: Task,
+    evaluation_type: EvaluationType,
+    solo_mode: bool,
+    domain: str,
+    mode: CommunicationMode = CommunicationMode.HALF_DUPLEX,
+    env_kwargs: dict = None,
+    strict_replay: bool = True,
+) -> RewardInfo:
+    """
+    Evaluate the simulation based on the evaluation type (upstream scoring).
 
     Args:
         simulation: The simulation run to evaluate.

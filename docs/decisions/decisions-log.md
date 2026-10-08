@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-03
+updated: 2026-10-08
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -118,3 +118,53 @@ First flip: `delay_no_change` (tasks 2, 5, 27, 38).
 **Affects:** `code/twins/policy_flips.yaml` · `code/twins/airline_policy.py` ·
 `code/tau2-bench/src/tau2/domains/airline/environment.py` · `code/tau2-bench/src/tau2/registry.py` ·
 `docs/research/counterfactual-twins.md` §6
+
+## 2026-10-03 — Lower task 31's budget from $100 to $65 to close a policy loophole
+**By:** Hammad + Claude
+**Why:** In airline task 31 a policy-legal route (upgrade the cabin to economy, then change to a
+nonstop) costs $81 net and fit the user's $100 budget, which contradicts the expected "no
+change". The policy is ambiguous on whether the two steps compose, and the benchmark answers
+that ambiguity both ways (task 32 yes, task 45 no). Every legal route costs at least $81, so a
+$65 budget makes "no change" correct under both readings. We chose $65 over $80 (a $1 margin is
+too thin for a simulated user) and over a "no upgrade" user line (it takes one side of the
+ambiguity).
+**Affects:** `code/tau2-bench/data/tau2/domains/airline/tasks.json` (task 31) ·
+`docs/research/loophole-airline-31.md` · `docs/research/findings-log.md` §14 · `code/README.md`
+**Replaces:** —
+
+## 2026-10-03 — Implement the justification check as a reward gate after upstream scoring
+**By:** Hammad + Claude
+**Why:** We want a check that is automatic, rule-based, generalizable to other benchmarks, and
+leaves upstream scoring intact and reproducible. Choices:
+- `reward_basis` is untouched; ACTION is not turned on.
+- A wrapper around the unchanged upstream scorer gates the reward.
+- One JSON spec per domain. Tasks not in it are unchanged.
+- Matching uses the tool name (alternatives allowed) and only the identifying arguments.
+  Failed calls do not count; order is ignored.
+- Justified scoring is the default. `--original-scoring` (an environment variable, inherited by
+  workers) restores upstream.
+- Both scores are always saved.
+- The core logic has no tau2 imports, so other benchmarks can reuse it.
+- The airline spec covers 16 tasks. It excludes the 6 tasks whose refusal needs no data (2, 5, 6,
+  13, 27, 46) and task 38 (depends on the conversation).
+**Affects:** `docs/research/justification-check.md` · `docs/research/findings-log.md` §14 ·
+`code/README.md` · `code/tau2-bench/src/tau2/evaluator/` · `code/tau2-bench/src/tau2/cli.py` ·
+`code/tau2-bench/src/tau2/data_model/simulation.py` ·
+`code/tau2-bench/data/tau2/domains/airline/justification.json`
+**Replaces:** —
+
+## 2026-10-08 — Merge all branches into `main`; renumber the parallel findings and milestones
+**By:** Hammad + Claude
+**Why:** Two lines of work ran in parallel on 2026-10-03 and used the same numbers.
+- Findings log: Vatsal's §7–§9 stay. Hammad's §8–§12 become §10–§14. All references to them
+  were updated, including two entries above in this log (`findings-log.md` §12 → §14). We
+  changed only the reference, not the decision.
+- Milestones: Vatsal's M1.15–M1.18 stay. Hammad's M1.15 (task 31 fix) and M1.16 (verify the
+  fix) become M1.19 and M1.20.
+- M1.3 was `done` on one branch and `in progress` on the other. It is now `in progress`. The
+  read gate is in the evaluator. Pair scoring is still a script (`code/twins/score_pairs.py`).
+- Task 31's budget is now $65. The five-model runs (findings-log §7) used the old $100 budget.
+  Re-run task 31 before you use those results for it (M1.20).
+**Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
+`docs/decisions/charter.md` §6 · `code/README.md`
+**Replaces:** —

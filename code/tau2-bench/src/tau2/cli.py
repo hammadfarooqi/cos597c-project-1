@@ -48,6 +48,20 @@ def get_all_retrieval_config_names():
     return get_all_variant_names()
 
 
+ORIGINAL_SCORING_HELP = (
+    "COS597C: score with upstream tau2 rules only. Without this flag, a pass on a "
+    "no-action task listed in the domain's justification.json is set to 0 when a "
+    "required read is missing. Both scores are always saved (original_reward, reward)."
+)
+
+
+def add_original_scoring_arg(parser):
+    """Add the COS597C --original-scoring flag to a parser."""
+    parser.add_argument(
+        "--original-scoring", action="store_true", help=ORIGINAL_SCORING_HELP
+    )
+
+
 def add_run_args(parser):
     """Add run arguments to a parser."""
     domains = get_options().domains
@@ -615,6 +629,7 @@ def main():
     # Run command
     run_parser = subparsers.add_parser("run", help="Run a benchmark")
     add_run_args(run_parser)
+    add_original_scoring_arg(run_parser)
 
     def run_command(args):
         user_persona_config = None
@@ -844,6 +859,7 @@ def main():
         action="store_true",
         help="Re-grade against the current task definitions from the data directory instead of the ones embedded in each results file.",
     )
+    add_original_scoring_arg(evaluate_parser)
     evaluate_parser.set_defaults(func=lambda args: run_evaluate_trajectories(args))
 
     # Review command - LLM-based conversation review
@@ -1043,6 +1059,13 @@ def main():
     convert_parser.set_defaults(func=lambda args: run_convert_results(args))
 
     args = parser.parse_args()
+    if getattr(args, "original_scoring", False):
+        # COS597C: read by tau2.evaluator.evaluator_justification; inherited by workers.
+        import os
+
+        from tau2.evaluator.evaluator_justification import ORIGINAL_SCORING_ENV
+
+        os.environ[ORIGINAL_SCORING_ENV] = "1"
     if not hasattr(args, "func"):
         run_intro()
         return
