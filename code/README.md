@@ -89,6 +89,16 @@ uv run tau2 run --domain airline --agent do_nothing_agent --user scripted_user \
   --num-trials 1 --save-to airline_do_nothing
 ```
 
+The null agent on the twins (also free), for the scoreboard:
+
+```bash
+uv run tau2 run --domain airline --agent do_nothing_agent --user scripted_user --num-trials 1 \
+  --task-set-name airline_twins --task-split-name primary --save-to airline_twins_do_nothing
+uv run tau2 run --domain airline_pf_delay_no_change --agent do_nothing_agent --user scripted_user \
+  --num-trials 1 --task-set-name airline_twins --task-split-name pf_delay_no_change \
+  --save-to airline_twins_pf_do_nothing
+```
+
 **A model through Prime Intellect.** LiteLLM needs the `openai/` prefix in front of the Prime
 Intellect model ID, so `openai/gpt-4.1` becomes `openai/openai/gpt-4.1`.
 
@@ -133,6 +143,21 @@ Every result saves both `reward` and `original_reward`, plus `scoring_mode` and 
 ```bash
 uv run tau2 evaluate-trajs data/simulations/<run>/results.json --fresh-tasks -o data/simulations/<run>_justified
 uv run pytest tests/test_justification.py -q
+```
+
+## `scoreboard.py` — every model under every scoring method
+
+`scoreboard.py` writes `docs/research/scoreboard.md`: each model's score under original,
+reads, twins (strict and lenient), and reads + twins, with ranks, per-task marks, and coverage.
+It reads the saved runs only. It makes no LLM calls and replays no environment. It reuses the
+read check's core (`justification_core.py`) and the pair helpers in `twins/score_pairs.py`.
+
+A model appears when `airline_<model>` and at least one `airline_twins*_<model>` run exist.
+With several trials, a task's score is its mean, and trial k is paired with trial k of the twin.
+
+```bash
+uv run python ../scoreboard.py           # regenerate after any new run or spec change
+uv run python ../scoreboard.py --check   # exit 1 if docs/research/scoreboard.md is stale
 ```
 
 ## Upstream documentation

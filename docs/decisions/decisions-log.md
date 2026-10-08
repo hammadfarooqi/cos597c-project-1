@@ -168,3 +168,22 @@ leaves upstream scoring intact and reproducible. Choices:
 **Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
 `docs/decisions/charter.md` §6 · `code/README.md`
 **Replaces:** —
+
+## 2026-10-08 — One generated scoreboard; "reads + twins" is the headline score
+**By:** Hammad + Claude
+**Why:** Scores lived in three places (results files, findings §9, findings §14) and could drift.
+`code/scoreboard.py` now computes all methods from the saved runs and writes
+`docs/research/scoreboard.md`. Choices:
+- Methods: original, reads, twins (strict), twins (lenient), reads + twins. The headline is
+  reads + twins: the two checks catch different failures (findings-log §15), so either alone
+  leaves wrong-reason passes.
+- A task with no check of a kind passes that check. The 27 action tasks keep the upstream score.
+- It never calls an LLM or replays an environment. The read check reuses
+  `justification_core.py`; the upstream reward comes from the results file.
+- Several trials: a task scores its mean over trials; trial k pairs with trial k of the twin. A
+  missing twin trial is an error, not a silent pass.
+- The file is generated. `--check` reports a stale file.
+**Affects:** `code/scoreboard.py` · `docs/research/scoreboard.md` · `code/README.md` ·
+`docs/research/findings-log.md` §15
+**Replaces:** —
+
