@@ -12,7 +12,7 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 14 / 32 done (14 done, 5 in progress, 13 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 16 / 34 done (16 done, 5 in progress, 13 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
@@ -40,7 +40,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Milestones](docs/decisions/milestones.md) | 2026-10-08 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
+| [Milestones](docs/decisions/milestones.md) | 2026-10-09 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
 
 ## Logs (append-only)
 

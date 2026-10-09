@@ -42,7 +42,7 @@ summary: >-
 | `data/tau2/domains/airline/justification.json` | New. Required reads for 16 airline no-action tasks. | `docs/research/justification-check.md` §7 |
 | `tests/test_justification.py` | New. Core unit tests, spec validation, null-agent end-to-end in both modes. | |
 | `data/tau2/domains/airline/tasks.json` | Task 31: user budget $100 → $65; `description.notes` explains why. | Closes a policy loophole. See `docs/research/loophole-airline-31.md`. Task 31 results are not comparable with upstream. |
-| `src/tau2/utils/llm_utils.py` | `generate()`: when tools are offered with `tool_choice="auto"` and the reply is empty (with output tokens) or is a bare call to an offered tool as text, re-ask once with `tool_choice="required"`. Sets `raw_data["empty_tool_retry"]`. | Prime Intellect loses llama-4-maverick's tool calls. `docs/research/findings-log.md` §15 |
+| `src/tau2/utils/llm_utils.py` | `generate()`: when tools are offered with `tool_choice="auto"` and the reply is empty (with output tokens) or is a bare call to an offered tool as text, re-ask once with `tool_choice="required"`. Sets `raw_data["empty_tool_retry"]`. | Prime Intellect loses llama-4-maverick's tool calls. `docs/research/findings-log.md` §16 |
 | `tests/test_empty_tool_retry.py` | New. Offline tests for that retry. | |
 
 When you change upstream code, add a row here.
