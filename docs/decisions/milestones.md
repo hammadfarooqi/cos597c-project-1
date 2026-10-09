@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-08
+**Last updated:** 2026-10-09
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -46,6 +46,8 @@ The next thing each person is doing. Keep this short.
 | M0.5 | Commit the 5-model runs and hand grades behind the formalization table | Vatsal | — | in progress | Runs: re-run and committed (M0.7). Hand grades: not yet in the repository. Needed for M1.4. |
 | M0.6 | GPT-4.1 airline run through Prime Intellect (25/50) | Hammad | — | done | `docs/research/findings-log.md` §2 · `code/tau2-bench/data/simulations/airline_gpt41_check/` |
 | M0.7 | Five-model airline runs, all 50 tasks, 1 trial (sonnet-4.5, gpt-4.1, mini, nano, llama-3.3-70b) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §7 · `code/tau2-bench/data/simulations/airline_<model>/` |
+| M0.8 | Newer models (claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano): 50 airline tasks + 15 twins, 1 trial | Vatsal + Claude | — | done | `docs/research/findings-log.md` §15 · `code/tau2-bench/data/simulations/airline*_<model>/` |
+| M0.9 | llama-4-maverick: 50 airline tasks + 15 twins, 1 trial, with the tool-call retry; one table for all 9 models | Vatsal + Claude | — | done | `docs/research/findings-log.md` §16–§17 · `code/tau2-bench/data/simulations/airline*_llama-4-maverick/` |
 
 ## M1 — Minimal goal: justified vs unjustified no-action in τ²-bench
 
@@ -101,3 +103,5 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-03 — Hammad + Claude — M1.15 done (task 31 budget fix); added M1.16. (Renumbered M1.19, M1.20 at the 2026-10-08 merge.)
 - 2026-10-03 — Hammad + Claude — M1.3, M1.9 done; M1.5, M1.6, M3.1 in progress (justification check implemented).
 - 2026-10-08 — Hammad + Claude — merged all branches: M1.3 set to in progress (read gate done, pair scoring still a script); Hammad's M1.15, M1.16 renumbered M1.19, M1.20; M1.5, M1.6 evidence updated.
+- 2026-10-09 — Vatsal + Claude — added M0.8 (done): three newer models, airline + twins.
+- 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.

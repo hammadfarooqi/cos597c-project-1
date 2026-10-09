@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-08 (§1–§14; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-09 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -466,3 +466,173 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     does not change among these 4 models.
   - So reads alone do not separate the models. The remaining wrong-reason passes (no-data tasks,
     and agents that read and then refuse for the wrong reason) need the twins.
+
+## 15. Three newer models: reads gate, DB twins, policy twins (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Models** (Prime ids): `anthropic/claude-haiku-4.5`, `openai/gpt-6-luna`,
+  `openai/gpt-5.4-nano`. Chosen in the newer-models survey (not in the repository).
+- **Config:** the same as §7–§9. User simulator `openai/gpt-4.1`, temperature 0, seed 300,
+  1 trial, `--max-concurrency 5`, key in the process environment. Code at commit `3dc213a`
+  (main), so the read gate is applied when each run is saved.
+- **Runs:** for each model, three folders in `code/tau2-bench/data/simulations/`:
+  `airline_<model>` (50 tasks), `airline_twins_<model>` (split `primary`, 11 DB twins),
+  `airline_twins_pf_<model>` (domain `airline_pf_delay_no_change`, 4 policy twins). This is the
+  same 15-twin set as §8–§9. `tasks_twins.json` holds 26 twins, but the other 11 DB twins are
+  alternates that are not in `primary`, and `score_pairs.py` uses only `primary` and `pf_*`.
+- **Commands** (from `code/tau2-bench/`):
+
+  ```bash
+  export OPENAI_API_KEY="$PI_KEY" OPENAI_API_BASE="$PI_API_BASE"
+  C=(--agent-llm openai/<prime id> --agent-llm-args '{"temperature": 0.0}'
+     --user-llm openai/openai/gpt-4.1 --user-llm-args '{"temperature": 0.0}'
+     --num-trials 1 --seed 300 --max-concurrency 5)
+  uv run tau2 run --domain airline "${C[@]}" --save-to airline_<model>
+  uv run tau2 run --domain airline --task-set-name airline_twins --task-split-name primary \
+    "${C[@]}" --save-to airline_twins_<model>
+  uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twins \
+    --task-split-name pf_delay_no_change "${C[@]}" --save-to airline_twins_pf_<model>
+  uv run python ../twins/score_pairs.py <models>
+  ```
+
+- **Old models re-scored for comparison.** The §7 runs were saved before the read gate
+  existed. They were re-scored with `uv run tau2 evaluate-trajs <run> --fresh-tasks` (no LLM
+  calls; outputs not committed). `--fresh-tasks` uses the current `tasks.json`, so task 31 is
+  graded with the $65 budget, but the old user simulator was told $100.
+- **Cost** (saved tokens × list price; haiku at $1/$5 per M tokens, luna $0.10/$0.50,
+  nano $0.20/$1.25; user gpt-4.1 at $2/$8): haiku $5.60, luna $1.01, nano $3.40.
+  Total about $10. Agent tokens in/out: haiku 4.08 M / 0.105 M, luna 3.20 M / 0.119 M,
+  nano 6.46 M / 0.113 M.
+- **Result, all 8 models.** "Reads gate" = evaluator reward (justified scoring). "+ twins" =
+  the reads-gate score with the 15 no-action verdicts replaced by the paired verdicts.
+  "No-action" = the 23 tasks the null agent passes (§1).
+
+  | Model | Original (50) | Reads gate | **Reads gate + twins** | No-action (23) | Transfers on no-action | Paired / 15 |
+  |---|---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 37 | 37 | **35** | 20 | 12 | 10 |
+  | gpt-6-luna | 37 | 36 | **33** | 22 | 20 | 11 |
+  | gpt-4.1 | 30 | 29 | **26** | 16 | 9 | 5 |
+  | claude-haiku-4.5 | 24 | 23 | **21** | 18 | 15 | 8 |
+  | gpt-4.1-mini | 20 | 20 | **19** | 13 | 10 | 6 |
+  | gpt-5.4-nano | 15 | 15 | **12** | 9 | 8 | 1 |
+  | llama-3.3-70b | 19 | 7 | **3** | 19 | 22 | 0 |
+  | gpt-4.1-nano | 3 | 2 | **2** | 1 | 2 | 0 |
+
+- **Twins, new models** (DB 11 / policy 4):
+
+  | Model | No-op passes | Twin passes | Paired | Twin failure causes |
+  |---|---|---|---|---|
+  | gpt-6-luna | 10 / 4 | 11 / 1 | 10 / 1 | transfer 3 (all policy) |
+  | claude-haiku-4.5 | 6 / 4 | 10 / 2 | 6 / 2 | transfer 2, no write 1 |
+  | gpt-5.4-nano | 1 / 3 | 7 / 1 | 0 / 1 | right write + other error 3, wrong write 2, no write 1, transfer 1 |
+
+- **Read gate:** it removes one pass from haiku and one from luna, both task 34. It removes
+  none from nano.
+- **gpt-6-luna** ties sonnet-4.5 on the original score (37) at about 1/16 of the cost. It
+  transfers on 20 of 23 no-action tasks, like llama. But unlike llama, it passes all 11 DB
+  twins, so its refusals depend on the data. It fails 3 of 4 policy twins by a transfer: the
+  rule-based refusals look less reasoned, the same pattern as sonnet in §9.
+- **gpt-5.4-nano** is not a blanket refuser, and it is not a blanket writer like
+  gpt-4.1-nano. It passes 7 DB twins but only 1 of their no-action originals; most of its
+  failures are wrong or extra writes.
+- **Ranking:** twins and the read gate do not change the order of the three new models.
+  The large rank change in the table is still llama only.
+- **Weak points:**
+  - 1 trial only; §7 shows a single model can move 7 of 23 between identical runs.
+    Differences of 1–3 tasks mean nothing.
+  - gpt-6-luna wraps 218 of its text messages in JSON (`{"message": "..."}`). The user
+    simulator still reads them. This can change how some episodes end.
+  - gpt-5.4-nano hit `max_steps` on task 15 (counted as a failure).
+  - The haiku price is Anthropic's list price; Prime's price was not checked.
+
+## 16. llama-4-maverick on Prime Intellect loses its tool calls; retry added (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Context:** survey of newer models to replace the five in §7. `meta-llama/llama-4-maverick` is
+  the direct successor of llama-3.3-70b, which got 19/50 by doing nothing (§7).
+- **Symptom.** With tools offered and `tool_choice="auto"` (what tau2 sends), Prime returns the
+  model's tool call in one of two broken forms:
+  1. an empty message: `content: null`, no `tool_calls`, but ~14 completion tokens spent;
+  2. the call as plain text, for example `get_user_details(user_id=omar_davis_3817)`.
+
+  Plain text replies come back correctly. With `tool_choice="required"` the same request gives a
+  correct structured call (same tool, same arguments). Probes: 4/4 empty on a one-tool test;
+  on 21 replayed gpt-4.1 conversation prefixes (from `airline_gpt-4.1`), 3 empty, all where gpt-4.1 called a tool, and
+  each forced retry gave the expected `get_user_details` call.
+- **Cause (inferred, not confirmed):** Llama 4 writes tool calls in its own format, and Prime's
+  gateway fails to convert some of them to structured calls. The provider-routing parameter does
+  not change it. No other shortlisted model shows this (all ten in the survey returned
+  structured calls).
+- **Effect without a fix:** a 2-task tau2 check (tasks 18, 22) ran with the agent "calling"
+  `get_user_details` as text on every turn until the user gave up. Both tasks failed. A full run
+  would grade a gateway bug as the model doing nothing.
+- **Fix:** `generate()` in `code/tau2-bench/src/tau2/utils/llm_utils.py` re-asks once with
+  `tool_choice="required"` when tools were offered with `"auto"` and the reply is empty (with
+  output tokens) or is a bare call to an offered tool as text. Cost and tokens of both calls are
+  summed. The turn is marked `raw_data["empty_tool_retry"] = true`. Tests:
+  `code/tau2-bench/tests/test_empty_tool_retry.py` (5 passed, offline).
+- **Check after the fix** (same tasks, same config as §7: user `openai/gpt-4.1`, temperature 0,
+  seed 300; scratch run, not committed): task 22 reward 1.0, task 18 reward 0.0 (a full
+  conversation with reads and writes; why it failed was not checked). 5 agent turns needed the retry; all 5
+  gave sensible calls. The old results have no empty agent turns (0 of 4,306 assistant messages
+  across all committed airline runs) and one call leaked as text: `airline_llama-3.3-70b`, one
+  `search_direct_flight(...)` turn. So §7 is affected by at most one turn of llama-3.3-70b.
+- **Weak points:** the retried turn is decoded with a forced tool choice, so it is not exactly
+  what the model would have sent; it is used only when the model's output was already a tool
+  call. Report the retry rate next to any maverick score. The retry also applies to every model,
+  but triggers only on these two broken forms.
+
+
+## 17. llama-4-maverick on airline and twins; all 9 models in one table (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Model:** `meta-llama/llama-4-maverick` (Prime), the successor of llama-3.3-70b. Run with the
+  retry from §16 (commit `99f9bcf`).
+- **Config:** the same as §7–§9 and §15. User simulator `openai/gpt-4.1`, temperature 0,
+  seed 300, 1 trial, `--max-concurrency 5`. Same three commands as §15, with
+  `--agent-llm openai/meta-llama/llama-4-maverick`.
+- **Runs:** `code/tau2-bench/data/simulations/airline_llama-4-maverick/`,
+  `airline_twins_llama-4-maverick/` (11 DB twins, split `primary`),
+  `airline_twins_pf_llama-4-maverick/` (4 policy twins).
+- **Cost:** $3.97 for all 65 episodes, agent and user (agent at $0.35/$1.15 per M tokens;
+  agent tokens in/out 7.05 M / 0.079 M).
+- **Retry from §16:** 153 of 849 agent turns needed it (airline 120/686, DB twins 27/117,
+  policy twins 6/46). That is 120 of the 252 airline turns that made a tool call (48%), in 48
+  of 50 tasks. No empty agent turn is left in the results. **Without the retry, maverick
+  cannot be evaluated on Prime.** The three models in §15 ran without the retry and have no
+  empty or text-form tool calls (0 of 2,236 agent turns), so they are not affected.
+- **Old models re-scored** as in §15 (`tau2 evaluate-trajs <run> --fresh-tasks`, outputs not
+  committed). Pair scores: `uv run python ../twins/score_pairs.py <9 models>` with the
+  re-scored old runs in place. The numbers for the 8 models in §15 are reproduced exactly.
+- **Result, all 9 models.** "Reads gate" = evaluator reward. "+ twins" = reads-gate score with
+  the 15 no-action verdicts replaced by paired verdicts. "No-action" = the 23 tasks the null
+  agent passes (§1), original scoring. Cost: old models are 50 tasks only (§7); new models are
+  50 tasks + 15 twins. Both include the user simulator.
+
+  | Model | Original (50) | Reads gate | DB pairs (11) | Policy pairs (4) | **Reads gate + twins** | No-action (23) | Transfers on no-action | Cost |
+  |---|---|---|---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 37 | 37 | 8 | 2 | **35** | 20 | 12 | $16.42 |
+  | gpt-6-luna | 37 | 36 | 10 | 1 | **33** | 22 | 20 | $1.01 |
+  | gpt-4.1 | 30 | 29 | 4 | 0 | **26** | 16 | 9 | $7.16 |
+  | claude-haiku-4.5 | 24 | 23 | 6 | 2 | **21** | 18 | 15 | $5.60 |
+  | gpt-4.1-mini | 20 | 20 | 5 | 1 | **19** | 13 | 10 | $2.29 |
+  | llama-4-maverick | 23 | 22 | 3 | 0 | **16** | 16 | 9 | $3.97 |
+  | gpt-5.4-nano | 15 | 15 | 0 | 1 | **12** | 9 | 8 | $3.40 |
+  | llama-3.3-70b | 19 | 7 | 0 | 0 | **3** | 19 | 22 | $3.65 |
+  | gpt-4.1-nano | 3 | 2 | 0 | 0 | **2** | 1 | 2 | $1.01 |
+
+- **maverick is not a null-agent model like llama-3.3.** It passes 7 of the 27 action tasks
+  (llama-3.3: 0) and transfers on 9 of 23 no-action tasks (llama-3.3: 22). The read gate
+  removes one pass (task 9).
+- **But the twins remove the most credit from maverick: 22 → 16 (6 tasks), the largest drop of
+  the 9.** 6 of its 9 no-action passes on the twinned tasks have a failed twin. 6 twin failures
+  are "no write": it reads, then does not make the change the twin calls for. Of its 3 policy-flip
+  no-action passes, 2 fail the twin by not writing (tasks 2, 38) and 1 by a transfer (task 5). So its refusals look like reluctance to write, not
+  reasoning from the data or the rule.
+- **Weak points:**
+  - 1 trial only (§7: a model can move 7 of 23 between identical runs).
+  - 18% of maverick's agent turns are decoded with a forced tool choice (§16). This is not
+    exactly the model's own output. A "no write" failure can still come from the model: the
+    retry fires only when the model already produced a tool call.
+  - The maverick numbers depend on Prime's gateway; another provider may give different
+    results.
