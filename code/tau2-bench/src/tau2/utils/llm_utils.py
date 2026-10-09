@@ -352,6 +352,30 @@ def _write_llm_log(
         json.dump(call_data, f, indent=2)
 
 
+def _add_optional(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    if a is None or b is None:
+        return a if b is None else b
+    return a + b
+
+
+def _is_dropped_tool_call(response: Any, tools_schema: Any, tool_choice: Any) -> bool:
+    """True when tools were offered with tool_choice="auto" and the gateway did
+    not return the model's tool call as a structured call. Two forms are seen:
+    an empty message although output tokens were spent, and the call leaked
+    into the text, e.g. 'get_user_details(user_id=omar_davis_3817)'."""
+    if not tools_schema or tool_choice != "auto":
+        return False
+    message = response.choices[0].message
+    if message.tool_calls:
+        return False
+    if message.content:
+        names = {t["function"]["name"] for t in tools_schema}
+        match = re.fullmatch(r"\[?\s*(\w+)\(.*\)\s*\]?", message.content.strip(), re.S)
+        return bool(match and match.group(1) in names)
+    usage = getattr(response, "usage", None)
+    return bool(usage and getattr(usage, "completion_tokens", 0))
+
+
 def generate(
     model: str,
     messages: list[Message],
@@ -416,9 +440,39 @@ def generate(
     except Exception as e:
         logger.error(e)
         raise e
-    generation_time_seconds = time.perf_counter() - start_time
     cost = get_response_cost(response)
     usage = get_response_usage(response)
+
+    # Some gateways (seen: llama-4-maverick on Prime Intellect) lose a tool call
+    # the model generated under tool_choice="auto": the message comes back empty,
+    # or with the call as plain text. Re-ask once with tool_choice="required" so
+    # the turn is not lost. The flag is saved in
+    # raw_data so these turns can be counted. See docs/research/findings-log.md.
+    empty_tool_retry = False
+    if _is_dropped_tool_call(response, tools_schema, tool_choice):
+        logger.warning(
+            f"{model}: tool call lost by the gateway; "
+            "retrying with tool_choice='required'"
+        )
+        try:
+            response = completion(
+                model=model,
+                messages=litellm_messages,
+                tools=tools_schema,
+                tool_choice="required",
+                **kwargs,
+            )
+        except Exception as e:
+            logger.error(e)
+            raise e
+        empty_tool_retry = True
+        cost = _add_optional(cost, get_response_cost(response))
+        retry_usage = get_response_usage(response)
+        if usage is not None and retry_usage is not None:
+            usage = {k: usage.get(k, 0) + retry_usage.get(k, 0) for k in usage}
+        else:
+            usage = usage or retry_usage
+    generation_time_seconds = time.perf_counter() - start_time
 
     response_choice = response.choices[0]
     try:
@@ -449,7 +503,7 @@ def generate(
         tool_calls=tool_calls,
         cost=cost,
         usage=usage,
-        raw_data=response.to_dict(),
+        raw_data={**response.to_dict(), "empty_tool_retry": empty_tool_retry},
         generation_time_seconds=generation_time_seconds,
     )
 

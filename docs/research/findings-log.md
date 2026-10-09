@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-08 (§1–§14; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-09 (§1–§15; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -466,3 +466,41 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     does not change among these 4 models.
   - So reads alone do not separate the models. The remaining wrong-reason passes (no-data tasks,
     and agents that read and then refuse for the wrong reason) need the twins.
+
+## 15. llama-4-maverick on Prime Intellect loses its tool calls; retry added (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Context:** survey of newer models to replace the five in §7. `meta-llama/llama-4-maverick` is
+  the direct successor of llama-3.3-70b, which got 19/50 by doing nothing (§7).
+- **Symptom.** With tools offered and `tool_choice="auto"` (what tau2 sends), Prime returns the
+  model's tool call in one of two broken forms:
+  1. an empty message: `content: null`, no `tool_calls`, but ~14 completion tokens spent;
+  2. the call as plain text, for example `get_user_details(user_id=omar_davis_3817)`.
+
+  Plain text replies come back correctly. With `tool_choice="required"` the same request gives a
+  correct structured call (same tool, same arguments). Probes: 4/4 empty on a one-tool test;
+  on 21 replayed gpt-4.1 conversation prefixes (from `airline_gpt-4.1`), 3 empty, all where gpt-4.1 called a tool, and
+  each forced retry gave the expected `get_user_details` call.
+- **Cause (inferred, not confirmed):** Llama 4 writes tool calls in its own format, and Prime's
+  gateway fails to convert some of them to structured calls. The provider-routing parameter does
+  not change it. No other shortlisted model shows this (all ten in the survey returned
+  structured calls).
+- **Effect without a fix:** a 2-task tau2 check (tasks 18, 22) ran with the agent "calling"
+  `get_user_details` as text on every turn until the user gave up. Both tasks failed. A full run
+  would grade a gateway bug as the model doing nothing.
+- **Fix:** `generate()` in `code/tau2-bench/src/tau2/utils/llm_utils.py` re-asks once with
+  `tool_choice="required"` when tools were offered with `"auto"` and the reply is empty (with
+  output tokens) or is a bare call to an offered tool as text. Cost and tokens of both calls are
+  summed. The turn is marked `raw_data["empty_tool_retry"] = true`. Tests:
+  `code/tau2-bench/tests/test_empty_tool_retry.py` (5 passed, offline).
+- **Check after the fix** (same tasks, same config as §7: user `openai/gpt-4.1`, temperature 0,
+  seed 300; scratch run, not committed): task 22 reward 1.0, task 18 reward 0.0 (a full
+  conversation with reads and writes; why it failed was not checked). 5 agent turns needed the retry; all 5
+  gave sensible calls. The old results have no empty agent turns (0 of 4,306 assistant messages
+  across all committed airline runs) and one call leaked as text: `airline_llama-3.3-70b`, one
+  `search_direct_flight(...)` turn. So §7 is affected by at most one turn of llama-3.3-70b.
+- **Weak points:** the retried turn is decoded with a forced tool choice, so it is not exactly
+  what the model would have sent; it is used only when the model's output was already a tool
+  call. Report the retry rate next to any maverick score. The retry also applies to every model,
+  but triggers only on these two broken forms.
+
