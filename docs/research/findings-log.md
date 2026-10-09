@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-08 (§1–§14; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-09 (§1–§15; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -466,3 +466,82 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     does not change among these 4 models.
   - So reads alone do not separate the models. The remaining wrong-reason passes (no-data tasks,
     and agents that read and then refuse for the wrong reason) need the twins.
+
+## 15. Three newer models: reads gate, DB twins, policy twins (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Models** (Prime ids): `anthropic/claude-haiku-4.5`, `openai/gpt-6-luna`,
+  `openai/gpt-5.4-nano`. Chosen in the newer-models survey (not in the repository).
+- **Config:** the same as §7–§9. User simulator `openai/gpt-4.1`, temperature 0, seed 300,
+  1 trial, `--max-concurrency 5`, key in the process environment. Code at commit `3dc213a`
+  (main), so the read gate is applied when each run is saved.
+- **Runs:** for each model, three folders in `code/tau2-bench/data/simulations/`:
+  `airline_<model>` (50 tasks), `airline_twins_<model>` (split `primary`, 11 DB twins),
+  `airline_twins_pf_<model>` (domain `airline_pf_delay_no_change`, 4 policy twins). This is the
+  same 15-twin set as §8–§9. `tasks_twins.json` holds 26 twins, but the other 11 DB twins are
+  alternates that are not in `primary`, and `score_pairs.py` uses only `primary` and `pf_*`.
+- **Commands** (from `code/tau2-bench/`):
+
+  ```bash
+  export OPENAI_API_KEY="$PI_KEY" OPENAI_API_BASE="$PI_API_BASE"
+  C=(--agent-llm openai/<prime id> --agent-llm-args '{"temperature": 0.0}'
+     --user-llm openai/openai/gpt-4.1 --user-llm-args '{"temperature": 0.0}'
+     --num-trials 1 --seed 300 --max-concurrency 5)
+  uv run tau2 run --domain airline "${C[@]}" --save-to airline_<model>
+  uv run tau2 run --domain airline --task-set-name airline_twins --task-split-name primary \
+    "${C[@]}" --save-to airline_twins_<model>
+  uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twins \
+    --task-split-name pf_delay_no_change "${C[@]}" --save-to airline_twins_pf_<model>
+  uv run python ../twins/score_pairs.py <models>
+  ```
+
+- **Old models re-scored for comparison.** The §7 runs were saved before the read gate
+  existed. They were re-scored with `uv run tau2 evaluate-trajs <run> --fresh-tasks` (no LLM
+  calls; outputs not committed). `--fresh-tasks` uses the current `tasks.json`, so task 31 is
+  graded with the $65 budget, but the old user simulator was told $100.
+- **Cost** (saved tokens × list price; haiku at $1/$5 per M tokens, luna $0.10/$0.50,
+  nano $0.20/$1.25; user gpt-4.1 at $2/$8): haiku $5.60, luna $1.01, nano $3.40.
+  Total about $10. Agent tokens in/out: haiku 4.08 M / 0.105 M, luna 3.20 M / 0.119 M,
+  nano 6.46 M / 0.113 M.
+- **Result, all 8 models.** "Reads gate" = evaluator reward (justified scoring). "+ twins" =
+  the reads-gate score with the 15 no-action verdicts replaced by the paired verdicts.
+  "No-action" = the 23 tasks the null agent passes (§1).
+
+  | Model | Original (50) | Reads gate | **Reads gate + twins** | No-action (23) | Transfers on no-action | Paired / 15 |
+  |---|---|---|---|---|---|---|
+  | claude-sonnet-4.5 | 37 | 37 | **35** | 20 | 12 | 10 |
+  | gpt-6-luna | 37 | 36 | **33** | 22 | 20 | 11 |
+  | gpt-4.1 | 30 | 29 | **26** | 16 | 9 | 5 |
+  | claude-haiku-4.5 | 24 | 23 | **21** | 18 | 15 | 8 |
+  | gpt-4.1-mini | 20 | 20 | **19** | 13 | 10 | 6 |
+  | gpt-5.4-nano | 15 | 15 | **12** | 9 | 8 | 1 |
+  | llama-3.3-70b | 19 | 7 | **3** | 19 | 22 | 0 |
+  | gpt-4.1-nano | 3 | 2 | **2** | 1 | 2 | 0 |
+
+- **Twins, new models** (DB 11 / policy 4):
+
+  | Model | No-op passes | Twin passes | Paired | Twin failure causes |
+  |---|---|---|---|---|
+  | gpt-6-luna | 10 / 4 | 11 / 1 | 10 / 1 | transfer 3 (all policy) |
+  | claude-haiku-4.5 | 6 / 4 | 10 / 2 | 6 / 2 | transfer 2, no write 1 |
+  | gpt-5.4-nano | 1 / 3 | 7 / 1 | 0 / 1 | right write + other error 3, wrong write 2, no write 1, transfer 1 |
+
+- **Read gate:** it removes one pass from haiku and one from luna, both task 34. It removes
+  none from nano.
+- **gpt-6-luna** ties sonnet-4.5 on the original score (37) at about 1/16 of the cost. It
+  transfers on 20 of 23 no-action tasks, like llama. But unlike llama, it passes all 11 DB
+  twins, so its refusals depend on the data. It fails 3 of 4 policy twins by a transfer: the
+  rule-based refusals look less reasoned, the same pattern as sonnet in §9.
+- **gpt-5.4-nano** is not a blanket refuser, and it is not a blanket writer like
+  gpt-4.1-nano. It passes 7 DB twins but only 1 of their no-action originals; most of its
+  failures are wrong or extra writes.
+- **Ranking:** twins and the read gate do not change the order of the three new models.
+  The large rank change in the table is still llama only.
+- **Weak points:**
+  - 1 trial only; §7 shows a single model can move 7 of 23 between identical runs.
+    Differences of 1–3 tasks mean nothing.
+  - gpt-6-luna wraps 218 of its text messages in JSON (`{"message": "..."}`). The user
+    simulator still reads them. This can change how some episodes end.
+  - gpt-5.4-nano hit `max_steps` on task 15 (counted as a failure).
+  - The haiku price is Anthropic's list price; Prime's price was not checked.
+
