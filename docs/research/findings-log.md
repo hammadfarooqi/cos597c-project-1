@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-09 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-09 (§1–§18; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -636,3 +636,41 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     retry fires only when the model already produced a tool call.
   - The maverick numbers depend on Prime's gateway; another provider may give different
     results.
+
+## 18. Null-agent checkup on tau2 retail and telecom (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Why:** first step of the "no-op doctor" proposal (`docs/research/noop-doctor-design.md`):
+  find out how many tasks a do-nothing agent passes outside airline. Also milestone M2.2.
+- **Telecom command** (from `code/tau2-bench/`, no LLM calls):
+  `uv run tau2 run --domain telecom --agent do_nothing_agent --user scripted_user --num-trials 1 --save-to telecom_do_nothing --max-concurrency 10`
+- **Retail command:** the same with `--domain retail --save-to retail_do_nothing --max-concurrency 1`.
+  Retail scores NL assertions with an LLM judge, `DEFAULT_LLM_NL_ASSERTIONS =
+  "gpt-4.1-2025-04-14"` (`code/tau2-bench/src/tau2/config.py`). Prime Intellect does not serve
+  that name. We ran tau2 through a launcher that sets the judge to `openai/openai/gpt-4.1`
+  (Prime, key from the environment as `OPENAI_API_KEY`/`OPENAI_API_BASE`) and changes nothing
+  else. Without it, 40 retail tasks end in `infrastructure_error`. The launcher is not
+  committed.
+- **Runs:** `code/tau2-bench/data/simulations/retail_do_nothing/`,
+  `code/tau2-bench/data/simulations/telecom_do_nothing/`.
+- **Results:**
+
+  | Domain | Tasks | Gold has no agent WRITE tool | Null agent passes |
+  |---|---|---|---|
+  | retail | 114 | 10 (10, 12, 24, 25, 50, 57, 62, 65, 67, 68) | **6** (10, 12, 25, 50, 57, 65) = 5.3% |
+  | telecom | 114 | 43 | **0** |
+
+  "WRITE tool" = a tool labelled `ToolType.WRITE` in the domain's `tools.py`.
+- **Retail:** the 4 no-write tasks the null agent fails (24, 62, 67, 68) have NL assertions:
+  the agent must tell the user a fact (a price, a material, an order total). The NL assertions
+  already defend those. Zhu et al. (`docs/papers/index.md` [1]) report 6.0% for τ-bench v1
+  retail; 5.3% agrees. 4 of the 6 passes (10, 12, 25, 65) list reads in their gold actions; 50
+  and 57 list none.
+- **Telecom:** reward is `ENV_ASSERTION` on the user's device (94 tasks) or `ENV_ASSERTION +
+  ACTION` (20). The user changes device state only when the agent guides them, so the null
+  agent cannot pass. The 43 "no agent write" tasks are fixed by the *user's* tools, not the
+  agent's.
+- **Meaning:** the no-op problem is large in airline (46%), small in retail (5.3%), and absent
+  in telecom. Retail needs a read gate on at most 6 tasks. Telecom needs nothing.
+- **Weak points:** 1 trial. The null agent is deterministic, but the retail NL judge is an LLM
+  and a different judge model than upstream's.

@@ -8,17 +8,18 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-09 · **Documents:** 11
+**Index generated:** 2026-10-09 · **Documents:** 12
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 16 / 34 done (16 done, 5 in progress, 13 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 16 / 35 done (16 done, 7 in progress, 12 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
-## ⚠ Audit: 1 warning(s)
+## ⚠ Audit: 2 warning(s)
 
 ```
+FLAGGED          docs/research/noop-doctor-design.md  status: needs-review
 BROKEN LINK      CLAUDE.md  ->  code/tau2-bench/.env
 ```
 
@@ -61,6 +62,7 @@ Run `python3 tools/build_index.py` after fixing these.
 | [The No-Action Justification Check — Method and Implementation](docs/research/justification-check.md) | 2026-10-08 | current | The authoritative description of how we grade a no-action pass as justified: the rule, the spec format, the matching semantics, the scoring modes, the code layout, how the airline spec was derived, validation results, limitations, and a step-by-step guide for adding the check to a new domain or benchmark. **Note:** Read this before changing evaluator_justification.py, justification_core.py, or any justification.json. Twins are not part of this check yet. |
 | [Task 31 — A Policy Loophole and Our Fix](docs/research/loophole-airline-31.md) | 2026-10-08 | current | Airline task 31 expects "no change", but a policy-legal route (upgrade the cabin, then change the flight) cost $81 and fit the user's $100 budget. We lowered the budget to $65. This note explains the loophole, the evidence, what we changed, and what to say in the write-up. **Note:** Important finding. Any result on task 31 from our copy is NOT comparable with upstream τ²/τ³-bench results on task 31. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-08 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
+| [No-op Doctor — Design Proposal](docs/research/noop-doctor-design.md) | 2026-10-09 | **needs review** | Proposal for a benchmark-agnostic "no-op doctor": the null-agent checkup, the read gate, DB twins and policy flips as one tool with a small adapter per benchmark. Lists what a benchmark must expose, what is airline-specific today, and first results on tau2 retail and telecom. **Note:** A proposal, not a decision. Nothing here is built yet. Waiting for Vatsal and Hammad to agree on scope (section 7) before code changes. |
 
 ## Indexes
 
