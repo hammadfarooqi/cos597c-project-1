@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-09
+updated: 2026-10-10
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-09 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-10 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -636,3 +636,89 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     retry fires only when the model already produced a tool call.
   - The maverick numbers depend on Prime's gateway; another provider may give different
     results.
+
+## 20. Three trials of the four newer models; mean scores and change from the gates (2026-10-10)
+**By:** Vatsal + Claude
+
+- **Models:** gpt-6-luna, claude-haiku-4.5, gpt-5.4-nano, llama-4-maverick (§15, §17).
+- **Config:** the same as §15 and §17, except the seed. Trial 1 is the seed 300 run in §15 and
+  §17. Trials 2 and 3 use seeds 301 and 302. User simulator `openai/gpt-4.1`, temperature 0,
+  `--num-trials 1`, `--max-concurrency 5`. Code at commit `27f9472` (main, with the §16 retry).
+  The four models ran at the same time.
+- **Runs:** for each model and seed `N` in {301, 302}, three folders in
+  `code/tau2-bench/data/simulations/`: `airline_<model>_seed<N>` (50 tasks),
+  `airline_twins_<model>_seed<N>` (split `primary`, 11 DB twins),
+  `airline_twins_pf_<model>_seed<N>` (4 policy twins). Same three commands as §15, with
+  `--seed <N>` and `--save-to` names with the `_seed<N>` suffix.
+- **Scoring:** `code/twins/average_trials.py` (new). It scores each trial with the pair rule of
+  `code/twins/score_pairs.py` and averages over trials. It reproduces the §17 numbers for the
+  seed 300 runs exactly, cost included. Command (from `code/tau2-bench/`):
+
+  ```bash
+  uv run python ../twins/average_trials.py gpt-6-luna:300,301,302 \
+    claude-haiku-4.5:300,301,302 gpt-5.4-nano:300,301,302 llama-4-maverick:300,301,302
+  ```
+
+- **Per trial:**
+
+  | Model | Seed | Original (50) | Reads gate | DB pairs (11) | Policy pairs (4) | Reads gate + twins | No-action (23) | Transfers on no-action | Cost $ |
+  |---|---|---|---|---|---|---|---|---|---|
+  | gpt-6-luna | 300 | 37 | 36 | 10 | 1 | 33 | 22 | 20 | 1.01 |
+  | gpt-6-luna | 301 | 40 | 39 | 11 | 2 | 37 | 23 | 21 | 0.94 |
+  | gpt-6-luna | 302 | 40 | 39 | 11 | 2 | 37 | 23 | 22 | 1.01 |
+  | claude-haiku-4.5 | 300 | 24 | 23 | 6 | 2 | 21 | 18 | 15 | 5.60 |
+  | claude-haiku-4.5 | 301 | 24 | 23 | 7 | 1 | 20 | 18 | 15 | 5.78 |
+  | claude-haiku-4.5 | 302 | 25 | 25 | 4 | 2 | 20 | 19 | 15 | 5.65 |
+  | gpt-5.4-nano | 300 | 15 | 15 | 0 | 1 | 12 | 9 | 8 | 3.40 |
+  | gpt-5.4-nano | 301 | 18 | 17 | 1 | 0 | 13 | 12 | 9 | 2.93 |
+  | gpt-5.4-nano | 302 | 17 | 16 | 3 | 1 | 15 | 11 | 8 | 2.05 |
+  | llama-4-maverick | 300 | 23 | 22 | 3 | 0 | 16 | 16 | 9 | 3.97 |
+  | llama-4-maverick | 301 | 22 | 19 | 2 | 0 | 12 | 16 | 10 | 4.92 |
+  | llama-4-maverick | 302 | 23 | 20 | 6 | 0 | 15 | 19 | 13 | 3.69 |
+
+- **Mean over 3 trials (min–max):**
+
+  | Model | Original (50) | Reads gate | DB pairs (11) | Policy pairs (4) | **Reads gate + twins** | No-action (23) | Transfers on no-action | Cost, 3 trials |
+  |---|---|---|---|---|---|---|---|---|
+  | gpt-6-luna | 39.0 (37–40) | 38.0 (36–39) | 10.7 (10–11) | 1.7 (1–2) | **35.7 (33–37)** | 22.7 (22–23) | 21.0 (20–22) | $2.95 |
+  | claude-haiku-4.5 | 24.3 (24–25) | 23.7 (23–25) | 5.7 (4–7) | 1.7 (1–2) | **20.3 (20–21)** | 18.3 (18–19) | 15.0 (15–15) | $17.03 |
+  | llama-4-maverick | 22.7 (22–23) | 20.3 (19–22) | 3.7 (2–6) | 0.0 (0–0) | **14.3 (12–16)** | 17.0 (16–19) | 10.7 (9–13) | $12.58 |
+  | gpt-5.4-nano | 16.7 (15–18) | 16.0 (15–17) | 1.3 (0–3) | 0.7 (0–1) | **13.3 (12–15)** | 10.7 (9–12) | 8.3 (8–9) | $8.39 |
+
+- **Change from the original score (means):**
+
+  | Model | Original | Reads gate | Reads gate + twins | Reads gate change | **Both gates change** |
+  |---|---|---|---|---|---|
+  | gpt-6-luna | 39.0 | 38.0 | 35.7 | -2.6% | **-8.5%** |
+  | claude-haiku-4.5 | 24.3 | 23.7 | 20.3 | -2.7% | **-16.4%** |
+  | gpt-5.4-nano | 16.7 | 16.0 | 13.3 | -4.0% | **-20.0%** |
+  | llama-4-maverick | 22.7 | 20.3 | 14.3 | -10.3% | **-36.8%** |
+
+- **Strict and lenient twin rules** (decisions log 2026-10-03). All "reads gate + twins"
+  numbers above use the strict rule: any twin failure removes the credit. The lenient rule
+  also counts a twin when the agent made the right write despite other errors. It changes one
+  trial only: gpt-5.4-nano at seed 300, twin `28_twin_business`, 12 → 13. The nano mean goes
+  13.3 → 13.7, and its change from the original score goes -20.0% → -18.0%. The other three
+  models are the same under both rules. `code/twins/average_trials.py` prints both.
+
+- **What it means:**
+  - The §17 order of these four models holds in every trial on "reads gate + twins":
+    luna > haiku > maverick, nano. maverick and nano overlap (12–16 vs 12–15).
+  - On the original score, maverick (22.7) is close to haiku (24.3). After both gates it is
+    6 points below haiku. maverick loses the most credit (-36.8%), and luna the least (-8.5%).
+    This is the §17 result, now over 3 trials.
+  - The reads gate alone removes 2.6–4.0% for luna, haiku and nano, and 10.3% for maverick.
+    Most of the drop comes from the twins.
+  - maverick passes 0 of 4 policy pairs in all 3 trials.
+  - Trial 1 was luna's lowest run (37 vs 40, 40).
+- **Retry from §16 (maverick):** seed 301: 149 of 921 agent turns; seed 302: 140 of 822
+  (16–17%, about the same as trial 1). No empty agent turn is left in any new run.
+- **Weak points:**
+  - Temperature is 0 for both agent and user. The trials differ because the seed changes and
+    the providers are not deterministic. They are not independent samples at a higher
+    temperature.
+  - 3 trials only. A range of 3–4 points (nano, maverick) means a difference of 1–2 points
+    in the means is not reliable.
+  - `max_steps` (counted as a failure): gpt-5.4-nano task 15 at seed 301 (also at seed 300,
+    §15), llama-4-maverick task 6 at seed 301.
+  - Cost is saved tokens × the list prices of §15 and §17. Prime's real price was not checked.
