@@ -8,21 +8,15 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-09 · **Documents:** 11
+**Index generated:** 2026-10-10 · **Documents:** 16
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 16 / 34 done (16 done, 5 in progress, 13 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 19 / 39 done (19 done, 5 in progress, 15 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
-## ⚠ Audit: 1 warning(s)
-
-```
-BROKEN LINK      CLAUDE.md  ->  code/tau2-bench/.env
-```
-
-Run `python3 tools/build_index.py` after fixing these.
+## ✓ Audit clean
 
 ---
 
@@ -40,7 +34,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Milestones](docs/decisions/milestones.md) | 2026-10-09 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
+| [Milestones](docs/decisions/milestones.md) | 2026-10-10 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
 
 ## Logs (append-only)
 
@@ -48,8 +42,8 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-08 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
-| [Findings Log](docs/research/findings-log.md) | 2026-10-09 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
+| [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-10 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
+| [Findings Log](docs/research/findings-log.md) | 2026-10-10 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
 
 ## Research
 
@@ -60,7 +54,12 @@ Run `python3 tools/build_index.py` after fixing these.
 | [Counterfactual Twins — Design and Coverage](docs/research/counterfactual-twins.md) | 2026-10-03 | current | How we generate counterfactual twins for the airline no-action tasks: the policy oracle, the per-task specs, the one-field DB search, and the validation with the real tau2 evaluator. Coverage of all 23 tasks, the exclusions, and policy-flip twins for policy-based tasks. **Note:** Extends docs/research/no-action-tasks.md §3 (per-task facts). 11 DB-flip twins and 4 policy-flip twins are built (15 of 23 tasks). |
 | [The No-Action Justification Check — Method and Implementation](docs/research/justification-check.md) | 2026-10-08 | current | The authoritative description of how we grade a no-action pass as justified: the rule, the spec format, the matching semantics, the scoring modes, the code layout, how the airline spec was derived, validation results, limitations, and a step-by-step guide for adding the check to a new domain or benchmark. **Note:** Read this before changing evaluator_justification.py, justification_core.py, or any justification.json. Twins are not part of this check yet. |
 | [Task 31 — A Policy Loophole and Our Fix](docs/research/loophole-airline-31.md) | 2026-10-08 | current | Airline task 31 expects "no change", but a policy-legal route (upgrade the cabin, then change the flight) cost $81 and fit the user's $100 budget. We lowered the budget to $65. This note explains the loophole, the evidence, what we changed, and what to say in the write-up. **Note:** Important finding. Any result on task 31 from our copy is NOT comparable with upstream τ²/τ³-bench results on task 31. |
+| [Older vs Newer Models — Short Comparison](docs/research/new-models/old-vs-new.md) | 2026-10-10 | current | One page that sets the older five models beside the newer four. The older set showed the failure patterns in exaggerated form (llama-3.3-70b's blanket transfers). The newer set has smaller, model-specific failures, and it exposed problems in three twin scripts. **Note:** Secondary. The main analyses are separate: docs/research/qualitative-patterns.md (older) and docs/research/new-models/qualitative-patterns.md (newer). 1 trial per model. |
+| [What the Checks Catch — Newer Models](docs/research/new-models/qualitative-patterns.md) | 2026-10-10 | current | A read of every airline transcript of the four newer models (claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano, llama-4-maverick): 50 tasks and 15 twins each. Each model has its own failure style. The checks remove 17 no-action passes; we explain every one. 12 are real agent errors, 2 come from a weak twin script (task 27), and 3 come from maverick's tool calls being lost as text. **Note:** Newer models only. The older models are in docs/research/qualitative-patterns.md; the two are compared only in docs/research/new-models/old-vs-new.md. 1 trial per model. Counts come from code/transcript_patterns.py; quotes are from the saved runs. This note corrects one reading in docs/research/findings-log.md §17 (see §5). |
+| [Scoreboard — newer models](docs/research/new-models/scoreboard.md) | 2026-10-10 | current | Four smaller, newer models (findings-log §15–§17). llama-4-maverick ran with the tool-call retry of findings-log §16; 18% of its turns needed it. Each model under every scoring method (original, reads, twins, reads + twins). Generated by code/scoreboard.py from the saved runs. Do not edit by hand. **Note:** Generated file. Change the runs or the specs, then rerun code/scoreboard.py. The other model set has its own scoreboard (`docs/research/scoreboard.md`); the two are not mixed. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-08 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
+| [What the Checks Catch — Older Models](docs/research/qualitative-patterns.md) | 2026-10-10 | current | Older models only. A read of every airline transcript (5 models, 50 tasks, 15 twins) to find the agent behaviours behind the scoreboard numbers. Llama's −16 is a "transfer first" habit: it transfers before any successful lookup in 41 of 50 tasks, and tau2 scores that as a correct refusal. Each check catches a different customer-service failure; this note names them, with transcript evidence. **Note:** 1 trial per model. The patterns are clear, but the per-model counts can move with more trials (M1.17). Counts come from code/transcript_patterns.py; quotes are from the saved runs. The newer models have their own note (docs/research/new-models/qualitative-patterns.md); they are not mixed. 2026-10-10: the task-vs-twin measure changed from "same outcome" to "same write decision"; sonnet's value moved from 4 to 5. |
+| [Scoreboard — older models](docs/research/scoreboard.md) | 2026-10-10 | current | The five models of the first round (findings-log §7), released 2024–2025. Each model under every scoring method (original, reads, twins, reads + twins). Generated by code/scoreboard.py from the saved runs. Do not edit by hand. **Note:** Generated file. Change the runs or the specs, then rerun code/scoreboard.py. The other model set has its own scoreboard (`docs/research/new-models/scoreboard.md`); the two are not mixed. |
 
 ## Indexes
 
@@ -68,7 +67,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Code](code/README.md) | 2026-10-09 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [Code](code/README.md) | 2026-10-10 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
 | [External Documents Index](docs/external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
 | [Papers Index](docs/papers/index.md) | 2026-10-08 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |
 

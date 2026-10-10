@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-10
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -168,3 +168,47 @@ leaves upstream scoring intact and reproducible. Choices:
 **Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
 `docs/decisions/charter.md` §6 · `code/README.md`
 **Replaces:** —
+
+## 2026-10-08 — One generated scoreboard; "reads + twins" is the headline score
+**By:** Hammad + Claude
+**Why:** Scores lived in three places (results files, findings §9, findings §14) and could drift.
+`code/scoreboard.py` now computes all methods from the saved runs and writes
+`docs/research/scoreboard.md`. Choices:
+- Methods: original, reads, twins (strict), twins (lenient), reads + twins. The headline is
+  reads + twins: the two checks catch different failures (findings-log §15), so either alone
+  leaves wrong-reason passes.
+- A task with no check of a kind passes that check. The 27 action tasks keep the upstream score.
+- It never calls an LLM or replays an environment. The read check reuses
+  `justification_core.py`; the upstream reward comes from the results file.
+- Several trials: a task scores its mean over trials; trial k pairs with trial k of the twin. A
+  missing twin trial is an error, not a silent pass.
+- The file is generated. `--check` reports a stale file.
+**Affects:** `code/scoreboard.py` · `docs/research/scoreboard.md` · `code/README.md` ·
+`docs/research/findings-log.md` §15
+**Replaces:** —
+
+## 2026-10-10 — Two model sets, analysed separately; the newer set is the one we use going forward
+**By:** Hammad + Claude
+**Why:** The TA asked for (1) qualitative explanations and (2) models released in the last year.
+The older five models (findings-log §7) showed the failure patterns in exaggerated form. They are
+not what we will report going forward. Mixing the two sets in one table invites comparisons we
+do not want to make.
+- Two sets in `code/scoreboard.py` (`MODEL_SETS`): `old` (claude-sonnet-4.5, gpt-4.1,
+  gpt-4.1-mini, gpt-4.1-nano, llama-3.3-70b) and `new` (claude-haiku-4.5, gpt-6-luna,
+  gpt-5.4-nano, llama-4-maverick). The null agent is the baseline in both.
+- Each set has its own scoreboard (`docs/research/scoreboard.md`,
+  `docs/research/new-models/scoreboard.md`) and its own qualitative note
+  (`docs/research/qualitative-patterns.md`, `docs/research/new-models/qualitative-patterns.md`).
+  One short note compares them: `docs/research/new-models/old-vs-new.md`.
+- Merge bookkeeping: the scoreboard branch's findings-log §15–§16 became §18–§19, because main
+  already had §15–§17 (Vatsal's newer-model runs). Milestones M1.6, M1.21, M1.22 now point to
+  §18–§19. The 2026-10-08 entry above still says "§15"; it means §18.
+- **Conflict settled:** findings-log §17 reads llama-4-maverick's twin failures as "reluctance to
+  write". The transcripts show that 3 of its 6 twin removals are correct cancels that were typed
+  as text and never ran, and 2 come from the tasks 2/38 twin script (findings-log §20). We follow
+  §20. §17 stays as written.
+**Affects:** `code/scoreboard.py` · `code/transcript_patterns.py` · `docs/research/scoreboard.md` ·
+`docs/research/new-models/` · `docs/research/findings-log.md` §17–§20 ·
+`docs/decisions/milestones.md`
+**Replaces:** the single all-model scoreboard of 2026-10-08 (now split by set)
+

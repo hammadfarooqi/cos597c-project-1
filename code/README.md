@@ -2,7 +2,7 @@
 title: Code
 type: index
 status: current
-updated: 2026-10-09
+updated: 2026-10-10
 summary: >-
   What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines.
   The reasoning behind each change is in docs/.
@@ -91,6 +91,16 @@ uv run tau2 run --domain airline --agent do_nothing_agent --user scripted_user \
   --num-trials 1 --save-to airline_do_nothing
 ```
 
+The null agent on the twins (also free), for the scoreboard:
+
+```bash
+uv run tau2 run --domain airline --agent do_nothing_agent --user scripted_user --num-trials 1 \
+  --task-set-name airline_twins --task-split-name primary --save-to airline_twins_do_nothing
+uv run tau2 run --domain airline_pf_delay_no_change --agent do_nothing_agent --user scripted_user \
+  --num-trials 1 --task-set-name airline_twins --task-split-name pf_delay_no_change \
+  --save-to airline_twins_pf_do_nothing
+```
+
 **A model through Prime Intellect.** LiteLLM needs the `openai/` prefix in front of the Prime
 Intellect model ID, so `openai/gpt-4.1` becomes `openai/openai/gpt-4.1`.
 
@@ -135,6 +145,45 @@ Every result saves both `reward` and `original_reward`, plus `scoring_mode` and 
 ```bash
 uv run tau2 evaluate-trajs data/simulations/<run>/results.json --fresh-tasks -o data/simulations/<run>_justified
 uv run pytest tests/test_justification.py -q
+```
+
+## `scoreboard.py` — every model under every scoring method
+
+`scoreboard.py` writes one scoreboard per model set: each model's score under original, reads,
+twins (strict and lenient), and reads + twins, with ranks, per-task marks, and coverage. It reads
+the saved runs only. It makes no LLM calls and replays no environment. It reuses the read check's
+core (`justification_core.py`) and the pair helpers in `twins/score_pairs.py`.
+
+The sets are listed in `MODEL_SETS` at the top of the file. They are never mixed (decisions log,
+2026-10-10). The null agent is in each set as the baseline.
+
+| Set | Models | Output |
+|---|---|---|
+| `old` | claude-sonnet-4.5, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, llama-3.3-70b | `docs/research/scoreboard.md` |
+| `new` | claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano, llama-4-maverick | `docs/research/new-models/scoreboard.md` |
+
+To add a model, add it to a set. Its `airline_<model>` and `airline_twins_<model>` runs must
+exist. With several trials, a task's score is its mean, and trial k is paired with trial k of
+the twin.
+
+```bash
+uv run python ../scoreboard.py              # regenerate every set after a new run or spec change
+uv run python ../scoreboard.py --set new    # one set
+uv run python ../scoreboard.py --check      # exit 1 if any scoreboard is stale
+```
+
+## `transcript_patterns.py` — what the agents did
+
+Prints two Markdown tables of behaviour counts per model, for one model set. Table 1: transfers,
+transfers before any successful lookup, guessed user IDs, and whether the write decision is the
+same on a task and its twin. Table 2: silent transfers (read, then transfer with no reply),
+writes typed as text that never ran, and writes on a reservation before reading it. Same saved
+runs and helpers as `scoreboard.py`; no LLM calls. The analyses that use it:
+`docs/research/new-models/qualitative-patterns.md` and `docs/research/qualitative-patterns.md`.
+
+```bash
+uv run python ../transcript_patterns.py             # newer models
+uv run python ../transcript_patterns.py --set old   # older models
 ```
 
 ## Upstream documentation
