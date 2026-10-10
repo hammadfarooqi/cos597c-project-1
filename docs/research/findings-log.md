@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-10 (§1–§21; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
+**Last updated:** 2026-10-10 (§1–§22; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
 
 ---
 
@@ -846,4 +846,49 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   case used in the analysis was also read by hand.
 - Full analysis: `docs/research/new-models/qualitative-patterns.md`. Comparison with the older
   set: `docs/research/new-models/old-vs-new.md`.
+
+## 22. Newer models over 3 trials: pass^k, stability of removals, behaviour counts (2026-10-10)
+**By:** Hammad + Claude
+
+- **Why:** §20 added trials 2 and 3 and reported means and ranges. This entry adds measures that
+  use the trials: pass^k, how stable each removal is, and the behaviour counts of §21 over all
+  trials. No new runs, no LLM calls.
+- **Commands** (from `code/tau2-bench/`): `uv run python ../scoreboard.py --set new`
+  (`docs/research/new-models/scoreboard.md`, §1–§6) and `uv run python ../transcript_patterns.py`.
+  The scoreboard's means equal §20 exactly.
+- **pass^k** (the chance of passing a task in all k trials, summed over tasks; C(c, k) / C(n, k)):
+
+  | Model | Original pass^1 → pass^3 (50 tasks) | **Reads + all twins** pass^1 → pass^3 (50 tasks) | No-action tasks, reads + all twins, pass^1 → pass^3 (of 23) |
+  |---|---|---|---|
+  | gpt-6-luna | 39 → 33 | **35.7 → 29** | 19.3 → 18 |
+  | claude-haiku-4.5 | 24.3 → 17 | **20.3 → 13** | 14.3 → 10 |
+  | llama-4-maverick | 22.7 → 14 | **14.3 → 5** | 8.7 → 3 |
+  | gpt-5.4-nano | 16.7 → 9 | **13.3 → 6** | 7.3 → 3 |
+  | null agent | 23 → 23 | **3 → 3** | 3 → 3 |
+
+- **Stability of removals** (no-action tasks that passed upstream in at least one trial):
+
+  | Model | Tasks | Removed in every trial it passed | Removed in some trials | Never removed | Removal events |
+  |---|---|---|---|---|---|
+  | gpt-6-luna | 23 | 2 (34, 38) | 2 (5, 27) | 19 | 10 |
+  | claude-haiku-4.5 | 21 | 2 (27, 47) | 5 | 14 | 12 |
+  | llama-4-maverick | 21 | 8 | 5 | 8 | 25 |
+  | gpt-5.4-nano | 16 | 3 | 4 | 9 | 10 |
+
+- **Behaviour counts over 3 trials** (§21 counts, now per 150 base or 195 base + twin episodes):
+  luna silent transfers 18 / 69 no-action episodes (6, 6, 6); gpt-5.4-nano writes before
+  reading 15 / 195; maverick writes typed as text and never run 35 / 195, and 12 of its 51
+  no-action passes contain one; maverick guessed user IDs 24 / 150. The per-model styles of
+  §21 are stable across trials.
+- **Meaning:**
+  - pass^3 widens the gaps the checks make. maverick keeps 5 tasks it passes in all 3 trials
+    under both checks (14 upstream). The null agent's 3 come from tasks 6, 13, 46, which have no
+    check.
+  - A removal in every trial is not proof of a correct removal. Two of the stable removals are
+    known artifacts: haiku task 27 (the task 27 twin script, §21) and maverick task 49 (its
+    correct cancel is typed as text in every trial). Stability separates noise from a
+    systematic cause; it does not say whose fault the cause is.
+- **Weak points:** temperature 0, so the trials differ only through the seed and provider
+  non-determinism (§20). The 40 removal events of trials 2 and 3 (57 over all 3 trials) are not yet read by hand; the
+  verdicts in §21 cover trial 1 only.
 

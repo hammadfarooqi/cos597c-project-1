@@ -12,7 +12,9 @@ summary: >-
   removal was checked by hand: 12 of 17 are real agent errors; the other 5 have known, fixable
   causes.
 note: >-
-  1 trial per model. Counts come from code/transcript_patterns.py; quotes are from the saved
+  Trial 1 (seed 300) only. Trials 2 and 3 now exist (findings-log §20); their scores, pass^k,
+  removal stability and behaviour counts are in docs/research/new-models/scoreboard.md and
+  findings-log §22, but their removals are not yet read by hand. Counts come from code/transcript_patterns.py; quotes are from the saved
   runs. This note corrects one reading in docs/research/findings-log.md §17 (see §6).
 ---
 

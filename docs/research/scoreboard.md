@@ -83,7 +83,7 @@ How many upstream no-action passes each check removes. A pass can fail both the 
 
 ## 4. Per task: why each no-action pass was kept or removed
 
-`✓` kept by every check · `R` removed by the read check · `D` removed by the DB (counterfactual) twin · `P` removed by the policy-flip twin · `RD` removed by both the read check and the DB twin · `·` failed under upstream scoring. With several trials, a mark shows a loss in at least one trial.
+`✓` kept by every check · `R` removed by the read check · `D` removed by the DB (counterfactual) twin · `P` removed by the policy-flip twin · `RD` removed by both the read check and the DB twin · `·` failed under upstream scoring in every trial. With several trials, a letter shows a loss in at least one trial, and `x/y` means the pass was removed in x of the y trials where the task passed under upstream scoring; `✓ y` means it was kept in all y such trials.
 
 | Task | Checks | claude-sonnet-4.5 | gpt-4.1 | null agent | gpt-4.1-mini | llama-3.3-70b | gpt-4.1-nano |
 |---|---|---|---|---|---|---|---|
@@ -123,9 +123,9 @@ How many upstream no-action passes each check removes. A pass can fail both the 
 
 ## 6. Runs used
 
-- **claude-sonnet-4.5:** `airline_claude-sonnet-4.5` · `airline_twins_claude-sonnet-4.5`, `airline_twins_pf_claude-sonnet-4.5`
-- **gpt-4.1:** `airline_gpt-4.1` · `airline_twins_gpt-4.1`, `airline_twins_pf_gpt-4.1`
-- **null agent:** `airline_do_nothing` · `airline_twins_do_nothing`, `airline_twins_pf_do_nothing`
-- **gpt-4.1-mini:** `airline_gpt-4.1-mini` · `airline_twins_gpt-4.1-mini`, `airline_twins_pf_gpt-4.1-mini`
-- **llama-3.3-70b:** `airline_llama-3.3-70b` · `airline_twins_llama-3.3-70b`, `airline_twins_pf_llama-3.3-70b`
-- **gpt-4.1-nano:** `airline_gpt-4.1-nano` · `airline_twins_gpt-4.1-nano`, `airline_twins_pf_gpt-4.1-nano`
+- **claude-sonnet-4.5** (seed 300): `airline_claude-sonnet-4.5` · `airline_twins_claude-sonnet-4.5`, `airline_twins_pf_claude-sonnet-4.5`
+- **gpt-4.1** (seed 300): `airline_gpt-4.1` · `airline_twins_gpt-4.1`, `airline_twins_pf_gpt-4.1`
+- **null agent** (seed 300): `airline_do_nothing` · `airline_twins_do_nothing`, `airline_twins_pf_do_nothing`
+- **gpt-4.1-mini** (seed 300): `airline_gpt-4.1-mini` · `airline_twins_gpt-4.1-mini`, `airline_twins_pf_gpt-4.1-mini`
+- **llama-3.3-70b** (seed 300): `airline_llama-3.3-70b` · `airline_twins_llama-3.3-70b`, `airline_twins_pf_llama-3.3-70b`
+- **gpt-4.1-nano** (seed 300): `airline_gpt-4.1-nano` · `airline_twins_gpt-4.1-nano`, `airline_twins_pf_gpt-4.1-nano`

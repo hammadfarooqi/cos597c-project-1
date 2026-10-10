@@ -166,8 +166,10 @@ The sets are listed in `MODEL_SETS` at the top of the file. They are never mixed
 | `new` | claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano, llama-4-maverick | `docs/research/new-models/scoreboard.md` |
 
 To add a model, add it to a set. Its `airline_<model>` and `airline_twins_<model>` runs must
-exist. With several trials, a task's score is its mean, and trial k is paired with trial k of
-the twin.
+exist. Extra trials are found by their folder suffix (`airline_<model>_seed<N>`, and the same
+for the twin runs); the unsuffixed runs are seed 300. The task in trial N is paired with its twin
+in trial N. A task's score is its mean over trials. With several trials, the scoreboard also
+reports the range of the headline score, pass^k, and how stable each removal is.
 
 ```bash
 uv run python ../scoreboard.py              # regenerate every set after a new run or spec change
@@ -184,9 +186,12 @@ writes typed as text that never ran, and writes on a reservation before reading 
 runs and helpers as `scoreboard.py`; no LLM calls. The analyses that use it:
 `docs/research/new-models/qualitative-patterns.md` and `docs/research/qualitative-patterns.md`.
 
+Counts cover every trial of a model unless `--seed N` picks one.
+
 ```bash
-uv run python ../transcript_patterns.py             # newer models
-uv run python ../transcript_patterns.py --set old   # older models
+uv run python ../transcript_patterns.py               # newer models, all trials
+uv run python ../transcript_patterns.py --seed 300    # newer models, trial 1 only
+uv run python ../transcript_patterns.py --set old     # older models
 ```
 
 ## Upstream documentation

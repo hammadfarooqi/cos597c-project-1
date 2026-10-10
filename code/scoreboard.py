@@ -18,8 +18,12 @@ else reward).
 A model is included when both runs exist:
   data/simulations/airline_<model>/results.json         (all 50 tasks)
   data/simulations/airline_twins*_<model>/results.json  (DB and policy twins)
-With several trials, a task's score is its mean over trials, and trial k of a
-task is paired with trial k of its twin.
+Extra trials are run with another seed and saved with a suffix (findings-log §20):
+  airline_<model>_seed<N>, airline_twins_<model>_seed<N>, airline_twins_pf_<model>_seed<N>
+The unsuffixed runs are seed 300. Each seed is one trial, and the task in trial N
+is paired with its twin in trial N. A task's score is its mean over trials. With
+several trials the scoreboard also reports pass^k (the chance that all k trials
+pass, estimated per task as C(c, k) / C(n, k)) and how stable each removal is.
 
 There is one scoreboard per model set (MODEL_SETS): the older models of the first
 round, and the newer models the TA asked for (decisions log, 2026-10-10). The null
@@ -35,6 +39,7 @@ Usage (from code/tau2-bench/):
 import collections
 import datetime
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -69,8 +74,9 @@ MODEL_SETS = {
     "new": {
         "out": RESEARCH / "new-models" / "scoreboard.md",
         "title": "Scoreboard — newer models",
-        "about": "Four smaller, newer models (findings-log §15–§17). llama-4-maverick ran with "
-        "the tool-call retry of findings-log §16; 18% of its turns needed it.",
+        "about": "Four smaller, newer models (findings-log §15–§17), 3 trials each (seeds "
+        "300–302, findings-log §20). llama-4-maverick ran with the tool-call retry of "
+        "findings-log §16; 16–18% of its turns needed it.",
         "models": [
             "claude-haiku-4.5",
             "gpt-6-luna",
@@ -171,6 +177,18 @@ def twin_map() -> tuple[dict, dict, dict]:
     return of, kinds, gold
 
 
+def trial_runs(m: str) -> dict[int, list[Path]]:
+    """seed -> [base run, twin runs]. The unsuffixed runs are seed 300."""
+    runs = {
+        300: [SIM / f"airline_{m}"]
+        + [d for d in sorted(SIM.glob(f"airline_twins*_{m}")) if d.is_dir()]
+    }
+    for d in sorted(SIM.glob(f"airline_{m}_seed*")):
+        seed = int(d.name.rsplit("_seed", 1)[1])
+        runs[seed] = [d] + sorted(SIM.glob(f"airline_twins*_{m}_seed{seed}"))
+    return runs
+
+
 def models(set_name: str) -> list[str]:
     """The set's models plus the null agent. Every run must exist."""
     found = MODEL_SETS[set_name]["models"] + [BASELINE]
@@ -182,12 +200,17 @@ def models(set_name: str) -> list[str]:
 
 
 def score_model(m: str, spec: dict, twin_of: dict, kinds: dict, gold: dict) -> dict:
-    """Per task: {method: mean pass over trials}, plus the per-task verdict code."""
-    base = load_all(SIM / f"airline_{m}" / "results.json")
-    twin = collections.defaultdict(dict)
-    for d in sorted(SIM.glob(f"airline_twins*_{m}")):
-        for tid, trials in load_all(d / "results.json").items():
-            twin[tid] |= trials
+    """Per task: {method: mean pass over trials, "runs": {method: [pass per trial]}}.
+
+    Trials are seeds (trial_runs). A run folder that holds several trials of its own
+    (tau2 --num-trials) is keyed by (seed, trial)."""
+    base, twin = collections.defaultdict(dict), collections.defaultdict(dict)
+    for seed, (b, *tws) in trial_runs(m).items():
+        for tid, trials in load_all(b / "results.json").items():
+            base[tid] |= {(seed, k): s for k, s in trials.items()}
+        for d in tws:
+            for tid, trials in load_all(d / "results.json").items():
+                twin[tid] |= {(seed, k): s for k, s in trials.items()}
     out = {}
     for tid, trials in base.items():
         per = collections.defaultdict(list)
@@ -228,14 +251,28 @@ def score_model(m: str, spec: dict, twin_of: dict, kinds: dict, gold: dict) -> d
             ):
                 per[name].append(v)
         out[tid] = {name: sum(v) / len(v) for name, v in per.items()} | {
-            "n": len(trials)
+            "n": len(trials),
+            "runs": dict(per),
         }
     return out
 
 
+def pass_k(runs: list[bool], k: int, deterministic: bool) -> float | None:
+    """pass^k for one task: C(c, k) / C(n, k). None if there are fewer than k runs,
+    unless the agent is deterministic (the null agent), whose one run stands for all."""
+    n, c = len(runs), sum(runs)
+    if deterministic:
+        return float(c == n)
+    return math.comb(c, k) / math.comb(n, k) if n >= k else None
+
+
+def num(x: float) -> str:
+    x = round(x, 1) + 0.0  # + 0.0 turns -0.0 into 0.0
+    return f"{x:g}" if x == int(x) else f"{x:.1f}"
+
+
 def fmt(x: float, n: int) -> str:
-    s = f"{x:g}" if x == int(x) else f"{x:.2f}"
-    return f"{s} ({100 * x / n:.0f}%)"
+    return f"{num(x)} ({100 * x / n:.0f}%)"
 
 
 def verdict(row: dict) -> str:
@@ -247,7 +284,11 @@ def verdict(row: dict) -> str:
         for mark, method in [("R", "reads"), ("D", "db_twins"), ("P", "policy_twins")]
         if row[method] < row["original"]
     ]
-    return "".join(marks) or "✓"
+    if row["n"] == 1:
+        return "".join(marks) or "✓"
+    passed = sum(row["runs"]["original"])
+    removed = passed - sum(row["runs"]["reads+twins"])
+    return f"{''.join(marks)} {removed}/{passed}" if marks else f"✓ {passed}"
 
 
 def ranks(totals: dict, method: str) -> dict:
@@ -287,21 +328,44 @@ def build(set_name: str) -> str:
     pf_t = sorted(int(t) for t, tw in twin_of.items() if kinds[tw] == "policy")
     covered = set(reads_t) | set(db_t) | set(pf_t)
 
+    multi = any(t > 1 for t in trials.values())
+
+    def per_trial(m: str, method: str, subset=None) -> list[float]:
+        """Total passes in each trial (null agent: its one deterministic run)."""
+        rows = [r for t, r in scores[m].items() if subset is None or t in subset]
+        return [sum(r["runs"][method][i] for r in rows) for i in range(trials[m])]
+
+    counter = iter(range(1, 100))
     L = []
-    L.append("## 1. Full airline score (all 50 tasks)\n")
-    L.append("Passes, with the share of tasks and the rank (#) under each method.\n")
-    L.append("| Model | Trials | " + " | ".join(HEADS) + " | Change |")
-    L.append("|---|---|" + "---|" * len(HEADS) + "---|")
+    L.append(f"## {next(counter)}. Full airline score (all 50 tasks)\n")
+    if multi:
+        L.append(
+            "Mean passes over trials, with the share of tasks and the rank (#) under each "
+            "method. **Range** is the lowest and highest headline score over the trials.\n"
+        )
+    else:
+        L.append(
+            "Passes, with the share of tasks and the rank (#) under each method.\n"
+        )
+    extra = " Range |" if multi else ""
+    L.append("| Model | Trials | " + " | ".join(HEADS) + f" |{extra} Change |")
+    L.append("|---|---|" + "---|" * len(HEADS) + ("---|" if multi else "") + "---|")
     for m in ms:
         n, t = n_tasks[m], tot_all[m]
         cells = [f"{fmt(t[k], n)} #{rk[k][m]}" for k in METHODS]
         cells[-1] = f"**{cells[-1]}**"
         diff = t["reads+twins"] - t["original"]
+        rng = ""
+        if multi:
+            pt = per_trial(m, "reads+twins")
+            rng = f" {num(min(pt))}–{num(max(pt))} |"
         L.append(
-            f"| {name[m]} | {trials[m]} | " + " | ".join(cells) + f" | {diff:+g} |"
+            f"| {name[m]} | {trials[m]} | "
+            + " | ".join(cells)
+            + f" |{rng} {'+' if diff > 0 else ''}{num(diff)} |"
         )
     L.append("")
-    L.append("## 2. The 23 no-action tasks only\n")
+    L.append(f"## {next(counter)}. The 23 no-action tasks only\n")
     L.append(
         "The other 27 tasks are scored the same under every method, so all change comes from here.\n"
     )
@@ -313,7 +377,7 @@ def build(set_name: str) -> str:
         cells[-1] = f"**{cells[-1]}**"
         L.append(f"| {name[m]} | " + " | ".join(cells) + " |")
     L.append("")
-    L.append("## 3. No-action passes removed, by check\n")
+    L.append(f"## {next(counter)}. No-action passes removed, by check\n")
     L.append(
         "How many upstream no-action passes each check removes. A pass can fail both the read "
         "check and its DB twin; it then counts in both columns and once in the total. Policy-twin "
@@ -332,16 +396,22 @@ def build(set_name: str) -> str:
         cells = [t["original"], *lost.values(), both]
         L.append(
             f"| {name[m]} | "
-            + " | ".join(f"{x:g}" for x in cells)
-            + f" | **{total:g}** |"
+            + " | ".join(num(x) for x in cells)
+            + f" | **{num(total)}** |"
         )
     L.append("")
-    L.append("## 4. Per task: why each no-action pass was kept or removed\n")
+    if multi:
+        L += consistency_sections(ms, name, scores, trials, na, counter)
+    L.append(
+        f"## {next(counter)}. Per task: why each no-action pass was kept or removed\n"
+    )
     L.append(
         "`✓` kept by every check · `R` removed by the read check · `D` removed by the DB "
         "(counterfactual) twin · `P` removed by the policy-flip twin · `RD` removed by both the "
-        "read check and the DB twin · `·` failed under upstream scoring. With several trials, a "
-        "mark shows a loss in at least one trial.\n"
+        "read check and the DB twin · `·` failed under upstream scoring in every trial. With "
+        "several trials, a letter shows a loss in at least one trial, and `x/y` means the pass "
+        "was removed in x of the y trials where the task passed under upstream scoring; `✓ y` "
+        "means it was kept in all y such trials.\n"
     )
     L.append("| Task | Checks | " + " | ".join(name[m] for m in ms) + " |")
     L.append("|---|---|" + "---|" * len(ms))
@@ -364,7 +434,7 @@ def build(set_name: str) -> str:
             + " |"
         )
     L.append("")
-    L.append("## 5. Coverage of the 23 no-action tasks\n")
+    L.append(f"## {next(counter)}. Coverage of the 23 no-action tasks\n")
     L.append("| Check | Tasks | Count |")
     L.append("|---|---|---|")
     for label, ts in [
@@ -379,13 +449,86 @@ def build(set_name: str) -> str:
     ]:
         L.append(f"| {label} | {', '.join(map(str, ts)) or '—'} | {len(ts)} |")
     L.append("")
-    L.append("## 6. Runs used\n")
+    L.append(f"## {next(counter)}. Runs used\n")
     for m in ms:
-        twin_dirs = ", ".join(
-            f"`{d.name}`" for d in sorted(SIM.glob(f"airline_twins*_{m}"))
-        )
-        L.append(f"- **{name[m]}:** `airline_{m}` · {twin_dirs}")
+        for seed, (b, *tws) in trial_runs(m).items():
+            twin_dirs = ", ".join(f"`{d.name}`" for d in tws)
+            L.append(f"- **{name[m]}** (seed {seed}): `{b.name}` · {twin_dirs}")
     return "\n".join(L) + "\n"
+
+
+def consistency_sections(ms, name, scores, trials, na, counter) -> list[str]:
+    """pass^k and removal stability; only for sets with several trials."""
+    L = []
+    kmax = max(trials.values())
+    ks = list(range(1, kmax + 1))
+    L.append(f"## {next(counter)}. Consistency over trials: pass^k\n")
+    L.append(
+        "pass^k is the chance that the agent passes a task in **all** k trials, summed over "
+        "tasks (estimated per task as C(c, k) / C(n, k) from c passes in n trials). pass^1 is "
+        "the mean. It drops when a model passes a task only sometimes. The null agent is "
+        "deterministic, so its one run stands for every trial.\n"
+    )
+    for label, subset, size in [
+        ("All 50 tasks", None, 50),
+        ("The 23 no-action tasks", na, len(na)),
+    ]:
+        L.append(f"**{label}:**\n")
+        heads = [f"Original pass^{k}" for k in ks] + [
+            f"**Reads + all twins pass^{k}**" for k in ks
+        ]
+        L.append("| Model | " + " | ".join(heads) + " |")
+        L.append("|---|" + "---|" * len(heads))
+        for m in ms:
+            det = trials[m] == 1
+            cells = []
+            for method in ["original", "reads+twins"]:
+                for k in ks:
+                    vals = [
+                        pass_k(r["runs"][method], k, det)
+                        for t, r in scores[m].items()
+                        if subset is None or t in subset
+                    ]
+                    cells.append(
+                        "—" if None in vals else fmt(round(sum(vals), 1), size)
+                    )
+            cells[len(ks) :] = [f"**{c}**" for c in cells[len(ks) :]]
+            L.append(f"| {name[m]} | " + " | ".join(cells) + " |")
+        L.append("")
+    L.append(f"## {next(counter)}. Stability of the removals\n")
+    L.append(
+        "For each no-action task that passed under upstream scoring in at least one trial: was "
+        "the pass removed (reads + all twins) in every such trial, in some, or in none? A "
+        "removal in every trial is strong evidence; a removal in only some trials may be run-to-"
+        "run noise in the agent, the twin, or the simulated user.\n"
+    )
+    L.append(
+        "| Model | Tasks passed upstream (any trial) | Removed in every trial it passed | "
+        "Removed in some trials | Never removed | Removal events (task × trial) |"
+    )
+    L.append("|---|---|---|---|---|---|")
+    for m in ms:
+        every = some = never = events = 0
+        for t, r in scores[m].items():
+            if t not in na:
+                continue
+            o, h = r["runs"]["original"], r["runs"]["reads+twins"]
+            passed = sum(o)
+            if not passed:
+                continue
+            removed = sum(a and not b for a, b in zip(o, h))
+            events += removed
+            if removed == passed:
+                every += 1
+            elif removed:
+                some += 1
+            else:
+                never += 1
+        L.append(
+            f"| {name[m]} | {every + some + never} | {every} | {some} | {never} | {events} |"
+        )
+    L.append("")
+    return L
 
 
 HEADER = """---

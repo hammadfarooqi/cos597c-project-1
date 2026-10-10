@@ -70,7 +70,7 @@ The next thing each person is doing. Keep this short.
 | M1.14 | Re-score the 4 released upstream airline runs with `--fresh-tasks` before any use | Hammad + Claude | — | done | `docs/research/findings-log.md` §4 (outputs not committed, ~36 MB; command given) |
 | M1.15 | Twin generator: policy oracle, specs, one-field search, validation with the evaluator, `airline_twins` task set | Vatsal + Claude | — | done | `code/twins/` · `docs/research/counterfactual-twins.md` |
 | M1.16 | Policy-flip twins for the delay-compensation clause (tasks 2, 5, 27, 38) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §9 · `code/twins/policy_flips.yaml` |
-| M1.17 | Re-run no-action tasks and twins with 4 trials; paired scores per trial | ? | TBD | in progress | single-trial noise: findings-log §7, §8. 3 trials done for the 4 newer models (M0.10, findings-log §20); the 5 older models still have 1 trial |
+| M1.17 | Re-run no-action tasks and twins with 4 trials; paired scores per trial | ? | TBD | in progress | single-trial noise: findings-log §7, §8. 3 trials done for the 4 newer models (M0.10, findings-log §20); pass^k and removal stability in the scoreboard (findings-log §22); the 5 older models still have 1 trial |
 | M1.18 | More policy flips: rule twins for the DB-decided tasks (2×2 fact/rule design); request flip for task 6 | ? | TBD | todo | `docs/research/counterfactual-twins.md` §6 |
 | M1.19 | Close the task 31 loophole (budget $100 → $65) | Hammad + Claude | — | done | `docs/research/loophole-airline-31.md` · decisions log 2026-10-03 |
 | M1.20 | Verify the task 31 fix with a fresh run (user declines the $81 offer) | ? | TBD | todo | `docs/research/loophole-airline-31.md` §5 |
@@ -115,3 +115,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-09 — Hammad + Claude — added M1.22 (done, qualitative transcript analysis for the TA).
 - 2026-10-10 — Hammad + Claude — merged main (M0.8, M0.9) with the scoreboard branch; M1.6, M1.21, M1.22 evidence renumbered to §18–§19; added M1.23 (done), M1.24, M1.25.
 - 2026-10-10 — Vatsal + Claude — added M0.10 (done): 3 trials of the 4 newer models; M1.17 in progress.
+- 2026-10-10 — Hammad + Claude — merged main (M0.10); M1.23 evidence renumbered to findings §21; M1.17 evidence: 3-trial pass^k and stability (findings §22).

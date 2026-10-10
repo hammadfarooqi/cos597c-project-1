@@ -10,9 +10,13 @@ Reads the same saved runs as scoreboard.py. No LLM calls. Prints Markdown.
 Analysis: docs/research/new-models/qualitative-patterns.md (newer models) and
 docs/research/qualitative-patterns.md (older models).
 
+Counts cover every trial (seed) of each model; the task in trial N is paired with
+its twin in trial N. Use --seed 300 to count one trial only.
+
 Usage (from code/tau2-bench/):
-  uv run python ../transcript_patterns.py             # newer models (default)
-  uv run python ../transcript_patterns.py --set old   # older models
+  uv run python ../transcript_patterns.py               # newer models, all trials
+  uv run python ../transcript_patterns.py --seed 300    # newer models, trial 1 only
+  uv run python ../transcript_patterns.py --set old     # older models
 """
 
 import re
@@ -23,10 +27,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from scoreboard import (  # noqa: E402
     NO_ACTION,
-    SIM,
     agent_calls,
     load_all,
     models,
+    trial_runs,
     twin_map,
     upstream_pass,
 )
@@ -139,12 +143,21 @@ def main():
     na = {str(t) for t in NO_ACTION}
     rows, rows2 = [], []
     set_name = sys.argv[sys.argv.index("--set") + 1] if "--set" in sys.argv else "new"
+    only = int(sys.argv[sys.argv.index("--seed") + 1]) if "--seed" in sys.argv else None
     for m in models(set_name):
-        base = load_all(SIM / f"airline_{m}" / "results.json")
-        twins = load_all(SIM / f"airline_twins_{m}" / "results.json")
-        pf = SIM / f"airline_twins_pf_{m}" / "results.json"
-        if pf.exists():
-            twins |= load_all(pf)
+        base, twins = {}, {}
+        for seed, (b, *tws) in trial_runs(m).items():
+            if only is not None and seed != only:
+                continue
+            for tid, trials in load_all(b / "results.json").items():
+                base.setdefault(tid, {}).update(
+                    {(seed, k): s for k, s in trials.items()}
+                )
+            for d in tws:
+                for tid, trials in load_all(d / "results.json").items():
+                    twins.setdefault(tid, {}).update(
+                        {(seed, k): s for k, s in trials.items()}
+                    )
         sims = [s for t in base.values() for s in t.values()]
         tw_sims = [s for t in twins.values() for s in t.values()]
         na_pass = [
@@ -189,7 +202,7 @@ def main():
         )
     head = [
         "Model",
-        "Episodes with a transfer (50 tasks)",
+        "Episodes with a transfer (50 tasks × trials)",
         "Transfer before any successful read",
         "Guessed user ID",
         "No-action passes that are blind transfers",
