@@ -16,7 +16,15 @@ import json
 import statistics
 import sys
 
-from score_pairs import AIRLINE, SIM, load, passed, tool_calls, twin_runs
+from score_pairs import (
+    AIRLINE,
+    SIM,
+    failure_cause,
+    load,
+    passed,
+    tool_calls,
+    twin_runs,
+)
 
 # USD per million tokens (in, out): the Prime list prices used in findings §15, §17.
 PRICES = {
@@ -32,6 +40,7 @@ COLUMNS = [
     "DB pairs (11)",
     "Policy pairs (4)",
     "Reads gate + twins",
+    "+ twins, lenient",
     "No-action (23)",
     "Transfers on no-action",
     "Cost $",
@@ -56,15 +65,23 @@ def cost(sims: list[dict], model: str) -> float:
     return total
 
 
-def score_trial(model: str, run: str, no_action: set[str], kinds: dict) -> dict:
+def score_trial(
+    model: str, run: str, no_action: set[str], kinds: dict, gold: dict
+) -> dict:
     orig = load(SIM / f"airline_{run}" / "results.json")
     twin = twin_runs(run)
     paired = {"DB": 0, "policy": 0}
-    removed = 0
+    removed = lenient_removed = 0
     for tid, kind in kinds.items():
         o, t = passed(orig[tid.split("_")[0]]), passed(twin[tid])
         paired[kind] += o and t
         removed += o and not t
+        # Lenient rule (decisions log 2026-10-03): the twin also counts if the
+        # agent made the right write despite other errors.
+        right_write = not t and (
+            failure_cause(twin[tid], gold[tid]) == "right write + other error"
+        )
+        lenient_removed += o and not t and not right_write
     gate = sum(passed(s) for s in orig.values())
     return {
         "Original (50)": sum(
@@ -74,6 +91,7 @@ def score_trial(model: str, run: str, no_action: set[str], kinds: dict) -> dict:
         "DB pairs (11)": paired["DB"],
         "Policy pairs (4)": paired["policy"],
         "Reads gate + twins": gate - removed,
+        "+ twins, lenient": gate - lenient_removed,
         "No-action (23)": sum(
             orig[t]["reward_info"]["original_reward"] == 1.0 for t in no_action
         ),
@@ -87,6 +105,8 @@ def score_trial(model: str, run: str, no_action: set[str], kinds: dict) -> dict:
 
 def main(specs: list[str]):
     split = json.loads((AIRLINE / "split_tasks_twins.json").read_text())
+    twins = json.loads((AIRLINE / "tasks_twins.json").read_text())
+    gold = {t["id"]: t["evaluation_criteria"]["actions"][-1] for t in twins}
     kinds = {tid: "DB" for tid in split["primary"]}
     for name, ids in split.items():
         if name.startswith("pf_"):
@@ -99,7 +119,9 @@ def main(specs: list[str]):
     for spec in specs:
         model, seeds = spec.split(":")
         results[model] = {
-            int(seed): score_trial(model, run_name(model, int(seed)), no_action, kinds)
+            int(seed): score_trial(
+                model, run_name(model, int(seed)), no_action, kinds, gold
+            )
             for seed in seeds.split(",")
         }
 
@@ -126,17 +148,24 @@ def main(specs: list[str]):
 
     print("\n### Change from the original score (mean over trials)\n")
     print(
-        "| Model | Original | Reads gate | Reads gate + twins | Gate change | Gate + twins change |"
+        "| Model | Original | Reads gate | Reads gate + twins | + twins, lenient | "
+        "Gate change | Gate + twins change | Lenient change |"
     )
-    print("|---|---|---|---|---|---|")
+    print("|---|---|---|---|---|---|---|---|")
     for model, trials in results.items():
-        o, g, t = (
+        o, g, t, lt = (
             statistics.mean(r[c] for r in trials.values())
-            for c in ("Original (50)", "Reads gate", "Reads gate + twins")
+            for c in (
+                "Original (50)",
+                "Reads gate",
+                "Reads gate + twins",
+                "+ twins, lenient",
+            )
         )
         print(
-            f"| {model} | {o:.1f} | {g:.1f} | {t:.1f} | "
-            f"{100 * (g - o) / o:+.1f}% | **{100 * (t - o) / o:+.1f}%** |"
+            f"| {model} | {o:.1f} | {g:.1f} | {t:.1f} | {lt:.1f} | "
+            f"{100 * (g - o) / o:+.1f}% | **{100 * (t - o) / o:+.1f}%** | "
+            f"{100 * (lt - o) / o:+.1f}% |"
         )
 
 

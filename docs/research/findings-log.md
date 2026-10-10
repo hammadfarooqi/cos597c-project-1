@@ -694,6 +694,13 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   | gpt-5.4-nano | 16.7 | 16.0 | 13.3 | -4.0% | **-20.0%** |
   | llama-4-maverick | 22.7 | 20.3 | 14.3 | -10.3% | **-36.8%** |
 
+- **Strict and lenient twin rules** (decisions log 2026-10-03). All "reads gate + twins"
+  numbers above use the strict rule: any twin failure removes the credit. The lenient rule
+  also counts a twin when the agent made the right write despite other errors. It changes one
+  trial only: gpt-5.4-nano at seed 300, twin `28_twin_business`, 12 → 13. The nano mean goes
+  13.3 → 13.7, and its change from the original score goes -20.0% → -18.0%. The other three
+  models are the same under both rules. `code/twins/average_trials.py` prints both.
+
 - **What it means:**
   - The §17 order of these four models holds in every trial on "reads gate + twins":
     luna > haiku > maverick, nano. maverick and nano overlap (12–16 vs 12–15).
