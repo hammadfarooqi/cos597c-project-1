@@ -5,8 +5,13 @@ Each doctor step needs only part of it:
     checkup      task_ids, gold_calls, tool_kind, null_reward
     read gate    tool_kind, gold_calls (to draft), load_episodes (to check runs)
     twins        task, gold_reads, build_twin, state, state_reward
-    pair score   load_episodes, twin_info, tool_kind
-    policy flip  policy_text (the edit itself is benchmark-free)
+    pair score   load_episodes, write_tools, transfer_tools (+ twin specs)
+    policy flip  nothing: the edit works on the policy file itself
+
+Everything is in the adapter's own terms except the neutral records in `core/calls.py`:
+`ObservedCall` (a tool call, or any agent action: a final answer is a call too), `Episode`
+(one scored run; reward 1.0 means pass) and `ToolKind` (READ reveals a fact, WRITE decides
+the outcome). Two adapters exist: `tau2.py` and `mini_web.py` (a template that is not tau2).
 """
 
 from __future__ import annotations
@@ -47,4 +52,27 @@ class Adapter(Protocol):
 
     def load_episodes(self, path: Path) -> dict[str, Episode]: ...
 
+    def write_tools(self) -> set[str]: ...
+
+    def transfer_tools(self) -> set[str]:
+        """Tools that hand the task to a human (a twin failure cause). May be empty."""
+
     def policy_text(self) -> str: ...
+
+
+# The methods each step needs. An adapter may leave out the methods of steps its benchmark
+# cannot support (for example `policy_text` when there is no policy); the CLI then says
+# which step is not available instead of failing inside it.
+STEP_NEEDS = {
+    "checkup": ("task_ids", "gold_calls", "tool_kind", "null_reward"),
+    "draft-reads": ("task_ids", "gold_calls", "tool_kind", "null_reward"),
+    "check-reads": ("load_episodes",),
+    "twins": ("task", "gold_reads", "build_twin", "state", "state_reward"),
+    "pairs": ("load_episodes", "write_tools", "transfer_tools"),
+}
+
+
+def missing_methods(adapter, step: str) -> list[str]:
+    return [
+        m for m in STEP_NEEDS.get(step, ()) if not callable(getattr(adapter, m, None))
+    ]

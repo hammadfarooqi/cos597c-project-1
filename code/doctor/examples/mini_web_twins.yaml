@@ -1,0 +1,6 @@
+# Twin for mini_web task 2: the blue teapot now exists, so the correct answer is its price.
+- task: "2"
+  name: in_stock
+  patch: {products: {p4: {name: blue teapot, price: 30}}}
+  write: {name: answer, arguments: {text: "30"}}
+  why: The shop now sells a blue teapot for 30, so "N/A" is wrong.

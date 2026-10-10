@@ -264,8 +264,11 @@ class Tau2Adapter:
 
         With several trials of a task, the last one wins.
         """
+        path = Path(path)
+        if path.is_dir():
+            path = path / "results.json"
         out = {}
-        for sim in json.loads(Path(path).read_text())["simulations"]:
+        for sim in json.loads(path.read_text())["simulations"]:
             msgs = sim.get("messages") or []
             failed = {
                 m.get("id") for m in msgs if m.get("role") == "tool" and m.get("error")

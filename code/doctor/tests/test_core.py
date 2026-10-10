@@ -204,3 +204,23 @@ def test_checkup_summary():
     assert s["passed_with_gold_reads"] == ["1"]
     assert s["passed_without_gold_reads"] == ["2"]
     assert "3" in s["errors"]
+
+
+def test_core_imports_no_benchmark():
+    """The core must stay free of benchmark code, so a new benchmark needs only an adapter."""
+    import ast
+
+    core = Path(__file__).resolve().parents[1] / "noop_doctor" / "core"
+    for f in core.glob("*.py"):
+        for node in ast.walk(ast.parse(f.read_text())):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                names = [node.module or ""]
+            for n in names:
+                root = n.split(".")[0]
+                assert (
+                    root in {"noop_doctor", "__future__"}
+                    or root in sys.stdlib_module_names
+                ), f"{f.name} imports {n}"

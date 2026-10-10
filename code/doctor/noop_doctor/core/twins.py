@@ -86,15 +86,22 @@ def validate_twin(adapter, spec: TwinSpec) -> TwinCheck:
     orig = adapter.task(spec.task_id)
     twin = adapter.build_twin(spec)
     comply = adapter.gold_reads(spec.task_id) + [spec.write]
-    touched = {p[:-1] for p in patch_leaves(spec.patch)}
+    leaves = patch_leaves(spec.patch)
     changed = leaf_diff(adapter.state(None), adapter.state(spec.patch or None))
     return TwinCheck(
         twin_id=spec.twin_id,
         fields=len(patch_leaves(spec.patch)),
         effective=bool(changed) or not spec.patch,
-        local=all(p[:-1] in touched for p in changed),
+        local=all(_inside_patch(p, leaves) for p in changed),
         null_orig=adapter.state_reward(orig, []),
         null_twin=adapter.state_reward(twin, []),
         comply_orig=adapter.state_reward(orig, comply),
         comply_twin=adapter.state_reward(twin, comply),
     )
+
+
+def _inside_patch(path: tuple, leaves: list[tuple]) -> bool:
+    """A changed state path is allowed if it is in a record the patch names (a sibling of a
+    patch leaf: a record can lose fields when its type changes) or if it is a record the
+    patch creates (a prefix of a patch leaf)."""
+    return any(path[:-1] == q[:-1] or q[: len(path)] == path for q in leaves)

@@ -192,5 +192,16 @@ Vatsal asked for the doctor as its own folder, kept apart from the tau2 code. It
 - No `plugins/` folder yet: there is no oracle search in the doctor. A twin comes from a YAML
   spec with an explicit patch and write.
 
+**For completely different benchmarks** (Vatsal, 2026-10-10): the core imports no benchmark
+(a test checks it). A second adapter, `code/doctor/noop_doctor/adapters/mini_web.py`, runs
+every step on a toy benchmark that is not tau2: no user, no policy, no database writes, and a
+final answer as the outcome (the WebArena "N/A" flaw). To make that work, the command line
+now takes twins from a YAML spec for any benchmark, loads an adapter by module path
+(`--bench py:<module>:<Class>:<arg>`), and reports a step as unavailable when the adapter
+lacks its methods. A changed record is also allowed when the patch creates it (a new
+product), not only when the patch edits it. What an adapter must provide is listed in
+`code/doctor/README.md`, "Add a different benchmark".
+
 **Not built:** running agents on twins or flipped policies outside airline (needs tau2
-registry entries); the LLM proposer for read specs and twins; an adapter outside tau2.
+registry entries); the LLM proposer for read specs and twins; an adapter for a real benchmark
+outside tau2.

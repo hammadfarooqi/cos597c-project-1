@@ -37,8 +37,15 @@ from noop_doctor.core.reads import (  # noqa: E402
 )
 from noop_doctor.core.twins import TwinSpec, validate_twin  # noqa: E402
 
+BUILTIN = {
+    "tau2": "noop_doctor.adapters.tau2:Tau2Adapter",
+    "mini_web": "noop_doctor.adapters.mini_web:MiniWebAdapter",
+}
 
-def make_adapter(bench: str, **kw):
+
+def make_adapter(bench: str, step: str, **kw):
+    """`bench` is `<builtin>:<arg>` (e.g. `tau2:retail`) or `py:<module>:<Class>:<arg>` for
+    an adapter that lives anywhere on the Python path. The adapter is built as Class(arg)."""
     try:  # tau2 logs at DEBUG; keep the doctor's output readable
         from loguru import logger
 
@@ -46,16 +53,30 @@ def make_adapter(bench: str, **kw):
         logger.add(sys.stderr, level="ERROR")
     except ImportError:
         pass
-    kind, _, name = bench.partition(":")
-    if kind == "tau2":
-        from noop_doctor.adapters.tau2 import Tau2Adapter
+    import importlib
 
-        return Tau2Adapter(name, **kw)
-    raise SystemExit(f"unknown benchmark kind '{kind}' (known: tau2)")
+    from noop_doctor.adapters.base import missing_methods
+
+    kind, _, arg = bench.partition(":")
+    if kind == "py":
+        module, cls, arg = (arg.split(":", 2) + ["", ""])[:3]
+    elif kind in BUILTIN:
+        module, cls = BUILTIN[kind].split(":")
+    else:
+        raise SystemExit(
+            f"unknown benchmark '{kind}' (known: {', '.join(BUILTIN)}, py:...)"
+        )
+    adapter = getattr(importlib.import_module(module), cls)(
+        arg, **{k: v for k, v in kw.items() if v is not None}
+    )
+    missing = missing_methods(adapter, step)
+    if missing:
+        raise SystemExit(f"{adapter.name} cannot run '{step}': no {', '.join(missing)}")
+    return adapter
 
 
 def cmd_checkup(a):
-    ad = make_adapter(a.bench, task_set=a.task_set, nl_judge=a.nl_judge)
+    ad = make_adapter(a.bench, "checkup", task_set=a.task_set, nl_judge=a.nl_judge)
     results = ck.run_checkup(ad)
     s = ck.summarize(results)
     print(
@@ -90,7 +111,7 @@ def cmd_checkup(a):
 
 
 def cmd_draft_reads(a):
-    ad = make_adapter(a.bench, task_set=a.task_set, nl_judge=a.nl_judge)
+    ad = make_adapter(a.bench, "draft-reads", task_set=a.task_set, nl_judge=a.nl_judge)
     if a.tasks:
         ids = a.tasks
     else:
@@ -111,7 +132,7 @@ def cmd_draft_reads(a):
 
 
 def cmd_check_reads(a):
-    ad = make_adapter(a.bench, task_set=a.task_set)
+    ad = make_adapter(a.bench, "check-reads", task_set=a.task_set)
     spec = parse_spec(json.loads(Path(a.spec).read_text()))
     eps = ad.load_episodes(Path(a.run))
     gated = 0
@@ -166,19 +187,27 @@ def _report_twins(ad, specs):
     return ok
 
 
+def _twin_specs(ad, a) -> list[TwinSpec]:
+    """From a YAML spec list (any benchmark) or the adapter's own twin task file."""
+    if getattr(a, "spec", None):
+        return _twin_specs_from_yaml(a.spec)
+    if a.twin_tasks:
+        if not hasattr(ad, "twin_specs_from_tasks"):
+            raise SystemExit(f"{ad.name} cannot read --twin-tasks; give --spec YAML")
+        return ad.twin_specs_from_tasks(Path(a.twin_tasks))
+    raise SystemExit("give --spec (a YAML list of twin specs) or --twin-tasks")
+
+
+def _dump(task):
+    return task.model_dump(mode="json") if hasattr(task, "model_dump") else task
+
+
 def cmd_twins(a):
-    ad = make_adapter(a.bench, task_set=a.task_set)
-    if a.action == "validate":
-        _report_twins(ad, ad.twin_specs_from_tasks(Path(a.twin_tasks)))
-        return
-    specs = _twin_specs_from_yaml(a.spec)
+    ad = make_adapter(a.bench, "twins", task_set=a.task_set)
+    specs = _twin_specs(ad, a)
     _report_twins(ad, specs)
-    if a.out:
-        tasks = [
-            ad.build_twin(s).model_dump(mode="json")
-            for s in specs
-            if validate_twin(ad, s).ok
-        ]
+    if a.action == "build" and a.out:
+        tasks = [_dump(ad.build_twin(s)) for s in specs if validate_twin(ad, s).ok]
         Path(a.out).write_text(json.dumps(tasks, indent=2) + "\n")
         print(f"wrote {len(tasks)} valid twins to {a.out}")
 
@@ -197,8 +226,8 @@ def cmd_flips(a):
 
 
 def cmd_pairs(a):
-    ad = make_adapter(a.bench, task_set=a.task_set)
-    specs = ad.twin_specs_from_tasks(Path(a.twin_tasks))
+    ad = make_adapter(a.bench, "pairs", task_set=a.task_set)
+    specs = _twin_specs(ad, a)
     info = {s.twin_id: (s.task_id, s.kind, s.write) for s in specs}
     writes, transfers = ad.write_tools(), ad.transfer_tools()
     print(
@@ -207,10 +236,10 @@ def cmd_pairs(a):
     )
     print("|---|---|---|---|---|---|---|---|---|")
     for m in a.models:
-        orig = ad.load_episodes(Path(a.orig.format(m=m)) / "results.json")
+        orig = ad.load_episodes(Path(a.orig.format(m=m)))
         twins = {}
         for d in sorted(glob.glob(a.twins.format(m=m))):
-            twins |= ad.load_episodes(Path(d) / "results.json")
+            twins |= ad.load_episodes(Path(d))
         results = pr.score_pairs(orig, twins, info, writes, transfers)
         for kind in ("DB", "policy", "all"):
             s = pr.summarize([r for r in results if kind == "all" or r.kind == kind])
@@ -264,8 +293,8 @@ def main(argv=None):
     s = sub.add_parser("twins", help="validate or build counterfactual twins")
     s.add_argument("action", choices=["validate", "build"])
     bench(s)
-    s.add_argument("--twin-tasks", help="validate: a twin task file")
-    s.add_argument("--spec", help="build: a YAML list of twin specs")
+    s.add_argument("--twin-tasks", help="the adapter's own twin task file (tau2)")
+    s.add_argument("--spec", help="a YAML list of twin specs (any benchmark)")
     s.add_argument("--out", help="build: write the valid twins here")
     s.set_defaults(fn=cmd_twins)
 
@@ -279,9 +308,10 @@ def main(argv=None):
         "pairs", help="pair scores: no-action pass counts only with its twin"
     )
     bench(s)
-    s.add_argument("--twin-tasks", required=True)
-    s.add_argument("--orig", required=True, help="run folder pattern with {m}")
-    s.add_argument("--twins", required=True, help="glob of twin run folders with {m}")
+    s.add_argument("--twin-tasks", help="the adapter's own twin task file (tau2)")
+    s.add_argument("--spec", help="a YAML list of twin specs (any benchmark)")
+    s.add_argument("--orig", required=True, help="results path pattern with {m}")
+    s.add_argument("--twins", required=True, help="glob of twin results paths with {m}")
     s.add_argument("models", nargs="+")
     s.set_defaults(fn=cmd_pairs)
 

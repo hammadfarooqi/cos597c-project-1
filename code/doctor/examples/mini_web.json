@@ -1,0 +1,25 @@
+{
+  "_about": "A tiny web-shop question-answering benchmark, used to show the doctor on a benchmark that is not tau2. It has the flaw Zhu et al. report for WebArena: on tasks whose answer is 'N/A', an empty reply counts as correct.",
+  "state": {
+    "products": {
+      "p1": {"name": "red mug", "price": 12},
+      "p2": {"name": "green vase", "price": 40},
+      "p3": {"name": "steel kettle", "price": 25}
+    }
+  },
+  "tasks": [
+    {"id": "1", "question": "What does the red mug cost?", "answer": "12",
+     "gold": [{"name": "search", "arguments": {"query": "red mug"}},
+              {"name": "open", "arguments": {"product_id": "p1"}},
+              {"name": "answer", "arguments": {"text": "12"}}]},
+    {"id": "2", "question": "What does the blue teapot cost?", "answer": "N/A",
+     "gold": [{"name": "search", "arguments": {"query": "blue teapot"}},
+              {"name": "answer", "arguments": {"text": "N/A"}}]},
+    {"id": "3", "question": "What does the green vase cost?", "answer": "40",
+     "gold": [{"name": "search", "arguments": {"query": "green vase"}},
+              {"name": "open", "arguments": {"product_id": "p2"}},
+              {"name": "answer", "arguments": {"text": "40"}}]},
+    {"id": "4", "question": "What does the gold spoon cost?", "answer": "N/A",
+     "gold": []}
+  ]
+}
