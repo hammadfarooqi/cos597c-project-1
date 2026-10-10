@@ -2,7 +2,7 @@
 title: Code
 type: index
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines.
   The reasoning behind each change is in docs/.
@@ -158,6 +158,17 @@ With several trials, a task's score is its mean, and trial k is paired with tria
 ```bash
 uv run python ../scoreboard.py           # regenerate after any new run or spec change
 uv run python ../scoreboard.py --check   # exit 1 if docs/research/scoreboard.md is stale
+```
+
+## `transcript_patterns.py` — what the agents did
+
+Prints one Markdown table of behaviour counts per model: transfers, transfers before any
+successful lookup, guessed user IDs, and how often the outcome is the same on a task and its
+twin. Same saved runs and helpers as `scoreboard.py`; no LLM calls. The analysis that uses it is
+`docs/research/qualitative-patterns.md`.
+
+```bash
+uv run python ../transcript_patterns.py
 ```
 
 ## Upstream documentation

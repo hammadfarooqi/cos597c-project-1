@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-08
+**Last updated:** 2026-10-09
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -72,6 +72,7 @@ The next thing each person is doing. Keep this short.
 | M1.19 | Close the task 31 loophole (budget $100 → $65) | Hammad + Claude | — | done | `docs/research/loophole-airline-31.md` · decisions log 2026-10-03 |
 | M1.20 | Verify the task 31 fix with a fresh run (user declines the $81 offer) | ? | TBD | todo | `docs/research/loophole-airline-31.md` §5 |
 | M1.21 | Central scoreboard: every model under every scoring method, generated from saved runs | Hammad + Claude | — | done | `code/scoreboard.py` · `docs/research/scoreboard.md` · findings-log §15 |
+| M1.22 | Qualitative analysis: read the transcripts and name the behaviour each check catches (TA request) | Hammad + Claude | — | done | `docs/research/qualitative-patterns.md` · `code/transcript_patterns.py` · findings-log §16 |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -103,3 +104,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-03 — Hammad + Claude — M1.3, M1.9 done; M1.5, M1.6, M3.1 in progress (justification check implemented).
 - 2026-10-08 — Hammad + Claude — merged all branches: M1.3 set to in progress (read gate done, pair scoring still a script); Hammad's M1.15, M1.16 renumbered M1.19, M1.20; M1.5, M1.6 evidence updated.
 - 2026-10-08 — Hammad + Claude — added M1.21 (done, scoreboard); M1.6 evidence updated.
+- 2026-10-09 — Hammad + Claude — added M1.22 (done, qualitative transcript analysis for the TA).

@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-09
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-08 (§1–§15; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-09 (§1–§16; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -502,3 +502,39 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   §7 used the reads listed in the task files, the scoreboard uses the final spec in
   `justification.json`. Task 31 ran with the old $100 budget (decisions log, 2026-10-08).
 
+## 16. Transcript patterns: what each check catches (2026-10-09)
+**By:** Hammad + Claude
+
+- **Why:** the TA asked for a qualitative account of the scoreboard (§15): what the checks catch
+  in customer-service terms.
+- **Method:** read every episode of the 5 models on the 23 no-action tasks, the 15 twins, and the
+  tool-call sequences of the 27 action tasks. Same runs as §15, 1 trial. Counts:
+  `uv run python ../transcript_patterns.py` (from `code/tau2-bench/`), no LLM calls.
+- **Results** (50 base tasks unless stated):
+
+  | Model | Transfers | Transfer before any successful read | Guessed user ID | Same outcome, task vs twin (15 pairs) |
+  |---|---|---|---|---|
+  | claude-sonnet-4.5 | 12 | 0 | 0 | 4 |
+  | gpt-4.1 | 11 | 2 | 0 | 7 |
+  | gpt-4.1-mini | 11 | 1 | 1 | 8 |
+  | gpt-4.1-nano | 2 | 0 | 3 | 13 |
+  | llama-3.3-70b | 48 | 41 | 32 | 14 (11 are a transfer on both) |
+
+- **Meaning:**
+  - Llama's −16 is a transfer-first habit. 15 of its 19 no-action passes are transfers before any
+    successful lookup. It often guesses the user ID; `sara_doe_496` comes from the tool
+    docstring. It passes 0 of the 27 action tasks.
+  - Claude also transfers 12 times, but always after a lookup and a stated policy reason. Its
+    outcome changes on the twin. The twin is what separates the two kinds of transfer.
+  - The read check catches agents that trust the customer's claims (gpt-4.1 task 28: right
+    refusal, no lookup). The DB twin catches a misapplied rule after a correct read (gpt-4.1-mini
+    task 28 twin) and incomplete checks (gpt-4.1 task 41 twin cancels a flown trip). The policy
+    twin catches agents that follow a habit, not the policy text (gpt-4.1, gpt-4.1-mini, Llama
+    on tasks 2, 5, 27, 38).
+  - Upstream scoring rewards "always refuse or transfer" (Llama 38%) but punishes "always act"
+    (gpt-4.1-nano 6%). The twins make both fail.
+- **Weak points:** 1 trial. Neither check reads the agent's words (Llama makes false policy
+  claims that pass). Some twin failures are user-simulator noise (task 2 twin: Claude and gpt-4.1
+  were pointed to the wrong reservation; task 27 twin: gpt-4.1's customer took a transfer).
+  Llama's 3 kept passes (13, 46, 36) are accidents on tasks with no check or a failed tool call.
+- Full analysis: `docs/research/qualitative-patterns.md`.
