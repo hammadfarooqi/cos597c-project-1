@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-10 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-10 (§1–§20; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -636,6 +636,88 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     retry fires only when the model already produced a tool call.
   - The maverick numbers depend on Prime's gateway; another provider may give different
     results.
+
+## 18. Null-agent checkup on tau2 retail and telecom (2026-10-09)
+**By:** Vatsal + Claude
+
+- **Why:** first step of the "no-op doctor" proposal (`docs/research/noop-doctor-design.md`):
+  find out how many tasks a do-nothing agent passes outside airline. Also milestone M2.2.
+- **Telecom command** (from `code/tau2-bench/`, no LLM calls):
+  `uv run tau2 run --domain telecom --agent do_nothing_agent --user scripted_user --num-trials 1 --save-to telecom_do_nothing --max-concurrency 10`
+- **Retail command:** the same with `--domain retail --save-to retail_do_nothing --max-concurrency 1`.
+  Retail scores NL assertions with an LLM judge, `DEFAULT_LLM_NL_ASSERTIONS =
+  "gpt-4.1-2025-04-14"` (`code/tau2-bench/src/tau2/config.py`). Prime Intellect does not serve
+  that name. We ran tau2 through a launcher that sets the judge to `openai/openai/gpt-4.1`
+  (Prime, key from the environment as `OPENAI_API_KEY`/`OPENAI_API_BASE`) and changes nothing
+  else. Without it, 40 retail tasks end in `infrastructure_error`. The launcher is not
+  committed.
+- **Runs:** `code/tau2-bench/data/simulations/retail_do_nothing/`,
+  `code/tau2-bench/data/simulations/telecom_do_nothing/`.
+- **Results:**
+
+  | Domain | Tasks | Gold has no agent WRITE tool | Null agent passes |
+  |---|---|---|---|
+  | retail | 114 | 10 (10, 12, 24, 25, 50, 57, 62, 65, 67, 68) | **6** (10, 12, 25, 50, 57, 65) = 5.3% |
+  | telecom | 114 | 43 | **0** |
+
+  "WRITE tool" = a tool labelled `ToolType.WRITE` in the domain's `tools.py`.
+- **Retail:** the 4 no-write tasks the null agent fails (24, 62, 67, 68) have NL assertions:
+  the agent must tell the user a fact (a price, a material, an order total). The NL assertions
+  already defend those. Zhu et al. (`docs/papers/index.md` [1]) report 6.0% for τ-bench v1
+  retail; 5.3% agrees. 4 of the 6 passes (10, 12, 25, 65) list reads in their gold actions; 50
+  and 57 list none.
+- **Telecom:** reward is `ENV_ASSERTION` on the user's device (94 tasks) or `ENV_ASSERTION +
+  ACTION` (20). The user changes device state only when the agent guides them, so the null
+  agent cannot pass. The 43 "no agent write" tasks are fixed by the *user's* tools, not the
+  agent's.
+- **Meaning:** the no-op problem is large in airline (46%), small in retail (5.3%), and absent
+  in telecom. Retail needs a read gate on at most 6 tasks. Telecom needs nothing.
+- **Weak points:** 1 trial. The null agent is deterministic, but the retail NL judge is an LLM
+  and a different judge model than upstream's.
+
+## 19. The no-op doctor reproduces the airline results and drafts a retail read gate (2026-10-10)
+**By:** Vatsal + Claude
+
+- **What:** first build of the no-op doctor, `code/doctor/` (design:
+  `docs/research/noop-doctor-design.md` §9). We checked each step against a result we already
+  had. All commands run from `code/tau2-bench/` as `uv run python ../doctor/doctor.py ...`.
+  No agent LLM calls. The retail checkup calls the NL judge (`--nl-judge
+  openai/openai/gpt-4.1`, Prime, key from the environment).
+- **Results:**
+
+  | Step | Command (abridged) | Doctor | Earlier result | Match |
+  |---|---|---|---|---|
+  | Checkup, airline | `checkup --bench tau2:airline` | 23/50 | 23/50 (§1) | yes |
+  | Checkup, retail | `checkup --bench tau2:retail --nl-judge ...` | 6/114: 10, 12, 25, 50, 57, 65 | the same 6 (§18) | yes |
+  | Checkup, telecom | `checkup --bench tau2:telecom` | 0/114 | 0/114 (§18) | yes |
+  | No-op passes without gold reads, airline | (checkup output) | 0, 10, 13, 26, 28, 31, 34, 46 | the same 8 (§5) | yes |
+  | Twins | `twins validate --twin-tasks .../tasks_twins.json` | 26/26 valid (22 DB, 4 policy) | all valid (`code/twins/generate.py`) | yes |
+  | Policy flip | `flips --flips ../twins/policy_flips.yaml` | `delay_no_change.md` | committed file | byte-identical |
+  | Pair scores, 9 models | `pairs ... <9 models>` | every cell | `code/twins/score_pairs.py` on the same runs | identical |
+  | Read gate, null agent | `check-reads --spec airline justification.json` | 23 → 7 | 23 → 7 (§14) | yes |
+  | Read gate, 3 models | same, on gpt-6-luna, maverick, haiku-4.5 | 37→36, 23→22, 24→23 | §15, §17 | yes |
+
+- **Pair scores use the committed runs.** For the 6 older models those runs are not re-scored
+  (§15), so gpt-4.1 shows 30 → 27, not the §17 value 29 → 26. `score_pairs.py` gives the same
+  27 on the same files.
+- **Read gate drafted from gold reads, airline** (`draft-reads --skip-tool get_user_details
+  --compare .../justification.json`): the draft lists reads for 13 of the 23 no-op tasks; the
+  hand spec covers 16. On 8 tasks the draft equals the hand spec (1, 4, 36, 41, 45, 47, 48,
+  49). On 43 it has 3 extra reads. It misses the hand-added reads on 0, 10, 26, 28, 31, 34; on
+  9 its one read differs from the hand spec's 4; and it requires reads on 2, 6, 38 that the hand spec leaves out by design.
+  **Meaning:** the gold reads are a good start, not a finished spec. Draft and hand spec differ on
+  11 of the 19 tasks that either one lists.
+- **Read gate drafted, retail** (`code/doctor/specs/retail-reads-draft.json`, skipping
+  `find_user_id_by_*` and `get_user_details`): reads for 10, 12, 25, 65 (`get_order_details`
+  on the orders involved). 50 and 57 have no gold reads. Applied to the null run
+  (`check-reads --run data/simulations/retail_do_nothing/results.json`): **6 → 2**. The draft
+  is **not audited**, and no model has been run on retail yet, so we do not know how many real
+  passes it would remove.
+- **Tests:** `uv run --extra dev python -m pytest ../doctor/tests`: 17 passed, no API key.
+- **Weak points:** the doctor's read core is a copy of the tau2 one; a change to one must be
+  made in both. Retail twins are not built: task 57 (refund to a gift card) needs a list
+  element of the order's payment history changed, and its gold write needs a cancellation
+  reason that the user script does not give (the same problem as airline task 31).
 
 ## 20. Three trials of the four newer models; mean scores and change from the gates (2026-10-10)
 **By:** Vatsal + Claude

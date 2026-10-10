@@ -72,6 +72,12 @@ uv run python ../twins/score_pairs.py claude-sonnet-4.5 gpt-4.1   # needs airlin
 uv run python ../twins/average_trials.py gpt-6-luna:300,301,302   # model:seeds
 ```
 
+## `doctor/` — the no-op doctor
+
+A separate tool that applies the checkup, read gate, twins and policy flips to any benchmark
+with an adapter. It uses tau2 as a library and changes nothing in `tau2-bench/` or `twins/`.
+See `code/doctor/README.md`.
+
 ## Setup
 
 ```bash
