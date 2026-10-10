@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-09
+updated: 2026-10-10
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-09
+**Last updated:** 2026-10-10
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -58,7 +58,7 @@ The next thing each person is doing. Keep this short.
 | M1.3 | Implement the grader in the tau2 evaluator, reported next to the existing reward | Hammad + Vatsal + Claude | TBD | in progress | Read gate: done, in the evaluator (`docs/research/justification-check.md` · `docs/research/findings-log.md` §14). Pair scoring: a script only (`code/twins/score_pairs.py`), not yet in the evaluator |
 | M1.4 | Validate the grader against the hand grades (agreement rate, every disagreement) | ? | TBD | todo | needs M0.5. Sanity check only: the pilot grades used the old rubric (charter §1) |
 | M1.5 | Null agent: all no-action passes graded unjustified, airline and retail | Hammad + Claude | — | in progress | Airline done: 23 → 7, all 16 spec tasks gated (findings-log §14). The 7 left are no-data tasks + 38, by design. Retail not started. |
-| M1.6 | Re-score the 5 models; report accuracy and ranking before vs after | ? | TBD | in progress | Reads: 4 released models re-scored (findings-log §14), ranking unchanged. Twins: 5 new-run models paired (findings-log §9), llama 19 → 7. Still needed: one scoreboard with all three scores, more trials (M1.17). |
+| M1.6 | Re-score the 5 models; report accuracy and ranking before vs after | Hammad + Claude | TBD | in progress | Done for 1 trial: `docs/research/scoreboard.md` · findings-log §18 (llama 19 → 3, null agent 23 → 3; capable models −1 to −4). Needs more trials (M1.17). |
 | M1.7 | Extend to retail | ? | TBD | todo | |
 | M1.8 | Write-up of the Minimal result | ? | TBD | todo | |
 | M1.9 | Finalize the mandatory-read list per task | Hammad + Claude | — | done | `code/tau2-bench/data/tau2/domains/airline/justification.json` · `docs/research/justification-check.md` §7 |
@@ -73,6 +73,11 @@ The next thing each person is doing. Keep this short.
 | M1.18 | More policy flips: rule twins for the DB-decided tasks (2×2 fact/rule design); request flip for task 6 | ? | TBD | todo | `docs/research/counterfactual-twins.md` §6 |
 | M1.19 | Close the task 31 loophole (budget $100 → $65) | Hammad + Claude | — | done | `docs/research/loophole-airline-31.md` · decisions log 2026-10-03 |
 | M1.20 | Verify the task 31 fix with a fresh run (user declines the $81 offer) | ? | TBD | todo | `docs/research/loophole-airline-31.md` §5 |
+| M1.21 | Central scoreboard: every model under every scoring method, generated from saved runs | Hammad + Claude | — | done | `code/scoreboard.py` · `docs/research/scoreboard.md` · findings-log §18 |
+| M1.22 | Qualitative analysis: read the transcripts and name the behaviour each check catches (TA request) | Hammad + Claude | — | done | `docs/research/qualitative-patterns.md` · `code/transcript_patterns.py` · findings-log §19 |
+| M1.23 | Newer models: own scoreboard and qualitative analysis, kept apart from the older set (TA requests 1 and 2) | Hammad + Claude | — | done | `docs/research/new-models/` · `code/scoreboard.py` (`--set new`) · findings-log §20 |
+| M1.24 | Fix the twin scripts that fail agents for script reasons: task 27 (delay reason → transfer), tasks 2 and 38 (customer points to the wrong reservation) | ? | TBD | todo | `docs/research/new-models/qualitative-patterns.md` §6 |
+| M1.25 | Detect tool calls typed as text before scoring; report or rerun models that have them (llama-4-maverick) | ? | TBD | todo | findings-log §20 · `code/transcript_patterns.py` |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -103,5 +108,8 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-03 — Hammad + Claude — M1.15 done (task 31 budget fix); added M1.16. (Renumbered M1.19, M1.20 at the 2026-10-08 merge.)
 - 2026-10-03 — Hammad + Claude — M1.3, M1.9 done; M1.5, M1.6, M3.1 in progress (justification check implemented).
 - 2026-10-08 — Hammad + Claude — merged all branches: M1.3 set to in progress (read gate done, pair scoring still a script); Hammad's M1.15, M1.16 renumbered M1.19, M1.20; M1.5, M1.6 evidence updated.
+- 2026-10-08 — Hammad + Claude — added M1.21 (done, scoreboard); M1.6 evidence updated.
 - 2026-10-09 — Vatsal + Claude — added M0.8 (done): three newer models, airline + twins.
 - 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.
+- 2026-10-09 — Hammad + Claude — added M1.22 (done, qualitative transcript analysis for the TA).
+- 2026-10-10 — Hammad + Claude — merged main (M0.8, M0.9) with the scoreboard branch; M1.6, M1.21, M1.22 evidence renumbered to §18–§19; added M1.23 (done), M1.24, M1.25.
