@@ -637,7 +637,7 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   - The maverick numbers depend on Prime's gateway; another provider may give different
     results.
 
-## 18. Three trials of the four newer models; mean scores and change from the gates (2026-10-10)
+## 20. Three trials of the four newer models; mean scores and change from the gates (2026-10-10)
 **By:** Vatsal + Claude
 
 - **Models:** gpt-6-luna, claude-haiku-4.5, gpt-5.4-nano, llama-4-maverick (§15, §17).
