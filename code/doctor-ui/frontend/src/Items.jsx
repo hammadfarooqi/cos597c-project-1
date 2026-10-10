@@ -323,7 +323,7 @@ export function ReadsCard({ item, gold, ...ctx }) {
       </div>
       {ref && (
         <details className="ref">
-          <summary>Existing spec for this task ({ref.length} reads)</summary>
+          <summary>Existing spec for this task, for comparison ({ref.length} reads; not applied unless you use it)</summary>
           <ul>
             {ref.map((r, i) => (
               <li key={i}>

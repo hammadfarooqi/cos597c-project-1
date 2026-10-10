@@ -175,3 +175,22 @@ def test_add_repo_from_git_and_set_adapter(tmp_path):
 def test_twin_yaml_from_doctor_examples_loads():
     specs = yaml.safe_load((DOCTOR / "examples" / "mini_web_twins.yaml").read_text())
     assert specs[0]["task"] == "2"
+
+
+def test_existing_spec_is_proposed_when_gold_has_no_reads(tmp_path):
+    ref = tmp_path / "ref.json"
+    read = {"tool": "open", "match": {"product_id": "p9"}, "why": "hand-written"}
+    ref.write_text(json.dumps({"4": {"required_reads": [read]}}))
+    reg = Registry(tmp_path)
+    reg.update("mini-web", {"sources": {"reads_reference": str(ref)}})
+    svc = BenchService(reg, tmp_path, "mini-web")
+    job = svc.start_job("checkup", svc.run_checkup)
+    for _ in range(200):
+        if job.state != "running":
+            break
+        time.sleep(0.05)
+    item = svc.store.get("reads:4")
+    svc.reset_worker()
+    assert item["current"]["required_reads"] == [read]
+    assert item["source"].startswith("from the existing spec")
+    assert item["validation"]["ok"]

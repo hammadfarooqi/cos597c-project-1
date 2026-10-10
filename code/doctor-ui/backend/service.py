@@ -180,7 +180,11 @@ class BenchService:
             how = "drafted from the gold trajectory"
             if src["skip_tools"]:
                 how += f" (route-only reads left out: {', '.join(src['skip_tools'])})"
-            if not entry["required_reads"]:
+            if not entry["required_reads"] and extra["reference"]:
+                # No gold reads, but a person already wrote a spec: propose that one.
+                entry = {k: v for k, v in extra["reference"].items() if k == "required_reads"}
+                how = "from the existing spec (the gold has no reads)"
+            elif not entry["required_reads"]:
                 how = "gold has no reads: a person must write the requirement"
             self.store.upsert_proposal(
                 f"reads:{tid}", "reads", entry, task_id=tid, source=how, extra=extra
