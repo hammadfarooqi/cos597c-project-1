@@ -34,33 +34,34 @@ The null agent loses 20 in both (23 → 3).
 
 ## 2. Which patterns appear where
 
+Plain names for each behaviour. The two analyses describe each one in detail.
+
 | Pattern | Older set | Newer set |
 |---|---|---|
-| P1 Transfer first | llama-3.3: 41 / 50 | at most 4 / 50 (luna) |
-| P2 Invented user IDs | llama-3.3: 32 / 50 | maverick 8 / 50, 7 caused by the forced-tool retry |
-| P3 Escalation after a reasoned refusal | sonnet (all 12 transfers) | haiku (14 of 15) |
-| P4 Trust the customer's word | gpt-4.1 (28, 48, 49, 5 twin) | haiku 48, gpt-5.4-nano 2 twin |
-| P5 Read, then misapply | gpt-4.1-mini 28 twin | haiku 47 twin |
-| P6 Policy habit | gpt-4.1, mini, llama-3.3 | mostly absent; new models follow the flipped clause |
-| P7 Incomplete checks | gpt-4.1 41 twin | gpt-5.4-nano 41, maverick 9 |
-| P8 Always act | gpt-4.1-nano | gpt-5.4-nano, in the milder form P13 |
-| P9 Phantom write (call typed as text) | — | maverick, 13 / 65 episodes |
-| P10 Silent handoff | (llama-3.3: 3) | luna, 6 / 23 |
-| P11 Hand off under pushback | (gpt-4.1 27 twin) | luna, haiku on policy twins |
-| P12 Hedge and comply | — | haiku 26, 43, 47 |
-| P13 Act first, check later | gpt-4.1 48, 49 | gpt-5.4-nano, 5 / 65 |
+| Transfer before any lookup | llama-3.3: 41 / 50 | at most 4 / 50 (luna) |
+| Guessed customer IDs | llama-3.3: 32 / 50 | maverick 8 / 50, 7 caused by the forced-tool retry |
+| Explain, then escalate on request (good) | sonnet (all 12 transfers) | haiku (14 of 15) |
+| Believe the customer over the record | gpt-4.1 (28, 48, 49, 5 twin) | haiku 48, gpt-5.4-nano 2 twin |
+| Read the fact, then misapply the rule | gpt-4.1-mini 28 twin | haiku 47 twin |
+| Follow a habit, not the written policy | gpt-4.1, mini, llama-3.3 | mostly absent; the newer models follow the changed clause |
+| Incomplete checks | gpt-4.1 41 twin | gpt-5.4-nano 41, maverick 9 |
+| Always act / act first, check later | gpt-4.1-nano (always); gpt-4.1 48, 49 | gpt-5.4-nano, 5 / 65 writes before a read |
+| Says it acted, but the action never ran | — | maverick, 13 / 65 episodes |
+| Escalate instead of saying no (silent handoff) | (llama-3.3: 3) | luna, 6 / 23 silent; 21 / 23 transfer |
+| Hand off before finishing the allowed action | (gpt-4.1 27 twin) | luna, haiku on policy twins |
+| State the facts, then give in | — | haiku 26, 43, 47 |
 
 ## 3. Three family comparisons
 
 - **llama-3.3-70b → llama-4-maverick.** Transfers fall from 48 to 14 of 50; blind transfers
-  from 41 to 3; action-task passes rise from 0 to 7. The new failure is P9: on Prime Intellect
-  maverick types tool calls into its text. Llama-3.3's drop measured the model; much of
-  maverick's drop measures the serving stack.
+  from 41 to 3; action-task passes rise from 0 to 7. The new failure: on Prime Intellect, maverick
+  types tool calls into its text and says the action is done, but it never runs. Llama-3.3's
+  drop measured the model; much of maverick's drop measures the serving stack.
 - **claude-sonnet-4.5 → claude-haiku-4.5.** Both read first and explain refusals. Haiku gives
-  in more often after it has stated the facts (P12).
+  in more often after it has stated the facts.
 - **gpt-4.1-nano → gpt-5.4-nano.** Both lean toward acting. gpt-4.1-nano wrote on 22 of 23
   no-action tasks with little checking; gpt-5.4-nano writes on 15, reasons well when it
-  refuses, but often writes before it reads (P13).
+  refuses, but often writes before it reads.
 
 ## 4. What the newer set taught us about the checks
 
