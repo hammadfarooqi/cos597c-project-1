@@ -109,7 +109,25 @@ NO_ACTION = [
     49,
 ]
 LABELS = {"do_nothing": "null agent"}
-METHODS = ["original", "reads", "twins", "twins_lenient", "reads+twins"]
+METHODS = [
+    "original",
+    "reads",
+    "db_twins",
+    "policy_twins",
+    "twins",
+    "twins_lenient",
+    "reads+twins",
+]
+# Column headings for METHODS, in the same order.
+HEADS = [
+    "Original",
+    "Reads",
+    "DB twins",
+    "Policy twins",
+    "All twins",
+    "All twins (lenient)",
+    "**Reads + all twins**",
+]
 
 
 def load_all(path: Path) -> dict:
@@ -163,7 +181,7 @@ def models(set_name: str) -> list[str]:
     return found
 
 
-def score_model(m: str, spec: dict, twin_of: dict, gold: dict) -> dict:
+def score_model(m: str, spec: dict, twin_of: dict, kinds: dict, gold: dict) -> dict:
     """Per task: {method: mean pass over trials}, plus the per-task verdict code."""
     base = load_all(SIM / f"airline_{m}" / "results.json")
     twin = collections.defaultdict(dict)
@@ -192,8 +210,21 @@ def score_model(m: str, spec: dict, twin_of: dict, gold: dict) -> dict:
                 )
             else:
                 tw = tw_len = True
+            # Each task has at most one twin, so a twin loss is either DB or policy.
+            kind = kinds[twin_of[tid]] if tid in twin_of else None
+            db = tw if kind == "DB" else True
+            pf = tw if kind == "policy" else True
             for name, v in zip(
-                METHODS, [orig, reads, orig and tw, orig and tw_len, reads and tw]
+                METHODS,
+                [
+                    orig,
+                    reads,
+                    orig and db,
+                    orig and pf,
+                    orig and tw,
+                    orig and tw_len,
+                    reads and tw,
+                ],
             ):
                 per[name].append(v)
         out[tid] = {name: sum(v) / len(v) for name, v in per.items()} | {
@@ -211,13 +242,12 @@ def verdict(row: dict) -> str:
     """One mark per task: why a no-action pass was kept or removed."""
     if row["original"] == 0:
         return "·"
-    lost_r, lost_t = row["reads"] < row["original"], row["twins"] < row["original"]
-    return {
-        (False, False): "✓",
-        (True, False): "R",
-        (False, True): "T",
-        (True, True): "RT",
-    }[(lost_r, lost_t)]
+    marks = [
+        mark
+        for mark, method in [("R", "reads"), ("D", "db_twins"), ("P", "policy_twins")]
+        if row[method] < row["original"]
+    ]
+    return "".join(marks) or "✓"
 
 
 def ranks(totals: dict, method: str) -> dict:
@@ -231,7 +261,7 @@ def build(set_name: str) -> str:
     spec = parse_spec(json.loads((AIRLINE / "justification.json").read_text()))
     twin_of, kinds, gold = twin_map()
     ms = models(set_name)
-    scores = {m: score_model(m, spec, twin_of, gold) for m in ms}
+    scores = {m: score_model(m, spec, twin_of, kinds, gold) for m in ms}
     ms.sort(key=lambda m: -sum(r["original"] for r in scores[m].values()))
     name = {m: LABELS.get(m, m) for m in ms}
     na = {str(t) for t in NO_ACTION}
@@ -260,10 +290,8 @@ def build(set_name: str) -> str:
     L = []
     L.append("## 1. Full airline score (all 50 tasks)\n")
     L.append("Passes, with the share of tasks and the rank (#) under each method.\n")
-    L.append(
-        "| Model | Trials | Original | Reads | Twins | Twins (lenient) | **Reads + twins** | Change |"
-    )
-    L.append("|---|---|---|---|---|---|---|---|")
+    L.append("| Model | Trials | " + " | ".join(HEADS) + " | Change |")
+    L.append("|---|---|" + "---|" * len(HEADS) + "---|")
     for m in ms:
         n, t = n_tasks[m], tot_all[m]
         cells = [f"{fmt(t[k], n)} #{rk[k][m]}" for k in METHODS]
@@ -277,21 +305,43 @@ def build(set_name: str) -> str:
     L.append(
         "The other 27 tasks are scored the same under every method, so all change comes from here.\n"
     )
-    L.append(
-        "| Model | Original | Reads | Twins | Twins (lenient) | **Reads + twins** |"
-    )
-    L.append("|---|---|---|---|---|---|")
+    L.append("| Model | " + " | ".join(HEADS) + " |")
+    L.append("|---|" + "---|" * len(HEADS))
     for m in ms:
         t = tot_na[m]
         cells = [fmt(t[k], len(NO_ACTION)) for k in METHODS]
         cells[-1] = f"**{cells[-1]}**"
         L.append(f"| {name[m]} | " + " | ".join(cells) + " |")
     L.append("")
-    L.append("## 3. Per task: why each no-action pass was kept or removed\n")
+    L.append("## 3. No-action passes removed, by check\n")
     L.append(
-        "`✓` kept by both checks · `R` removed by the read check · `T` removed by the twin · "
-        "`RT` removed by both · `·` failed under upstream scoring. With several trials, a mark "
-        "shows a loss in at least one trial.\n"
+        "How many upstream no-action passes each check removes. A pass can fail both the read "
+        "check and its DB twin; it then counts in both columns and once in the total. Policy-twin "
+        "tasks have no read check, so they never overlap.\n"
+    )
+    L.append(
+        "| Model | Upstream no-action passes | Removed by reads | Removed by DB twin | "
+        "Removed by policy twin | Removed by reads and DB twin | **Total removed** |"
+    )
+    L.append("|---|---|---|---|---|---|---|")
+    for m in ms:
+        t = tot_na[m]
+        lost = {k: t["original"] - t[k] for k in ["reads", "db_twins", "policy_twins"]}
+        total = t["original"] - t["reads+twins"]
+        both = sum(lost.values()) - total
+        cells = [t["original"], *lost.values(), both]
+        L.append(
+            f"| {name[m]} | "
+            + " | ".join(f"{x:g}" for x in cells)
+            + f" | **{total:g}** |"
+        )
+    L.append("")
+    L.append("## 4. Per task: why each no-action pass was kept or removed\n")
+    L.append(
+        "`✓` kept by every check · `R` removed by the read check · `D` removed by the DB "
+        "(counterfactual) twin · `P` removed by the policy-flip twin · `RD` removed by both the "
+        "read check and the DB twin · `·` failed under upstream scoring. With several trials, a "
+        "mark shows a loss in at least one trial.\n"
     )
     L.append("| Task | Checks | " + " | ".join(name[m] for m in ms) + " |")
     L.append("|---|---|" + "---|" * len(ms))
@@ -314,7 +364,7 @@ def build(set_name: str) -> str:
             + " |"
         )
     L.append("")
-    L.append("## 4. Coverage of the 23 no-action tasks\n")
+    L.append("## 5. Coverage of the 23 no-action tasks\n")
     L.append("| Check | Tasks | Count |")
     L.append("|---|---|---|")
     for label, ts in [
@@ -329,7 +379,7 @@ def build(set_name: str) -> str:
     ]:
         L.append(f"| {label} | {', '.join(map(str, ts)) or '—'} | {len(ts)} |")
     L.append("")
-    L.append("## 5. Runs used\n")
+    L.append("## 6. Runs used\n")
     for m in ms:
         twin_dirs = ", ".join(
             f"`{d.name}`" for d in sorted(SIM.glob(f"airline_twins*_{m}"))
@@ -344,7 +394,8 @@ type: research
 status: current
 updated: {date}
 summary: >-
-  {about} Each model under every scoring method (original, reads, twins, reads + twins).
+  {about} Each model under every scoring method (original, reads, DB twins, policy twins,
+  reads + all twins).
   Generated by code/scoreboard.py from the saved runs. Do not edit by hand.
 note: >-
   Generated file. Change the runs or the specs, then rerun code/scoreboard.py. The other model
@@ -366,10 +417,17 @@ note: >-
 - **Original:** the upstream tau2 reward.
 - **Reads:** a no-action pass counts only if the agent made every required read
   (`docs/research/justification-check.md`).
-- **Twins:** a no-action pass counts only if the agent also passes its twin
-  (`docs/research/counterfactual-twins.md`). **Lenient:** the twin also counts when the agent
-  made the right write despite other errors.
-- **Reads + twins:** both checks. This is the headline score.
+- **DB twins:** a no-action pass on a task with a counterfactual (DB-flip) twin counts only if
+  the agent also passes the twin. The twin changes one database fact so that the write becomes
+  correct (`docs/research/counterfactual-twins.md`).
+- **Policy twins:** the same rule for tasks with a policy-flip twin. The twin changes one
+  sentence of the policy so that the write becomes correct (`code/twins/policy_flips.yaml`).
+- **All twins:** both kinds of twin. **Lenient:** a twin also counts when the agent made the
+  right write despite other errors.
+- **Reads + all twins:** the read check and both kinds of twin. This is the headline score.
+
+Each no-action task has at most one twin, so a twin removal is either a DB-twin removal or a
+policy-twin removal, never both.
 
 A task with no check of a kind passes that check by default. The 27 action tasks are scored the
 same under every method.

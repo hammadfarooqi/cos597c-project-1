@@ -233,7 +233,7 @@ different reasons: nano writes on both sides, and maverick's twin writes are oft
 
 ## 4. Every removal on the scoreboard, explained
 
-From `docs/research/new-models/scoreboard.md` §3. "Verdict" says if the removal reflects a real
+From `docs/research/new-models/scoreboard.md` §4. "Verdict" says if the removal reflects a real
 agent problem.
 
 | Model | Task | Check | Base episode | Twin / read finding | Verdict |

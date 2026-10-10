@@ -150,7 +150,8 @@ uv run pytest tests/test_justification.py -q
 ## `scoreboard.py` — every model under every scoring method
 
 `scoreboard.py` writes one scoreboard per model set: each model's score under original, reads,
-twins (strict and lenient), and reads + twins, with ranks, per-task marks, and coverage. It reads
+DB (counterfactual) twins, policy-flip twins, all twins (strict and lenient), and reads + all
+twins, with ranks, a count of removals per check, per-task marks (`R`, `D`, `P`), and coverage. It reads
 the saved runs only. It makes no LLM calls and replays no environment. It reuses the read check's
 core (`justification_core.py`) and the pair helpers in `twins/score_pairs.py`.
 
