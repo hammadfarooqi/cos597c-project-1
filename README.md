@@ -16,10 +16,9 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 ---
 
-## ⚠ Audit: 3 warning(s)
+## ⚠ Audit: 2 warning(s)
 
 ```
-DATE MISMATCH    docs/decisions/milestones.md  frontmatter 2026-10-10, body says 2026-10-09
 FLAGGED          docs/research/noop-doctor-design.md  status: needs-review
 BROKEN LINK      CLAUDE.md  ->  code/tau2-bench/.env
 ```
