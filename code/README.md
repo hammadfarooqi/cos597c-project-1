@@ -58,6 +58,7 @@ Design and reasoning: `docs/research/counterfactual-twins.md`.
 | `twins/specs/airline.yaml` | One short spec per no-action task: the blocked write, the reason, the facts the script locks, the preferred flip. Lists the excluded tasks and why. |
 | `twins/generate.py` | Searches one-field DB flips, applies policy flips, builds the twin tasks, validates them with the tau2 evaluator, writes `tasks_twins.json` and its split. |
 | `twins/score_pairs.py` | Pair scoring: a no-action pass counts only if the twin also passes. Reports twin failure causes. |
+| `twins/average_trials.py` | Scores each trial (seed) of a model with the pair rule, then gives the mean, the range, and the change from the original score. Runs for seed `N` other than 300 end in `_seed<N>`. See `docs/research/findings-log.md` §20. |
 
 Run from `code/tau2-bench/`:
 
@@ -68,6 +69,7 @@ uv run tau2 run --domain airline --task-set-name airline_twins --task-split-name
 uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twins \
   --task-split-name pf_delay_no_change --agent-llm ... --save-to airline_twins_pf_<model>
 uv run python ../twins/score_pairs.py claude-sonnet-4.5 gpt-4.1   # needs airline_<model> runs too
+uv run python ../twins/average_trials.py gpt-6-luna:300,301,302   # model:seeds
 ```
 
 ## `doctor/` — the no-op doctor
