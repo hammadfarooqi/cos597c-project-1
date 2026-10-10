@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-10
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -167,4 +167,21 @@ leaves upstream scoring intact and reproducible. Choices:
   Re-run task 31 before you use those results for it (M1.20).
 **Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
 `docs/decisions/charter.md` §6 · `code/README.md`
+**Replaces:** —
+
+## 2026-10-10 — A review UI for the no-op doctor, in its own folder
+**By:** Vatsal + Claude
+**Why:** Every proposed read enforcement, DB twin and policy flip needs a person's review
+before it is used. A UI makes that review quick and leaves a record of who approved what.
+- The app is in `code/doctor-ui/`, apart from `code/doctor/`. It calls the doctor as a library
+  and does not edit it. Doctor changes it needs go to the doctor's owner.
+- Stack: a FastAPI backend and a React + Vite frontend (Vatsal chose React over plain
+  HTML/JS).
+- The backend never imports a benchmark. It runs a worker process in the benchmark's own
+  Python environment, so a benchmark plugged in by git URL keeps its own dependencies.
+- "Plug in any repo" works only where an adapter exists: tau2-bench checkouts, mini_web, or a
+  repo with a `noop-doctor.json` manifest. Other repos are added as "needs adapter".
+- Approved items export as the doctor's own spec files. The app does not write into a
+  benchmark repository unless the reviewer names a folder there.
+**Affects:** `code/doctor-ui/README.md` · `code/README.md` · `docs/decisions/milestones.md` M3.4
 **Replaces:** —
