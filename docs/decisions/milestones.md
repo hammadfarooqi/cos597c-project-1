@@ -77,8 +77,10 @@ The next thing each person is doing. Keep this short.
 | M1.21 | Central scoreboard: every model under every scoring method, generated from saved runs | Hammad + Claude | — | done | `code/scoreboard.py` · `docs/research/scoreboard.md` · findings-log §18 |
 | M1.22 | Qualitative analysis: read the transcripts and name the behaviour each check catches (TA request) | Hammad + Claude | — | done | `docs/research/qualitative-patterns.md` · `code/transcript_patterns.py` · findings-log §19 |
 | M1.23 | Newer models: own scoreboard and qualitative analysis, kept apart from the older set (TA requests 1 and 2) | Hammad + Claude | — | done | `docs/research/new-models/` · `code/scoreboard.py` (`--set new`) · findings-log §21 |
-| M1.24 | Fix the twin scripts that fail agents for script reasons: task 27 (delay reason → transfer), tasks 2 and 38 (customer points to the wrong reservation) | ? | TBD | todo | `docs/research/new-models/qualitative-patterns.md` §6 |
+| M1.24 | Fix the twin scripts that fail agents for script reasons: task 27 (delay reason → transfer), tasks 2 and 38 (customer points to the wrong reservation); also task 5 (escalation, yes + stop), task 48 (false claim made true) — see review-3-trials §5 | ? | TBD | todo | `docs/research/new-models/qualitative-patterns.md` §6 · `docs/research/new-models/review-3-trials.md` §5 |
 | M1.25 | Detect tool calls typed as text before scoring; report or rerun models that have them (llama-4-maverick) | ? | TBD | todo | findings-log §21 · `code/transcript_patterns.py` |
+| M1.26 | Three-trial review of every newer-model removal with the two-question rubric; TP / wrong-mechanism / FP per gate | Vatsal + Claude | — | done | `docs/research/new-models/review-3-trials.md` · `docs/research/new-models/review/` · findings-log §23 |
+| M1.27 | "No write attempted" gate: fail a no-action pass that has any write call (failed or no-op) or a write typed as text; add it to the scoreboard | ? | TBD | todo | findings-log §23 · `code/transcript_patterns.py` (`attempted_write`) |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -116,3 +118,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-10 — Hammad + Claude — merged main (M0.8, M0.9) with the scoreboard branch; M1.6, M1.21, M1.22 evidence renumbered to §18–§19; added M1.23 (done), M1.24, M1.25.
 - 2026-10-10 — Vatsal + Claude — added M0.10 (done): 3 trials of the 4 newer models; M1.17 in progress.
 - 2026-10-10 — Hammad + Claude — merged main (M0.10); M1.23 evidence renumbered to findings §21; M1.17 evidence: 3-trial pass^k and stability (findings §22).
+- 2026-10-10 — Vatsal + Claude — added M1.26 (done, 3-trial review, findings §23) and M1.27 (no-write-attempted gate); M1.24 scope widened.

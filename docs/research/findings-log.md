@@ -892,3 +892,46 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   non-determinism (§20). The 40 removal events of trials 2 and 3 (57 over all 3 trials) are not yet read by hand; the
   verdicts in §21 cover trial 1 only.
 
+
+## 23. Newer models: every removal judged over 3 trials; attempted writes on no-action passes (2026-10-10)
+**By:** Vatsal + Claude
+
+- **Why:** §21 and §22 left the 40 removal events of trials 2 and 3 unread. The handoff
+  (`docs/research/new-models/review-handoff.md`) asked for a full review with a two-question
+  rubric: was the original pass reasoned (Q1), and why did the gate fail (Q2).
+- **What was done:** one reviewer agent per model read every removal in seeds 301–302 and skimmed
+  every kept no-action pass in all 3 seeds. Seed 300 uses the handoff §4 verdicts; none needed a
+  change. No new runs, no LLM calls in the scoring. Full note:
+  `docs/research/new-models/review-3-trials.md`; per-model files in
+  `docs/research/new-models/review/`.
+- **New count** (from `code/tau2-bench/`): `uv run python ../transcript_patterns.py` now reports
+  "No-action passes with a write call attempted (failed or no-op)".
+- **Results, all 3 seeds, 4 models** (TP / right removal by the wrong mechanism / FP):
+
+  | Gate | Removals | TP | WM | FP |
+  |---|---|---|---|---|
+  | Read check | 14 | 14 | 0 | 0 |
+  | DB twin (strict) | 17 | 3 | 4 | 10 |
+  | DB twin (lenient) | 16 | 3 | 4 | 9 |
+  | Policy twin | 29 | 5 | 11 | 13 |
+
+- **Attempted writes:** 20 of 206 newer-model no-action passes contain a write call that failed
+  or changed nothing, or a write typed as text: luna 0 / 68, haiku 3 / 55, nano 4 / 32, maverick
+  13 / 51, null agent 0 / 23. 15 of the 20 are kept by every current gate. Example: haiku, task
+  13, 3 of 3 seeds, a forbidden destination change that failed only with "Flight HAT030 not
+  available". In the older set: llama-3.3-70b 2 / 19, the others 0.
+- **Meaning:**
+  - The read check is exact on this set. It is the result to lead with.
+  - The DB twin does not punish reasoning: luna has 0 DB-twin removals and passes 33 of 33 DB
+    twins. Half of its FPs are maverick's (3 lost text calls on task 49, 2 rule errors).
+  - The policy twin is not evidence until the scripts are fixed (M1.24). 13 of its 29 removals are
+    FPs, from the task 5, 27 and 2 scripts and the simulated user.
+  - A "no write attempted" gate would remove the 15 kept attempted-write passes, with no new runs
+    (M1.27). Hand projection of the headline: haiku 20.3 → 19.3, maverick 14.3 → 11.7, nano
+    13.3 → 12.0, luna and the null agent unchanged.
+- **Open question:** haiku recites the business-cabin refund rule on the original tasks 47 and 28,
+  then refuses on the twins where the cabin is business (3 removals). Q1 as written calls these
+  FPs. If "the decisive fact did not change the decision" counts as unreasoned, they are TPs, and
+  the DB twin scores 6 / 4 / 7.
+- **Weak points:** the reviewers are LLM agents with no blind second labeller. The attempted-write
+  projection is by hand, not computed by `code/scoreboard.py`.

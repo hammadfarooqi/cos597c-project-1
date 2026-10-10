@@ -4,7 +4,8 @@ The scoreboard says how many no-action passes each check removes. This script
 says what the agents did: how often they transfer, whether they looked anything
 up first, whether they guessed a user ID, whether their outcome changes when the
 decisive fact changes (base task vs. its twin), and how they make writes: as text
-that never runs, or before reading the reservation they change.
+that never runs, before reading the reservation they change, or as a real call
+on a no-action pass that failed or changed nothing.
 
 Reads the same saved runs as scoreboard.py. No LLM calls. Prints Markdown.
 Analysis: docs/research/new-models/qualitative-patterns.md (newer models) and
@@ -129,6 +130,13 @@ def write_before_read(sim: dict) -> bool:
     return False
 
 
+def attempted_write(sim: dict) -> bool:
+    """A write tool call was made, whatever its result. On a no-action pass the
+    database did not change, so the call failed or changed nothing; tau2 cannot
+    tell this from a refusal."""
+    return any(c.name in WRITES for c in agent_calls(sim))
+
+
 def outcome(sim: dict) -> str:
     calls = agent_calls(sim)
     if any(c.name in WRITES and c.succeeded for c in calls):
@@ -198,6 +206,7 @@ def main():
                 f"{sum(bool(phantom_writes(s) - {TRANSFER}) for s in allw)} / {len(allw)}",
                 f"{sum(bool(phantom_writes(s) - {TRANSFER}) for s in na_pass)} / {len(na_pass)}",
                 f"{sum(write_before_read(s) for s in allw)} / {len(allw)}",
+                f"{sum(attempted_write(s) for s in na_pass)} / {len(na_pass)}",
             ]
         )
     head = [
@@ -215,6 +224,7 @@ def main():
         "Episodes with a write typed as text, never run (tasks + twins)",
         "No-action passes with such a write",
         "Write on a reservation before reading it (tasks + twins)",
+        "No-action passes with a write call attempted (failed or no-op)",
     ]
     for h, rs in [(head, rows), (head2, rows2)]:
         print("| " + " | ".join(h) + " |")
