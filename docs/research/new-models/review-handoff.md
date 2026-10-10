@@ -8,7 +8,8 @@ summary: >-
   rubric, per-gate questions, the corrected trial-1 verdicts to calibrate against, what two
   adversarial reviewers found, and the known errors in qualitative-patterns.md.
 note: >-
-  Written so that Vatsal (or an agent) can continue without the original conversation. The
+  Done on 2026-10-10: the full review is docs/research/new-models/review-3-trials.md (findings-log
+  §23). Kept as the rubric. Written so that Vatsal (or an agent) can continue without the original conversation. The
   trial-1 verdicts here supersede §5 of docs/research/new-models/qualitative-patterns.md.
 ---
 

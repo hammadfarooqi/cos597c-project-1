@@ -212,3 +212,21 @@ do not want to make.
 `docs/decisions/milestones.md`
 **Replaces:** the single all-model scoreboard of 2026-10-08 (now split by set)
 
+
+## 2026-10-10 — Policy-twin removals are not evidence until the scripts are fixed; lead with the read check
+**By:** Vatsal + Claude
+**Why:** The 3-trial review (`docs/research/new-models/review-3-trials.md`, findings-log §23)
+judged every removal with the two-question rubric of `docs/research/new-models/review-handoff.md`.
+The read check removed 14 passes, all correct. The policy twin removed 29, but only 5 by the
+intended mechanism and 13 from reasoned originals, mostly because of the task 5, 27 and 2 user
+scripts. This contradicts the claim in `docs/research/new-models/qualitative-patterns.md` (A1,
+A2, A6) that the policy twin catches these patterns reliably.
+- Report the read check and the DB twin as the evidence. Report policy-twin removals only with
+  their FP rate, until M1.24 fixes the scripts and the twins are rerun.
+- Record "no write attempted" as a candidate gate (M1.27). It is not part of any reported score
+  yet.
+- Not settled: whether haiku's business-cabin refusals (tasks 47, 28) count as TP or FP. Both
+  counts are reported.
+**Affects:** `docs/research/new-models/qualitative-patterns.md` · `docs/research/new-models/review-3-trials.md` ·
+`docs/decisions/milestones.md` (M1.24, M1.26, M1.27)
+**Replaces:** the reliability claims of `docs/research/new-models/qualitative-patterns.md` §5

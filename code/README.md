@@ -182,9 +182,11 @@ uv run python ../scoreboard.py --check      # exit 1 if any scoreboard is stale
 Prints two Markdown tables of behaviour counts per model, for one model set. Table 1: transfers,
 transfers before any successful lookup, guessed user IDs, and whether the write decision is the
 same on a task and its twin. Table 2: silent transfers (read, then transfer with no reply),
-writes typed as text that never ran, and writes on a reservation before reading it. Same saved
-runs and helpers as `scoreboard.py`; no LLM calls. The analyses that use it:
-`docs/research/new-models/qualitative-patterns.md` and `docs/research/qualitative-patterns.md`.
+writes typed as text that never ran, writes on a reservation before reading it, and no-action
+passes with a write call attempted (failed or no-op; findings-log §23). Same saved runs and
+helpers as `scoreboard.py`; no LLM calls. The analyses that use it:
+`docs/research/new-models/qualitative-patterns.md`, `docs/research/new-models/review-3-trials.md`
+and `docs/research/qualitative-patterns.md`.
 
 Counts cover every trial of a model unless `--seed N` picks one.
 

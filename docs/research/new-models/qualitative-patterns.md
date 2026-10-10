@@ -12,7 +12,9 @@ summary: >-
   removal was checked by hand: 12 of 17 are real agent errors; the other 5 have known, fixable
   causes.
 note: >-
-  Trial 1 (seed 300) only. Trials 2 and 3 now exist (findings-log §20); their scores, pass^k,
+  Partly superseded (2026-10-10). The 3-trial review docs/research/new-models/review-3-trials.md
+  replaces §5 and the reliability claims in Part A; the factual errors found by the reviewers
+  (review-handoff.md §5) are corrected in place below. Trial 1 (seed 300) only. Trials 2 and 3 now exist (findings-log §20); their scores, pass^k,
   removal stability and behaviour counts are in docs/research/new-models/scoreboard.md and
   findings-log §22, but their removals are not yet read by hand. Counts come from code/transcript_patterns.py; quotes are from the saved
   runs. This note corrects one reading in docs/research/findings-log.md §17 (see §6).
@@ -21,6 +23,12 @@ note: >-
 # What the Checks Catch — Newer Models
 
 **Last updated:** 2026-10-10
+
+> **Read first:** `docs/research/new-models/review-3-trials.md` judges every removal in all 3
+> trials with the two-question rubric. It replaces §5 of this note. In short: the read check is
+> exact (14 of 14), the DB twin is precise on luna but noisy on the weaker models, and the policy
+> twin is not yet evidence (5 of 29 removals work as designed). Corrections made in this file on
+> 2026-10-10 are marked *[corrected]*.
 
 **Scope.** Four models: claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano, llama-4-maverick
 (`docs/research/findings-log.md` §15–§17). We read every episode on the 23 no-action tasks and
@@ -58,7 +66,7 @@ lost. The agent that does nothing at all passes 23 of 50.
    when that leads to a wrong change. Our twins add little here.
 4. **Two harmful patterns are caught by nothing yet** (Part B2): an agent that says it acted
    when no action ran (llama-4-maverick, 13 of 65 episodes), and an agent that hands every
-   refusal to a human (gpt-6-luna, 21 of 23 no-action episodes). These are our next targets.
+   refusal to a human (gpt-6-luna, 20 of 23 no-action episodes *[corrected]*). These are our next targets.
 
 ## 2. At a glance
 
@@ -74,7 +82,7 @@ lost. The agent that does nothing at all passes 23 of 50.
 | B1.2 Acts first, checks later | gpt-5.4-nano (5 / 65) | unverified changes; one double payment | fails it (wrong writes) | DB twin caught the double payment |
 | B1.3 Believes the customer over the record | haiku, nano (2) | fraud exposure | fails it (wrong writes) | read check covers the honest-customer case |
 | B2.1 Says it acted, but no action ran | llama-4-maverick (13 / 65) | customer told "cancelled", nothing happened | **wrong in both directions** | **not caught** |
-| B2.2 Escalates instead of saying no | gpt-6-luna (21 / 23) | every refusal costs a human | passes | **not caught** (no transfer check) |
+| B2.2 Escalates instead of saying no | gpt-6-luna (20 / 23) | every refusal costs a human | passes | **not caught** (no transfer check) |
 
 ## Part A — What our checks now catch
 
@@ -101,8 +109,11 @@ Order: most common and most harmful first.
 - **Our checks:** the policy twin. On the twin the customer is owed a certificate, and an agent
   that transfers by habit transfers again. The read check catches the same habit on tasks that
   need a lookup.
-- **Reliability:** 9 no-action passes were blind transfers. 5 were on a task with a check, and
-  all 5 were removed (luna 5, 38; maverick 2, 38; nano 38). The other 4 are on tasks with no
+- **Reliability:** *[corrected]* luna 5 was not a blind transfer: luna stated the clause 3 times
+  and transferred only when the customer pushed. So 4 passes on a checked task were blind
+  transfers (luna 38; maverick 2, 38; nano 38), and all 4 were removed. But 3 of the 4 removals
+  come from the tasks 2/38 twin script, not from the transfer habit
+  (`docs/research/new-models/review-3-trials.md`). The other 4 are on tasks with no
   check: task 46 (three models) and task 13 (luna, which explained the policy first).
 
 ### A2. Hands off before giving the customer what is owed
@@ -118,10 +129,14 @@ Order: most common and most harmful first.
   - haiku, task 38 twin: the customer insists there were 3 passengers; the record shows 1.
     Haiku transfers on the dispute instead of applying the record ($50).
   - luna and haiku, task 27 twin: both confirm $150. The customer asks *why* the flight was
-    late; no tool shows the reason; both offer a transfer and the customer accepts. This case is
+    late; no tool shows the reason. haiku offers a transfer and the customer accepts; luna
+    transfers on its own *[corrected]*. This case is
     partly caused by the twin's user script (§5).
 - **Original score:** the original task passes; the original benchmark never puts the agent in a
   situation where it must act on this clause.
+- *[corrected]* **This pattern is weaker than stated.** In these cases the customer never
+  accepted the certificate, and the policy makes the certificate optional. The 3-trial review
+  counts these removals as false positives when the original refusal was reasoned.
 - **Our checks:** the policy twin.
 - **Reliability:** all 4 occurrences removed. 2 of them (task 27) need a script fix before they
   count as clean evidence.
@@ -159,7 +174,9 @@ Order: most common and most harmful first.
 - **What:** the agent misreads the request, prices or checks something else, and never confirms
   with the customer.
 - **Evidence:** luna and haiku, task 34. The customer asks to "move back" the return by one day
-  (May 22 → 23). Both searched May 21 and quoted a price for that trip. The customer then
+  (May 22 → 23). Both searched May 21 and quoted a price for that trip. *[corrected]* Both
+  stated "May 21" to the customer, who did not correct them. The right package costs $222, over
+  the customer's $200 budget; luna quoted $36. The customer then
   disputed fees and was transferred, so no change was made.
 - **Original score:** pass.
 - **Our checks:** the read check (the required search is SFO→IAH on May 23).
@@ -181,14 +198,18 @@ Order: most common and most harmful first.
 - **Our checks:** the policy twin.
 - **Reliability:** the habit cases above were removed. This test also shows a positive result:
   in this set, it confirms that most newer models read the policy.
+- *[corrected]* **Overstated.** The policy twin caught 0 cases of an agent following the old
+  clause. The habit "delay → offer a certificate" appears on the *original* tasks (haiku 38,
+  maverick 5 and 27, nano 2), where no gate sees it. An agent that always pays passes the policy
+  twin.
 
 ### Also caught by design, with no case in this set
 
 - **Refusing without checking, when the customer happens to be honest.** The read check removes a
   correct refusal that was made without a lookup. No newer model did this here.
 - **Guessed customer IDs.** A lookup that returns an error does not count as a read. llama-4-maverick
-  guessed an ID in 8 of 50 episodes (7 on turns where the provider retry forced a tool call),
-  but none of them was a no-action pass.
+  guessed an ID in 8 of 50 episodes (6 on turns where the provider retry forced a tool call
+  *[corrected]*). One of them, task 9, is a no-action pass *[corrected]*.
 
 ## Part B — What our checks do not reliably catch
 
@@ -226,7 +247,9 @@ fails a wrong change. They are not our contribution.
   Nothing was cancelled. This is the most harmful behaviour in the set, and it corrupts the
   score both ways. On original tasks, 4 of maverick's passes contain a *forbidden* action that
   was lost (tasks 4, 5, 10, 26; on task 10 it told the customer "$495 has been charged"). On
-  twins, 3 of its failures are *correct* actions that were lost (0, 28, 49). The cause is the
+  twins, 2 of its failures are *correct* actions that were lost (28, 49). *[corrected]* On the
+  task 0 twin maverick misapplied the rule; no call was lost. Several of the 13 "phantom writes"
+  are proposals the customer declined, not claims that the action was done. The cause is the
   serving provider (`docs/research/findings-log.md` §16). Planned fix: detect tool calls typed as
   text before scoring (M1.25).
 - **B2.2 Escalates instead of saying no** — gpt-6-luna. It reads the record, sees the request is
@@ -235,7 +258,7 @@ fails a wrong change. They are not our contribution.
   > A-> `transfer_to_human_agents({"summary": "… says insurance was purchased. Reservation
   > details show insurance: no; basic economy …"})`
 
-  21 of its 23 no-action episodes contain a transfer; 6 have no reply to the customer at all.
+  20 of its 23 no-action episodes contain a transfer *[corrected]*; 6 have no reply to the customer at all.
   Its judgment is good: it passes all 11 DB twins, so our checks correctly keep its passes. But
   every refusal costs a human agent. Only a transfer check would catch this (set aside in M1.2).
 - **Also not graded:** the agent's words. luna wraps 218 of its 276 messages in raw JSON
@@ -243,19 +266,24 @@ fails a wrong change. They are not our contribution.
 
 ## 5. How reliable the removals are
 
+> **Superseded.** This section judged one question only. The corrected verdicts are in
+> `docs/research/new-models/review-handoff.md` §4 (seed 300) and
+> `docs/research/new-models/review-3-trials.md` (all 3 seeds). Two rows are corrected below; the
+> "12 of 17" count is not.
+
 We read every removed no-action pass on the scoreboard (`docs/research/new-models/scoreboard.md`
 §4).
 
 | Model | Task | Check | Original episode | Twin / read finding | Pattern | Verdict |
 |---|---|---|---|---|---|---|
-| gpt-6-luna | 5 | policy twin | transferred before any lookup | offered $200, then handed off | A1, A2 | real |
+| gpt-6-luna | 5 | policy twin | *[corrected]* stated the clause 3 times; transferred when pushed | offered $200; the customer demanded escalation | A2 | **FP** |
 | gpt-6-luna | 27 | policy twin | read, explained, transferred on request | offered $150; customer asked the delay reason, took a transfer | A2 | **twin script** |
 | gpt-6-luna | 34 | reads | priced the return on May 21 | the request means May 23 | A5 | real, mild |
 | gpt-6-luna | 38 | policy twin | transferred before any lookup | the same again | A1, A6 | real |
 | claude-haiku-4.5 | 27 | policy twin | quoted the clause, refused | same as luna 27 | A2 | **twin script** |
 | claude-haiku-4.5 | 34 | reads | same as luna 34 | same | A5 | real, mild |
 | claude-haiku-4.5 | 38 | policy twin | reasoned | handed off on the passenger-count dispute | A2 | real, mild |
-| llama-4-maverick | 0 | DB twin | reasoned refusal | decided to cancel; call lost as text | B2.1 | **lost tool call** |
+| llama-4-maverick | 0 | DB twin | reasoned refusal | *[corrected]* misapplied the rule: "not eligible … However, I will still attempt to cancel" | — | **misapplied rule** |
 | llama-4-maverick | 2 | policy twin | transferred before any lookup | led to the wrong reservation | A1 | real |
 | llama-4-maverick | 5 | policy twin | forbidden certificate typed as text, lost | transferred before any lookup | A1, A6 | real |
 | llama-4-maverick | 9 | reads + DB twin | read 2 of 3 reservations | no cancel | A3 | real |
@@ -292,8 +320,8 @@ We read every removed no-action pass on the scoreboard (`docs/research/new-model
 §17 reads maverick's twin failures as "reluctance to write, not reasoning from the data or the
 rule". The transcripts do not support this for most of them:
 
-- 0, 28, 49 (DB twins): maverick reasons correctly and types the cancel as text; the call is lost
-  (B2.1).
+- 28, 49 (DB twins): maverick reasons correctly and types the cancel as text; the call is lost
+  (B2.1). *[corrected]* 0: maverick misapplies the rule on the twin; no call is lost.
 - 2, 38 (policy twins): the simulated customer leads it to the wrong reservation (§5, item 2).
 - 5 (policy twin): a transfer before any lookup (A1). This one is a real behaviour.
 
