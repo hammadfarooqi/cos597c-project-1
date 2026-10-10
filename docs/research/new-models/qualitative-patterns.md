@@ -295,7 +295,7 @@ rule". The transcripts do not support this for most of them:
 - 2, 38 (policy twins): the simulated customer leads it to the wrong reservation (§5, item 2).
 - 5 (policy twin): a transfer before any lookup (A1). This one is a real behaviour.
 
-The §17 entry stays as written (the log is append-only); findings-log §20 records the correction.
+The §17 entry stays as written (the log is append-only); findings-log §21 records the correction.
 
 ## 7. Method and counts
 

@@ -48,6 +48,7 @@ The next thing each person is doing. Keep this short.
 | M0.7 | Five-model airline runs, all 50 tasks, 1 trial (sonnet-4.5, gpt-4.1, mini, nano, llama-3.3-70b) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §7 · `code/tau2-bench/data/simulations/airline_<model>/` |
 | M0.8 | Newer models (claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano): 50 airline tasks + 15 twins, 1 trial | Vatsal + Claude | — | done | `docs/research/findings-log.md` §15 · `code/tau2-bench/data/simulations/airline*_<model>/` |
 | M0.9 | llama-4-maverick: 50 airline tasks + 15 twins, 1 trial, with the tool-call retry; one table for all 9 models | Vatsal + Claude | — | done | `docs/research/findings-log.md` §16–§17 · `code/tau2-bench/data/simulations/airline*_llama-4-maverick/` |
+| M0.10 | Trials 2 and 3 (seeds 301, 302) for luna, haiku-4.5, gpt-5.4-nano, maverick; mean over 3 trials | Vatsal + Claude | — | done | `docs/research/findings-log.md` §20 · `code/tau2-bench/data/simulations/airline*_<model>_seed30{1,2}/` · `code/twins/average_trials.py` |
 
 ## M1 — Minimal goal: justified vs unjustified no-action in τ²-bench
 
@@ -69,15 +70,15 @@ The next thing each person is doing. Keep this short.
 | M1.14 | Re-score the 4 released upstream airline runs with `--fresh-tasks` before any use | Hammad + Claude | — | done | `docs/research/findings-log.md` §4 (outputs not committed, ~36 MB; command given) |
 | M1.15 | Twin generator: policy oracle, specs, one-field search, validation with the evaluator, `airline_twins` task set | Vatsal + Claude | — | done | `code/twins/` · `docs/research/counterfactual-twins.md` |
 | M1.16 | Policy-flip twins for the delay-compensation clause (tasks 2, 5, 27, 38) | Vatsal + Claude | — | done | `docs/research/findings-log.md` §9 · `code/twins/policy_flips.yaml` |
-| M1.17 | Re-run no-action tasks and twins with 4 trials; paired scores per trial | ? | TBD | todo | single-trial noise: findings-log §7, §8 |
+| M1.17 | Re-run no-action tasks and twins with 4 trials; paired scores per trial | ? | TBD | in progress | single-trial noise: findings-log §7, §8. 3 trials done for the 4 newer models (M0.10, findings-log §20); the 5 older models still have 1 trial |
 | M1.18 | More policy flips: rule twins for the DB-decided tasks (2×2 fact/rule design); request flip for task 6 | ? | TBD | todo | `docs/research/counterfactual-twins.md` §6 |
 | M1.19 | Close the task 31 loophole (budget $100 → $65) | Hammad + Claude | — | done | `docs/research/loophole-airline-31.md` · decisions log 2026-10-03 |
 | M1.20 | Verify the task 31 fix with a fresh run (user declines the $81 offer) | ? | TBD | todo | `docs/research/loophole-airline-31.md` §5 |
 | M1.21 | Central scoreboard: every model under every scoring method, generated from saved runs | Hammad + Claude | — | done | `code/scoreboard.py` · `docs/research/scoreboard.md` · findings-log §18 |
 | M1.22 | Qualitative analysis: read the transcripts and name the behaviour each check catches (TA request) | Hammad + Claude | — | done | `docs/research/qualitative-patterns.md` · `code/transcript_patterns.py` · findings-log §19 |
-| M1.23 | Newer models: own scoreboard and qualitative analysis, kept apart from the older set (TA requests 1 and 2) | Hammad + Claude | — | done | `docs/research/new-models/` · `code/scoreboard.py` (`--set new`) · findings-log §20 |
+| M1.23 | Newer models: own scoreboard and qualitative analysis, kept apart from the older set (TA requests 1 and 2) | Hammad + Claude | — | done | `docs/research/new-models/` · `code/scoreboard.py` (`--set new`) · findings-log §21 |
 | M1.24 | Fix the twin scripts that fail agents for script reasons: task 27 (delay reason → transfer), tasks 2 and 38 (customer points to the wrong reservation) | ? | TBD | todo | `docs/research/new-models/qualitative-patterns.md` §6 |
-| M1.25 | Detect tool calls typed as text before scoring; report or rerun models that have them (llama-4-maverick) | ? | TBD | todo | findings-log §20 · `code/transcript_patterns.py` |
+| M1.25 | Detect tool calls typed as text before scoring; report or rerun models that have them (llama-4-maverick) | ? | TBD | todo | findings-log §21 · `code/transcript_patterns.py` |
 
 ## M2 — Target goal: 1–2 other benchmarks
 
@@ -113,3 +114,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.
 - 2026-10-09 — Hammad + Claude — added M1.22 (done, qualitative transcript analysis for the TA).
 - 2026-10-10 — Hammad + Claude — merged main (M0.8, M0.9) with the scoreboard branch; M1.6, M1.21, M1.22 evidence renumbered to §18–§19; added M1.23 (done), M1.24, M1.25.
+- 2026-10-10 — Vatsal + Claude — added M0.10 (done): 3 trials of the 4 newer models; M1.17 in progress.

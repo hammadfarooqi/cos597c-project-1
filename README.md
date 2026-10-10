@@ -12,7 +12,7 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 19 / 39 done (19 done, 5 in progress, 15 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 20 / 40 done (20 done, 6 in progress, 14 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
