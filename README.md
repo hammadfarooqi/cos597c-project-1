@@ -8,11 +8,11 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-10 · **Documents:** 13
+**Index generated:** 2026-10-10 · **Documents:** 14
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 16 / 35 done (16 done, 7 in progress, 12 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
+**Milestones:** 16 / 36 done (16 done, 8 in progress, 12 todo). See [`docs/decisions/milestones.md`](docs/decisions/milestones.md).
 
 ---
 
@@ -49,7 +49,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-08 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
+| [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-10 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
 | [Findings Log](docs/research/findings-log.md) | 2026-10-10 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
 
 ## Research
@@ -71,6 +71,7 @@ Run `python3 tools/build_index.py` after fixing these.
 | Document | Updated | Status | What it is |
 |---|---|---|---|
 | [Code](code/README.md) | 2026-10-10 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [No-op Doctor Review UI](code/doctor-ui/README.md) | 2026-10-10 | current | A web app around the no-op doctor. Plug in a benchmark (built in, git URL or local folder), run the checkup, and review the proposed read enforcements, DB twins and policy flips for each no-op task. Approved items export as the doctor's own spec files. **Note:** First version. Proposals come from gold trajectories and existing spec files; the doctor has no LLM proposer yet. A benchmark other than tau2 needs an adapter. |
 | [No-op Doctor](code/doctor/README.md) | 2026-10-10 | current | The no-op doctor: one tool for the null-agent checkup, the read gate, counterfactual twins, policy flips and pair scoring, with a small adapter per benchmark. What each file does and how to run it. **Note:** First version. Only a tau2 adapter exists. Design and open choices: docs/research/noop-doctor-design.md. |
 | [External Documents Index](docs/external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
 | [Papers Index](docs/papers/index.md) | 2026-10-08 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |

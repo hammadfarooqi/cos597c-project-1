@@ -76,6 +76,13 @@ A separate tool that applies the checkup, read gate, twins and policy flips to a
 with an adapter. It uses tau2 as a library and changes nothing in `tau2-bench/` or `twins/`.
 See `code/doctor/README.md`.
 
+## `doctor-ui/` — review UI for the doctor
+
+A web app (FastAPI backend, React frontend). A person plugs in a benchmark, runs the doctor,
+and approves, edits or rejects each proposed read enforcement, twin and policy flip. Approved
+items export as the doctor's spec files. It calls the doctor as a library and changes nothing
+in `doctor/`, `tau2-bench/` or `twins/`. See `code/doctor-ui/README.md`.
+
 ## Setup
 
 ```bash
