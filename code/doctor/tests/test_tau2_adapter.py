@@ -77,3 +77,18 @@ def test_policy_flip_reproduces_the_committed_file():
 def test_draft_reads_from_gold(airline):
     d = draft_spec(["1"], airline.gold_calls, airline.tool_kind, ["get_user_details"])
     assert d["1"]["required_reads"][0]["match"] == {"reservation_id": "Q69X3R"}
+
+
+def test_null_reward_works_without_original_scoring(airline, monkeypatch):
+    """Upstream tau2's evaluate_simulation has no `original_scoring` argument."""
+    import tau2.evaluator.evaluator as ev
+
+    real = ev.evaluate_simulation
+
+    def upstream(simulation, task, evaluation_type, solo_mode, domain, **kw):
+        assert "original_scoring" not in kw
+        return real(simulation, task, evaluation_type, solo_mode, domain, **kw)
+
+    monkeypatch.setattr(ev, "evaluate_simulation", upstream)
+    monkeypatch.setenv("TAU2_ORIGINAL_SCORING", "1")  # what upstream scoring amounts to
+    assert airline.null_reward("0") == 1.0

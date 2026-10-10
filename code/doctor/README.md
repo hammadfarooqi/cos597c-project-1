@@ -68,8 +68,13 @@ uv run python ../doctor/doctor.py flips --policy data/tau2/domains/airline/polic
 uv run python ../doctor/doctor.py pairs --bench tau2:airline \
   --twin-tasks data/tau2/domains/airline/tasks_twins.json \
   --orig 'data/simulations/airline_{m}' --twins 'data/simulations/airline_twins*_{m}' gpt-4.1 claude-sonnet-4.5
-uv run --extra dev python -m pytest ../doctor/tests      # 23 tests, no API key
+uv run --extra dev python -m pytest ../doctor/tests      # 24 tests, no API key
 ```
+
+**Upstream tau2** (sierra-research/tau2-bench) works too: run the same commands from its
+folder. The adapter scores with upstream's own rules there. Upstream imports `websockets`
+from core code but lists it only in an extra, so add it: `uv run --with websockets python
+.../doctor.py ...`.
 
 The retail NL judge reads its key from the environment. With Prime Intellect:
 `export OPENAI_API_KEY="$PI_KEY" OPENAI_API_BASE="$PI_API_BASE"`. Do not put a key on the

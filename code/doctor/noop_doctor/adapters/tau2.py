@@ -16,6 +16,7 @@ sets the judge model in this process only. The judge reads its key from the envi
 
 from __future__ import annotations
 
+import inspect
 import json
 import uuid
 from copy import deepcopy
@@ -142,13 +143,18 @@ class Tau2Adapter:
             termination_reason=TerminationReason.AGENT_STOP,
             messages=messages,
         )
+        kwargs = {}
+        # Our fork adds `original_scoring` (the read gate). Upstream tau2 has no such
+        # argument and scores with its own rules, which is what we want there too.
+        if "original_scoring" in inspect.signature(evaluate_simulation).parameters:
+            kwargs["original_scoring"] = True
         info = evaluate_simulation(
             simulation=sim,
             task=task,
             evaluation_type=EvaluationType.ALL,
             solo_mode=False,
             domain=self.domain,
-            original_scoring=True,
+            **kwargs,
         )
         return info.reward
 
