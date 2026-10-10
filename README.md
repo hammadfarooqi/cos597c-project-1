@@ -8,7 +8,7 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-10 · **Documents:** 11
+**Index generated:** 2026-10-10 · **Documents:** 12
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
@@ -69,6 +69,7 @@ Run `python3 tools/build_index.py` after fixing these.
 | Document | Updated | Status | What it is |
 |---|---|---|---|
 | [Code](code/README.md) | 2026-10-10 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [Drafts Index](docs/drafts/index.md) | 2026-10-10 | current | Written, not yet submitted or shown. Expect these to change. Move a file to docs/external/ when it is sent. |
 | [External Documents Index](docs/external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
 | [Papers Index](docs/papers/index.md) | 2026-10-08 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |
 
