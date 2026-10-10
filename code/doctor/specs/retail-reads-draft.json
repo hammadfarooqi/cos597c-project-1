@@ -1,0 +1,93 @@
+{
+  "10": {
+    "required_reads": [
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W5490111"
+        },
+        "why": "from gold"
+      },
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W7387996"
+        },
+        "why": "from gold"
+      }
+    ]
+  },
+  "12": {
+    "required_reads": [
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W5490111"
+        },
+        "why": "from gold"
+      },
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W7387996"
+        },
+        "why": "from gold"
+      }
+    ]
+  },
+  "25": {
+    "required_reads": [
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W3792453"
+        },
+        "why": "from gold"
+      },
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W7181492"
+        },
+        "why": "from gold"
+      },
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W5565470"
+        },
+        "why": "from gold"
+      },
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W2575533"
+        },
+        "why": "from gold"
+      }
+    ]
+  },
+  "65": {
+    "required_reads": [
+      {
+        "tool": "get_order_details",
+        "match": {
+          "order_id": "#W5362037"
+        },
+        "why": "from gold"
+      }
+    ]
+  },
+  "_meta": {
+    "status": "DRAFT from gold trajectories; audit before use",
+    "skipped_tools": [
+      "find_user_id_by_email",
+      "find_user_id_by_name_zip",
+      "get_user_details"
+    ],
+    "no_gold_reads": [
+      "50",
+      "57"
+    ]
+  }
+}

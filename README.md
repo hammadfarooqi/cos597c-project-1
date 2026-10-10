@@ -8,7 +8,7 @@ verdict is graded as **justified** or **unjustified**.
 
 Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
-**Index generated:** 2026-10-09 · **Documents:** 12
+**Index generated:** 2026-10-10 · **Documents:** 13
 
 > **Agents: read [`CLAUDE.md`](CLAUDE.md) first.** It has the read order and the rules.
 
@@ -16,9 +16,10 @@ Hammad Farooqi · Vatsal Parikh · Princeton COS597C, Fall 2026
 
 ---
 
-## ⚠ Audit: 2 warning(s)
+## ⚠ Audit: 3 warning(s)
 
 ```
+DATE MISMATCH    docs/decisions/milestones.md  frontmatter 2026-10-10, body says 2026-10-09
 FLAGGED          docs/research/noop-doctor-design.md  status: needs-review
 BROKEN LINK      CLAUDE.md  ->  code/tau2-bench/.env
 ```
@@ -41,7 +42,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Milestones](docs/decisions/milestones.md) | 2026-10-09 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
+| [Milestones](docs/decisions/milestones.md) | 2026-10-10 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
 
 ## Logs (append-only)
 
@@ -50,7 +51,7 @@ Run `python3 tools/build_index.py` after fixing these.
 | Document | Updated | Status | What it is |
 |---|---|---|---|
 | [Decisions Log](docs/decisions/decisions-log.md) | 2026-10-08 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
-| [Findings Log](docs/research/findings-log.md) | 2026-10-09 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
+| [Findings Log](docs/research/findings-log.md) | 2026-10-10 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
 
 ## Research
 
@@ -62,7 +63,7 @@ Run `python3 tools/build_index.py` after fixing these.
 | [The No-Action Justification Check — Method and Implementation](docs/research/justification-check.md) | 2026-10-08 | current | The authoritative description of how we grade a no-action pass as justified: the rule, the spec format, the matching semantics, the scoring modes, the code layout, how the airline spec was derived, validation results, limitations, and a step-by-step guide for adding the check to a new domain or benchmark. **Note:** Read this before changing evaluator_justification.py, justification_core.py, or any justification.json. Twins are not part of this check yet. |
 | [Task 31 — A Policy Loophole and Our Fix](docs/research/loophole-airline-31.md) | 2026-10-08 | current | Airline task 31 expects "no change", but a policy-legal route (upgrade the cabin, then change the flight) cost $81 and fit the user's $100 budget. We lowered the budget to $65. This note explains the loophole, the evidence, what we changed, and what to say in the write-up. **Note:** Important finding. Any result on task 31 from our copy is NOT comparable with upstream τ²/τ³-bench results on task 31. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](docs/research/no-action-tasks.md) | 2026-10-08 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
-| [No-op Doctor — Design Proposal](docs/research/noop-doctor-design.md) | 2026-10-09 | **needs review** | Proposal for a benchmark-agnostic "no-op doctor": the null-agent checkup, the read gate, DB twins and policy flips as one tool with a small adapter per benchmark. Lists what a benchmark must expose, what is airline-specific today, and first results on tau2 retail and telecom. **Note:** A proposal, not a decision. Nothing here is built yet. Waiting for Vatsal and Hammad to agree on scope (section 7) before code changes. |
+| [No-op Doctor — Design Proposal](docs/research/noop-doctor-design.md) | 2026-10-10 | **needs review** | Proposal for a benchmark-agnostic "no-op doctor": the null-agent checkup, the read gate, DB twins and policy flips as one tool with a small adapter per benchmark. Lists what a benchmark must expose, what is airline-specific today, and first results on tau2 retail and telecom. **Note:** Section 9 records the first build (2026-10-10, code/doctor/). Sections 5 and 7 are the original proposal; section 9 says where the build differs. The LLM proposer and a non-tau2 adapter are still open. |
 
 ## Indexes
 
@@ -70,7 +71,8 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Code](code/README.md) | 2026-10-09 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [Code](code/README.md) | 2026-10-10 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [No-op Doctor](code/doctor/README.md) | 2026-10-10 | current | The no-op doctor: one tool for the null-agent checkup, the read gate, counterfactual twins, policy flips and pair scoring, with a small adapter per benchmark. What each file does and how to run it. **Note:** First version. Only a tau2 adapter exists. Design and open choices: docs/research/noop-doctor-design.md. |
 | [External Documents Index](docs/external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
 | [Papers Index](docs/papers/index.md) | 2026-10-08 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |
 

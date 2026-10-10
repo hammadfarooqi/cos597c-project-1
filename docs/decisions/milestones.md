@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-09
+updated: 2026-10-10
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -88,7 +88,7 @@ The next thing each person is doing. Keep this short.
 |---|---|---|---|---|---|
 | M3.1 | Define the framework's interface (what a benchmark must supply) | Hammad + Claude | — | in progress | First version: a JSON spec + a list of `ObservedCall` (`docs/research/justification-check.md` §3, §10). Not yet tried on a second benchmark. |
 | M3.2 | Show it on τ²-bench and one other benchmark without per-benchmark code | ? | TBD | todo | |
-| M3.3 | No-op doctor: one tool for checkup, read gate, DB twins, policy flips, with an adapter per benchmark | Vatsal + Claude | — | in progress | Design proposal, not yet agreed: `docs/research/noop-doctor-design.md` |
+| M3.3 | No-op doctor: one tool for checkup, read gate, DB twins, policy flips, with an adapter per benchmark | Vatsal + Claude | — | in progress | Built for tau2 in `code/doctor/`; reproduces the airline results (`docs/research/findings-log.md` §19). Not yet: LLM proposer, non-tau2 adapter, agent runs on non-airline twins. |
 
 ---
 
@@ -107,3 +107,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-09 — Vatsal + Claude — added M0.8 (done): three newer models, airline + twins.
 - 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.
 - 2026-10-09 — Vatsal + Claude — M2.2 in progress (retail, telecom checkup); added M3.3 (no-op doctor design).
+- 2026-10-10 — Vatsal + Claude — M3.3: first build of the no-op doctor (`code/doctor/`).

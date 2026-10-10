@@ -2,15 +2,16 @@
 title: No-op Doctor — Design Proposal
 type: research
 status: needs-review
-updated: 2026-10-09
+updated: 2026-10-10
 review_by: 2026-10-31
 summary: >-
   Proposal for a benchmark-agnostic "no-op doctor": the null-agent checkup, the read gate, DB
   twins and policy flips as one tool with a small adapter per benchmark. Lists what a benchmark
   must expose, what is airline-specific today, and first results on tau2 retail and telecom.
 note: >-
-  A proposal, not a decision. Nothing here is built yet. Waiting for Vatsal and Hammad to agree
-  on scope (section 7) before code changes.
+  Section 9 records the first build (2026-10-10, code/doctor/). Sections 5 and 7 are the
+  original proposal; section 9 says where the build differs. The LLM proposer and a non-tau2
+  adapter are still open.
 ---
 
 # No-op Doctor — Design Proposal
@@ -100,7 +101,7 @@ the deciding fact.
 
 ## 5. Proposed design
 
-A new folder `doctor` under `code/` (not built yet), outside `code/tau2-bench/`, so that the tool does not depend on
+A new folder `doctor` under `code/` (built 2026-10-10, see section 9), outside `code/tau2-bench/`, so that the tool does not depend on
 our copy of tau2. It holds:
 
 ```
@@ -170,3 +171,26 @@ These rows are inferences. Each one needs a checkup before we claim it.
 - The retail and telecom checkups are 1 trial with a scripted user. The null agent is
   deterministic, so more trials should not change them, except where an LLM judge scores NL
   assertions.
+
+## 9. First build (2026-10-10)
+
+**By:** Vatsal + Claude
+
+Vatsal asked for the doctor as its own folder, kept apart from the tau2 code. It is in
+`code/doctor/` (`code/doctor/README.md`). Validation: `docs/research/findings-log.md` §19.
+
+**Where it differs from section 5:**
+
+- `code/tau2-bench/` and `code/twins/` are **not changed**. Another line of work edits them at
+  the same time. So the read-gate core is a copy of `justification_core.py` (same rule, same
+  spec format), not a move, and the airline oracle stays in `code/twins/`.
+- The checkup does not run an agent. It scores the do-nothing trajectory (greeting, one user
+  turn, stop) with tau2's own `evaluate_simulation`. This gives the same numbers as the real
+  null-agent runs and needs no simulator.
+- Twin validation adds one check: the patch must change the state. A patch that sets a field
+  to its current value would otherwise pass when the write is a no-op on the original state.
+- No `plugins/` folder yet: there is no oracle search in the doctor. A twin comes from a YAML
+  spec with an explicit patch and write.
+
+**Not built:** running agents on twins or flipped policies outside airline (needs tau2
+registry entries); the LLM proposer for read specs and twins; an adapter outside tau2.

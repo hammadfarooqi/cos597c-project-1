@@ -2,7 +2,7 @@
 title: Code
 type: index
 status: current
-updated: 2026-10-09
+updated: 2026-10-10
 summary: >-
   What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines.
   The reasoning behind each change is in docs/.
@@ -69,6 +69,12 @@ uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twin
   --task-split-name pf_delay_no_change --agent-llm ... --save-to airline_twins_pf_<model>
 uv run python ../twins/score_pairs.py claude-sonnet-4.5 gpt-4.1   # needs airline_<model> runs too
 ```
+
+## `doctor/` — the no-op doctor
+
+A separate tool that applies the checkup, read gate, twins and policy flips to any benchmark
+with an adapter. It uses tau2 as a library and changes nothing in `tau2-bench/` or `twins/`.
+See `code/doctor/README.md`.
 
 ## Setup
 
