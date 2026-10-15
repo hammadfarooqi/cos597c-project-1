@@ -182,3 +182,17 @@ failed for another reason. The twin tests the decision, not the whole episode.
 - `code/twins/average_trials.py` still prints both rules. This entry does not change the code.
 **Affects:** `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` · `docs/drafts/index.md`
 **Replaces:** the strict-rule numbers in the 2026-10-10 slide draft
+
+## 2026-10-15 — The talk has three sections; analysis moves to an appendix
+**By:** Vatsal + Claude
+**Why:** Vatsal asked for a shorter talk: motivation, methodology and results only.
+- Results end with one limitations slide, a takeaways slide and a "Questions?" slide.
+- The limitations slide covers the 3 of 23 no-action tasks with no gate (6, 13, 46: a policy
+  rule alone decides them, and no DB fact or single write can be flipped), and removals that are
+  not about the decision (text-form tool calls, the simulated user on the policy twins, and the
+  write that a twin needs but the original did not).
+- The discussion slides (attempted writes, removal causes, more limits, the no-op doctor and its
+  review UI) move to an appendix after "Questions?".
+- The limitations and takeaways slides are first drafts. Vatsal will give more detail.
+**Affects:** `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` · `docs/drafts/index.md`
+**Replaces:** the four-section outline (with "Analysis & discussion") used earlier on 2026-10-15
