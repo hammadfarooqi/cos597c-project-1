@@ -12,7 +12,7 @@ summary: >-
 
 | File | What it is | Status |
 |---|---|---|
-| `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` | Draft slides for the project presentation, 30 slides with speaker notes, in four sections: motivation (general, then τ²-bench with two example traces), methodology (the read mandate and counterfactual twins, and how each gate is built), results (per gate, qualitative then quantitative, then a summary for gpt-6-luna, claude-haiku-4.5, gpt-5.4-nano and llama-4-maverick), and discussion (attempted writes, the no-op doctor, limits). | draft |
+| `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` | Draft slides for the project presentation, 31 slides with speaker notes, in four sections: motivation (general, then τ²-bench with two example traces), methodology (the read mandate and counterfactual twins, and how each gate is built), results (per gate, qualitative then quantitative, then a summary for gpt-6-luna, claude-haiku-4.5, gpt-5.4-nano and llama-4-maverick), and discussion (attempted writes, the no-op doctor, limits). | draft |
 
 **Notes on the presentation draft.**
 
