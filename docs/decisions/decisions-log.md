@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-15
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -168,3 +168,31 @@ leaves upstream scoring intact and reproducible. Choices:
 **Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
 `docs/decisions/charter.md` §6 · `code/README.md`
 **Replaces:** —
+
+## 2026-10-15 — The presentation uses the lenient twin rule only
+**By:** Vatsal + Claude
+**Why:** Vatsal asked that the DB-pair and policy-pair scores in the presentation use only the
+lenient rule. A twin counts as passed if the agent made the right write, even if the episode
+failed for another reason. The twin tests the decision, not the whole episode.
+- All twin numbers in the draft slides now use the lenient rule. The strict row is removed from
+  the qualitative scorecard.
+- This changes one number in the 3-trial means: gpt-5.4-nano goes from 13.3 to 13.7 after all
+  gates (-18.0%, not -20.0%). The other three models are the same under both rules
+  (findings log §20).
+- `code/twins/average_trials.py` still prints both rules. This entry does not change the code.
+**Affects:** `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` · `docs/drafts/index.md`
+**Replaces:** the strict-rule numbers in the 2026-10-10 slide draft
+
+## 2026-10-15 — The talk has three sections; analysis moves to an appendix
+**By:** Vatsal + Claude
+**Why:** Vatsal asked for a shorter talk: motivation, methodology and results only.
+- Results end with one limitations slide, a takeaways slide and a "Questions?" slide.
+- The limitations slide covers the 3 of 23 no-action tasks with no gate (6, 13, 46: a policy
+  rule alone decides them, and no DB fact or single write can be flipped), and removals that are
+  not about the decision (text-form tool calls, the simulated user on the policy twins, and the
+  write that a twin needs but the original did not).
+- The discussion slides (attempted writes, removal causes, more limits, the no-op doctor and its
+  review UI) move to an appendix after "Questions?".
+- The limitations and takeaways slides are first drafts. Vatsal will give more detail.
+**Affects:** `docs/drafts/2026-10-10-presentation-no-op-validity.pptx` · `docs/drafts/index.md`
+**Replaces:** the four-section outline (with "Analysis & discussion") used earlier on 2026-10-15
