@@ -93,6 +93,24 @@ def slots(template: str) -> list[str]:
     return sorted({f for _, f, _, _ in string.Formatter().parse(template) if f})
 
 
+# Twins excluded after the adversarial reviews (2026-10-22). An excluded DB twin keeps its
+# patch for the read gate (the deciding fact is still where the patch puts it), but it is
+# not run and not used as a pair. An excluded request twin is dropped.
+EXCLUDE_REQUEST: dict[str, str] = {
+    "analytics-096": "the text does not say 'percent'; by percent the action is right, by count it is not",
+    "multi_domain-143": "gold deletes 7 leads but search_customers shows at most 5; strong models fail this "
+                        "template's action tasks for that reason, unrelated to the decision",
+}
+EXCLUDE_DB: dict[str, str] = {
+    "multi_domain-143": "gold deletes 7 leads but search_customers shows at most 5 (see EXCLUDE_REQUEST)",
+    "analytics-096": "the text does not say 'percent'; by percent the action is right, by count it is not",
+}
+# Excluded with NO read gate: the original no-op follows from the system prompt alone.
+EXCLUDE_DB_NO_GATE: dict[str, str] = {
+    "calendar-073": "'before 9' on a work day: the system prompt says meetings must not start before 9am, "
+                    "so no meeting can be cancelled whatever the data; the only flip needs an 08:00 meeting",
+}
+
 # Hidden parameters that are a fixed function of a visible slot: they must change with it.
 DERIVED = {"time": "natural_language_time"}
 
@@ -232,6 +250,11 @@ def main() -> None:
     if args.write:
         if failures or (missing and not args.only):
             sys.exit("not writing: fix the failures and missing specs first")
+        gate_only = [dict(r, excluded_because=EXCLUDE_DB[r["orig_task_id"]]) for r in db_rows if r["orig_task_id"] in EXCLUDE_DB]
+        db_rows = [r for r in db_rows if r["orig_task_id"] not in EXCLUDE_DB and r["orig_task_id"] not in EXCLUDE_DB_NO_GATE]
+        req_rows = [r for r in req_rows if r["orig_task_id"] not in EXCLUDE_REQUEST]
+        print(f"excluded: {len(gate_only)} DB twins (kept for the read gate), {len(EXCLUDE_DB_NO_GATE)} with no gate, "
+              f"{len(EXCLUDE_REQUEST)} request twins")
         # A request twin whose text is an existing benchmark task reuses that task's episode
         # (same trial); two request twins with the same text share one episode.
         orig_text = {t["task"]: t["task_id"] for t in tasks}
@@ -256,7 +279,10 @@ def main() -> None:
                 # twins of tasks whose text repeats upstream (none do), so stop here.
                 sys.exit(f"duplicate task texts in the {name} twins")
         out = fw.M2 / "data"
-        for name, rows in (("twins_db", db_rows), ("twins_request", req_rows)):
+        for name, rows in (("twins_db", db_rows), ("twins_request", req_rows), ("twins_db_gate_only", gate_only)):
+            if not rows:
+                (out / f"{name}_tasks_and_outcomes.csv").unlink(missing_ok=True)
+                continue
             df = pd.DataFrame(rows)
             df["outcome"] = df["outcome"].apply(str)
             df.to_csv(out / f"{name}_tasks_and_outcomes.csv", index=False, quoting=csv.QUOTE_ALL)

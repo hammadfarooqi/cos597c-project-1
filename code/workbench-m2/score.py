@@ -173,6 +173,8 @@ def main() -> None:
     db = load_twin_tasks("db")
     req = load_twin_tasks("request")
     db_by_orig = {t["orig_task_id"]: t for t in db}
+    # Patches of excluded DB twins still define the read gate (build.py EXCLUDE_DB).
+    gate_patch = {t["orig_task_id"]: t["patch"] for t in db + load_twin_tasks("db_gate_only")}
     # A request twin may serve several originals ("a;b"), or be an existing benchmark task
     # whose original episode is reused (twins_request_reuse.json).
     req_by_orig = {o: t for t in req for o in t["orig_task_id"].split(";")}
@@ -215,8 +217,8 @@ def main() -> None:
                         if kind == "request":
                             for o in t["orig_task_id"].split(";"):
                                 ep[("request", o)] = e
-                        if kind == "original" and not t["gold"] and t["task_id"] in db_by_orig:
-                            rr = revealing_reads(r["calls"], db_by_orig[t["task_id"]]["patch"])
+                        if kind == "original" and not t["gold"] and t["task_id"] in gate_patch:
+                            rr = revealing_reads(r["calls"], gate_patch[t["task_id"]])
                             e["revealing_reads"] = rr
                             e["read_gate"] = bool(rr)
                         ep[(kind, e["orig_task_id"])] = e
@@ -249,7 +251,7 @@ def main() -> None:
         for e in noop_pass:
             i = e["task_id"]
             # No DB twin (not flippable): the read gate does not apply, as for tau2 tasks 6, 13, 46.
-            rg = e.get("read_gate", False) if i in db_by_orig else True
+            rg = e.get("read_gate", False) if i in gate_patch else True
             dbe, rqe = ep.get(("db", i)), ep.get(("request", i))
             # A task without a DB-twin run yet is not removed by the twin (reported as missing).
             db_ok = dbe["pass"] if dbe else True

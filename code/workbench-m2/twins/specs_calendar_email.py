@@ -39,9 +39,17 @@ def cancel_future_named_flip(p, s):
     if past.empty:
         raise ValueError(f"no {p['event_name']!r} event to copy")
     last = past.iloc[-1]
-    # One new future occurrence of the series: same name, participant, time and
-    # length, on Tuesday 2023-12-05 (a work day inside the calendar's range).
-    start = "2023-12-05 " + last["event_start"].split(" ")[1]
+    # One new future occurrence of the series: same name, participant and length, on
+    # Tuesday 2023-12-05 (a work day inside the calendar's range), at the series' time of
+    # day if that slot is free, else at the first free generator start time that ends by
+    # 18:00 (the twin review found an overlap at the series' time for calendar-091).
+    dur = int(last["duration"])
+    times = [last["event_start"].split(" ")[1]] + WORK_TIMES
+    fits = [t for t in times if _slot_free(s, "2023-12-05", t, dur, last["event_name"])
+            and pd.Timestamp(f"2023-12-05 {t}") + pd.Timedelta(minutes=dur) <= pd.Timestamp("2023-12-05 18:00:00")]
+    if not fits:
+        raise ValueError("no free slot on 2023-12-05")
+    start = "2023-12-05 " + fits[0]
     row = {"event_id": _next_event_id(s), "event_name": last["event_name"],
            "participant_email": last["participant_email"], "event_start": start, "duration": last["duration"]}
     why = f"A future '{last['event_name']}' meeting now exists on {start}, so there is one to cancel."
