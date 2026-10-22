@@ -65,6 +65,9 @@ def inference() -> None:
         "keep rows with empty error and only re-run missing/errored tasks",
     )
 
+    # COS597C addition: write runs under this folder instead of data/results/.
+    parser.add_argument("--save_dir", default=None, help="results root folder (default data/results)")
+
     args = parser.parse_args()
     ground_truth = pd.read_csv(args.tasks_path)
     ground_truth["outcome"] = ground_truth["outcome"].apply(ast.literal_eval)
@@ -77,7 +80,12 @@ def inference() -> None:
         act_without_confirmation=args.act_without_confirmation,
         structured_outputs=args.structured_outputs,
         resume=args.resume,
+        save_dir=args.save_dir,
     )
+    if "state_patch" in ground_truth.columns:
+        # COS597C change: upstream metrics ignore the patch, so they would be wrong for twins.
+        print("Twin task file: score with code/workbench-m2/score.py, not the upstream metrics.")
+        return
     calculate_metrics(ground_truth, results)
 
 

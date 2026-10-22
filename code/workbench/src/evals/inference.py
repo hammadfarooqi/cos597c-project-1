@@ -24,7 +24,7 @@ from src.evals.agent import (
     run_agent_structured,
 )
 from src.evals.metrics import CURRENT_GROUND_TRUTH_VERSION
-from src.tools.state import reset_state
+from src.tools.state import reset_state, set_state_patch
 from src.tools.tool import Tool
 from src.tools.toolkits import (
     analytics_toolkit,
@@ -92,13 +92,18 @@ def _run_single_task(
     datetime_prefix: str,
     act_without_confirmation: bool = False,
     structured_outputs: bool = False,
+    state_patch: list[dict] | None = None,
 ) -> dict[str, object]:
     task_start = time.time()
     error = ""
     function_calls: list[str] = []
     response: AgentResult | str = ""
     all_traces: list[dict] = []
+    usage = {"prompt_tokens": 0, "completion_tokens": 0}
+    empty_tool_retries = 0
     agent_fn = run_agent_structured if structured_outputs else run_agent
+    # COS597C change: a twin task starts from a patched state (None = upstream state).
+    set_state_patch(state_patch)
     try:
         result = agent_fn(
             model_name,
@@ -109,6 +114,7 @@ def _run_single_task(
             act_without_confirmation=act_without_confirmation,
         )
         response = result
+        usage, empty_tool_retries = result.usage, result.empty_tool_retries
         _collect_result(result, function_calls, all_traces)
         if result.output == AGENT_STOPPED_MESSAGE:
             error = result.output
@@ -127,16 +133,23 @@ def _run_single_task(
     print(f"### Outcome: {function_calls}")
     print(f"### Steps: {num_steps} | Time: {elapsed:.1f}s | Error: {error or 'none'}")
 
-    reset_state()
+    set_state_patch(None)
 
     return {
         "task": task,
         "function_calls": function_calls,
         "full_response": str(response),
         "error": error,
+        "prompt_tokens": usage["prompt_tokens"],
+        "completion_tokens": usage["completion_tokens"],
+        "empty_tool_retries": empty_tool_retries,
         "trace": all_traces,
         "_index": index,
     }
+
+
+# COS597C change: token counts and §16 retry counts are saved per task.
+RESULT_COLUMNS = ["task", "function_calls", "full_response", "error", "prompt_tokens", "completion_tokens", "empty_tool_retries"]
 
 
 def _save_progress(
@@ -147,7 +160,7 @@ def _save_progress(
     sorted_rows = sorted(row_dicts, key=lambda d: d["_index"])
     traces = [d["trace"] for d in sorted_rows]
     csv_rows = [{k: v for k, v in d.items() if k not in ("_index", "trace")} for d in sorted_rows]
-    results = pd.DataFrame(csv_rows, columns=pd.Index(["task", "function_calls", "full_response", "error"]))
+    results = pd.DataFrame(csv_rows, columns=pd.Index(RESULT_COLUMNS))
     results.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL)
     if log_traces:
         trace_data = [{"task": d["task"], "steps": t} for d, t in zip(sorted_rows, traces)]
@@ -196,6 +209,9 @@ def _load_existing_progress(save_path: str, tasks: list[str], log_traces: bool) 
                 "function_calls": row.get("function_calls", ""),
                 "full_response": row.get("full_response", ""),
                 "error": "",
+                "prompt_tokens": row.get("prompt_tokens", 0),
+                "completion_tokens": row.get("completion_tokens", 0),
+                "empty_tool_retries": row.get("empty_tool_retries", 0),
                 "trace": trace_by_task.get(task, []),
                 "_index": i,
             }
@@ -258,6 +274,7 @@ def generate_results(
     act_without_confirmation: bool = False,
     structured_outputs: bool = False,
     resume: bool = False,
+    save_dir: str | None = None,
 ) -> pd.DataFrame:
     """Generates results for a given model and set of tasks. Saves the results to a csv file.
 
@@ -287,7 +304,8 @@ def generate_results(
         per_task_tools = [default_tools] * len(tasks)
 
     domain = tasks_path.split("/")[-1].split(".")[0].replace("_tasks_and_outcomes", "")
-    save_dir = os.path.join("data", "results", domain)
+    # COS597C change: --save_dir keeps our runs apart from the published ones.
+    save_dir = os.path.join(save_dir or os.path.join("data", "results"), domain)
     os.makedirs(save_dir, exist_ok=True)
 
     save_path: str | None = None
@@ -330,6 +348,12 @@ def generate_results(
         started_at=started_at,
     )
 
+    # COS597C change: optional per-task start-state patches (twin task files).
+    patches = (
+        [json.loads(p) if isinstance(p, str) and p.strip() else None for p in tasks_df["state_patch"]]
+        if "state_patch" in tasks_df.columns
+        else [None] * len(tasks)
+    )
     pending = [(i, task) for i, task in enumerate(tasks) if i not in skip_indices]
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [
@@ -342,6 +366,7 @@ def generate_results(
                 datetime_prefix,
                 act_without_confirmation,
                 structured_outputs,
+                patches[i],
             )
             for i, task in pending
         ]
@@ -377,4 +402,4 @@ def generate_results(
     for d in sorted_rows:
         del d["_index"]
         del d["trace"]
-    return pd.DataFrame(sorted_rows, columns=pd.Index(["task", "function_calls", "full_response", "error"]))
+    return pd.DataFrame(sorted_rows, columns=pd.Index(RESULT_COLUMNS))

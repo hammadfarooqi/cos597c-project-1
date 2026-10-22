@@ -53,7 +53,7 @@ class ToolState:
         return ToolState(**{f.name: getattr(self, f.name).copy() for f in fields(self)})
 
     def reset(self) -> None:
-        fresh = _pristine_state().copy()
+        fresh = _patched(_pristine_state().copy())
         for f in fields(self):
             setattr(self, f.name, getattr(fresh, f.name))
 
@@ -80,10 +80,51 @@ def _pristine_state() -> ToolState:
 _local = threading.local()
 
 
+# COS597C change: a per-thread start-state patch, for counterfactual twin tasks
+# (docs/research/other-benchmarks/workbench.md). A patch is a list of edits:
+#   {"table": "emails", "op": "append", "row": {...}}          add one row
+#   {"table": "project_tasks", "op": "set", "where": {"task_id": "00000123"},
+#    "values": {"status": "in progress"}}                       change one row's cells
+#   {"table": "emails", "op": "delete", "where": {"email_id": "00000042"}}
+# "where" must match exactly one row. With no patch set, behaviour is upstream's.
+def _patched(state: "ToolState") -> "ToolState":
+    for edit in getattr(_local, "state_patch", None) or []:
+        df = getattr(state, edit["table"])
+        if edit["op"] == "append":
+            row = {c: edit["row"].get(c) for c in df.columns}
+            unknown = set(edit["row"]) - set(df.columns)
+            if unknown:
+                raise ValueError(f"patch: unknown columns {unknown} for {edit['table']}")
+            df = pd.concat([df, pd.DataFrame([row], columns=df.columns).astype(df.dtypes.to_dict())], ignore_index=True)
+        else:
+            mask = pd.Series(True, index=df.index)
+            for col, val in edit["where"].items():
+                mask &= df[col] == val
+            if int(mask.sum()) != 1:
+                raise ValueError(f"patch: 'where' {edit['where']} matches {int(mask.sum())} rows in {edit['table']}")
+            if edit["op"] == "set":
+                for col, val in edit["values"].items():
+                    if col not in df.columns:
+                        raise ValueError(f"patch: unknown column {col} for {edit['table']}")
+                    df.loc[mask, col] = val
+            elif edit["op"] == "delete":
+                df = df[~mask].reset_index(drop=True)
+            else:
+                raise ValueError(f"patch: unknown op {edit['op']}")
+        setattr(state, edit["table"], df)
+    return state
+
+
+def set_state_patch(patch: list[dict] | None) -> None:
+    """Set (or clear, with None) this thread's start-state patch and reset the state to it."""
+    _local.state_patch = patch
+    reset_state()
+
+
 def get_state() -> "ToolState":
     state = getattr(_local, "tool_state", None)
     if state is None:
-        _local.tool_state = _pristine_state().copy()
+        _local.tool_state = _patched(_pristine_state().copy())
     return _local.tool_state
 
 

@@ -233,6 +233,32 @@ def _call_llm(route: "Route", system_prompt: str, human_msg: str, temperature: f
     return response.choices[0].message.content or ""
 
 
+def _usage_dict(response: ChatCompletion) -> dict[str, int]:
+    usage = getattr(response, "usage", None)
+    return {
+        "prompt_tokens": int(getattr(usage, "prompt_tokens", 0) or 0),
+        "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
+    }
+
+
+def _is_dropped_tool_call(response: ChatCompletion, tools_schema: list[dict]) -> bool:
+    """True when the gateway did not return the model's tool call as a structured call.
+
+    COS597C change, ported from code/tau2-bench/src/tau2/utils/llm_utils.py
+    (docs/research/findings-log.md §16). Two forms are seen on Prime Intellect
+    (llama-4-maverick): an empty message although output tokens were spent, and
+    the call leaked into the text, e.g. 'email_search_emails(query=nadia)'.
+    """
+    message = response.choices[0].message
+    if message.tool_calls:
+        return False
+    if message.content:
+        names = {t["function"]["name"] for t in tools_schema}
+        match = re.fullmatch(r"\[?\s*(\w+)\(.*\)\s*\]?", message.content.strip(), re.S)
+        return bool(match and match.group(1) in names)
+    return _usage_dict(response)["completion_tokens"] > 0
+
+
 def _call_llm_structured(
     route: "Route",
     system_prompt: str,
@@ -249,13 +275,23 @@ def _call_llm_structured(
     if route.supports_temperature:
         kwargs["temperature"] = temperature
     response = _create_with_deadline(client, **kwargs)
+    usage = _usage_dict(response)
+    # COS597C change: re-ask once with tool_choice="required" when the gateway
+    # lost the tool call (same rule as the tau2 retry, findings-log §16).
+    empty_tool_retry = False
+    if _is_dropped_tool_call(response, tools_schema):
+        print(f"{route.model_id}: tool call lost by the gateway; retrying with tool_choice='required'")
+        response = _create_with_deadline(client, **kwargs, tool_choice="required")
+        empty_tool_retry = True
+        retry_usage = _usage_dict(response)
+        usage = {k: usage[k] + retry_usage[k] for k in usage}
     msg = response.choices[0].message
     tool_calls = []
     if msg.tool_calls:
         for tc in msg.tool_calls:
             assert tc.type == "function"
             tool_calls.append({"id": tc.id, "name": tc.function.name, "arguments": json.loads(tc.function.arguments)})
-    return {"content": msg.content or "", "tool_calls": tool_calls}
+    return {"content": msg.content or "", "tool_calls": tool_calls, "usage": usage, "empty_tool_retry": empty_tool_retry}
 
 
 class ModelConfig(NamedTuple):
@@ -317,6 +353,20 @@ MODEL_REGISTRY: dict[str, ModelConfig] = {
     "claude-2": ModelConfig("anthropic/claude-2", True, "anthropic"),
     "llama2-70b": ModelConfig("meta-llama/llama-2-70b-chat", True, "openrouter"),
     "mixtral-8x7b": ModelConfig("mistralai/mixtral-8x7b-instruct", True, "openrouter"),
+    # COS597C additions: the two newer models of our tau2 study that WorkBench lacks.
+    "gpt-6-luna": ModelConfig("openai/gpt-6-luna", True, "openrouter"),
+    "llama-4-maverick": ModelConfig("meta-llama/llama-4-maverick", True, "openrouter"),
+}
+
+# COS597C change: route through Prime Intellect's OpenAI-compatible gateway when
+# WORKBENCH_ROUTE=prime. Keys come from PI_KEY / PI_API_BASE (code/tau2-bench/.env).
+# All four models get temperature 0, as in our tau2 runs (findings-log §20); Prime
+# accepts it for every one of them (probe, 2026-10-22).
+PRIME_MODEL_IDS: dict[str, str] = {
+    "claude-haiku-4.5": "anthropic/claude-haiku-4.5",
+    "gpt-5.4-nano": "openai/gpt-5.4-nano",
+    "gpt-6-luna": "openai/gpt-6-luna",
+    "llama-4-maverick": "meta-llama/llama-4-maverick",
 }
 
 
@@ -338,6 +388,12 @@ def resolve_route(model_name: str) -> Route:
     """
     if model_name not in MODEL_REGISTRY:
         raise ValueError(f"Unknown model: {model_name}. Must be one of {list(MODEL_REGISTRY.keys())}")
+    if os.environ.get("WORKBENCH_ROUTE") == "prime":
+        if model_name not in PRIME_MODEL_IDS:
+            raise ValueError(f"No Prime Intellect id for {model_name}; add it to PRIME_MODEL_IDS")
+        return Route(
+            PRIME_MODEL_IDS[model_name], _require_env("PI_API_BASE"), _require_env("PI_KEY"), "prime", True
+        )
     config = MODEL_REGISTRY[model_name]
     if config.provider != "openrouter":
         direct_key = os.environ.get(_PROVIDER_API_KEY_ENV[config.provider])
@@ -418,6 +474,10 @@ class AgentResult:
     output: str
     intermediate_steps: list[tuple[str, dict[str, str]]] = field(default_factory=list)
     trace: list[TraceStep] = field(default_factory=list)
+    # COS597C additions (structured mode only): token counts summed over the
+    # episode's LLM calls, and the number of turns re-asked by the §16 retry.
+    usage: dict[str, int] = field(default_factory=lambda: {"prompt_tokens": 0, "completion_tokens": 0})
+    empty_tool_retries: int = 0
 
 
 def run_agent(
@@ -560,16 +620,22 @@ def run_agent_structured(
     steps: list[tuple[str, dict[str, str]]] = []
     trace: list[TraceStep] = []
     start_time = time.time()
+    usage = {"prompt_tokens": 0, "completion_tokens": 0}
+    retries = 0
+
+    def _result(output: str) -> AgentResult:
+        return AgentResult(
+            output=output, intermediate_steps=steps, trace=trace, usage=usage, empty_tool_retries=retries
+        )
 
     for _ in range(max_iterations):
         if time.time() - start_time > max_execution_time:
-            return AgentResult(
-                output=AGENT_STOPPED_MESSAGE,
-                intermediate_steps=steps,
-                trace=trace,
-            )
+            return _result(AGENT_STOPPED_MESSAGE)
 
         response = _call_llm_structured_with_retry(route, system_prompt, messages, tools_schema, temperature)
+        for k in usage:
+            usage[k] += response["usage"][k]
+        retries += int(response["empty_tool_retry"])
 
         for tc in response["tool_calls"]:
             tc["name"] = _sanitize_tool_name(tc["name"])
@@ -584,7 +650,7 @@ def run_agent_structured(
                     observation="",
                 )
             )
-            return AgentResult(output=response["content"], intermediate_steps=steps, trace=trace)
+            return _result(response["content"])
 
         # Build assistant message with tool calls for conversation history
         assistant_msg: dict = {
@@ -627,8 +693,4 @@ def run_agent_structured(
 
         messages.extend(tool_result_messages)
 
-    return AgentResult(
-        output=AGENT_STOPPED_MESSAGE,
-        intermediate_steps=steps,
-        trace=trace,
-    )
+    return _result(AGENT_STOPPED_MESSAGE)
