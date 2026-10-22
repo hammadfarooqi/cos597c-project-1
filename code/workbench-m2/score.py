@@ -77,11 +77,13 @@ def load_twin_tasks(kind: str) -> list[dict]:
 
 
 def load_run(run: str, model: str, file_domain: str, tasks: list[dict]) -> list[dict] | None:
+    # Raw .csv (local) or its tracked .csv.gz copy (compact_traces.py writes both copies).
     files = sorted(glob.glob(str(RUNS / run / file_domain / f"{model}_all_*.csv")))
-    files = [f for f in files if not f.endswith("_traces.json")]
+    if not files:
+        files = sorted(glob.glob(str(RUNS / run / file_domain / f"{model}_all_*.csv.gz")))
     if not files:
         return None
-    meta = Path(files[-1].replace(".csv", "_meta.json"))
+    meta = Path(files[-1].replace(".csv.gz", ".csv").replace(".csv", "_meta.json"))
     task_file = TASKS_DIR / f"{file_domain}_tasks_and_outcomes.csv" if not file_domain.startswith("twins_") \
         else DATA / f"{file_domain}_tasks_and_outcomes.csv"
     if meta.exists():
@@ -356,14 +358,14 @@ def main() -> None:
 
     # ---- behaviour counts
     lines += ["", "## 5. Behaviour on no-op tasks (all trials)", "",
-              "| Model | No-op episodes | Passes | Passes with no read at all | Passes with no revealing read | Passes with a write attempted | Text-form calls (all episodes) | Errors (all original episodes) |",
+              "| Model | No-op episodes | Passes | Passes with no read at all | Gated passes with no revealing read | Passes with a write attempted | Text-form calls (all episodes) | Errors (all original episodes) |",
               "|---|---|---|---|---|---|---|---|"]
     for model, rs in by_model.items():
         ne = [results[(model, r["seed"])][("original", i)] for r in rs for i in noop_ids]
         ps = [e for e in ne if e["pass"]]
         allo = [e for r in rs for (k, _), e in results[(model, r["seed"])].items() if k == "original"]
         lines.append(f"| {model} | {len(ne)} | {len(ps)} | {sum(e['n_reads'] == 0 for e in ps)} | "
-                     f"{sum(not e.get('read_gate') for e in ps)} | {sum(e['n_writes'] > 0 for e in ps)} | "
+                     f"{sum(('read_gate' in e) and not e['read_gate'] for e in ps)} | {sum(e['n_writes'] > 0 for e in ps)} | "
                      f"{sum(e['text_form_call'] for e in allo)} | {sum(bool(e['error']) for e in allo)} |")
 
     # ---- twin failure causes
@@ -398,6 +400,22 @@ def main() -> None:
                     marks.append(f"{g}{c}")
             cells.append(f"{p}/{len(rs)}" + (" " + " ".join(marks) if marks else ""))
         lines.append(f"| {i} | {tmpl[i][:50]} | " + " | ".join(cells) + " |")
+
+    # ---- control: twin pass rate vs the template's own action tasks
+    lines += ["", "## 8. Control: twin pass rate vs the same template's action tasks (all trials)", "",
+              "If a model fails twins about as often as it fails the template's ordinary action tasks, twin failures",
+              "reflect general difficulty (rubric Q2 b/c), not the no-op decision. Cells: pass % (episodes).", "",
+              "| Template | Model | Action tasks | DB twins | Request twins |", "|---|---|---|---|---|"]
+    noop_templates = sorted({t["base_template"] for t in orig if not t["gold"]})
+    for base in noop_templates:
+        for model, rs in by_model.items():
+            cells = []
+            for kind in ("original", "db", "request"):
+                es = [e for r in rs for (k, _), e in results[(model, r["seed"])].items()
+                      if k == kind and e["base_template"] == base and (kind != "original" or e["gold"])]
+                es = list({id(e): e for e in es}.values())
+                cells.append(f"{100 * sum(e['pass'] for e in es) / len(es):.0f}% ({len(es)})" if es else "—")
+            lines.append(f"| {base[:55]} | {model} | " + " | ".join(cells) + " |")
 
     text = "\n".join(lines) + "\n"
     print(text)

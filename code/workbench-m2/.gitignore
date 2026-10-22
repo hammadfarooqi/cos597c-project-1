@@ -1,0 +1,5 @@
+# Raw WorkBench traces repeat the full prompt at every step, and results CSVs embed them;
+# compact_traces.py writes the tracked copies (*_traces.compact.json.gz, *.csv.gz).
+runs/**/*_traces.json
+runs/**/*_all_*.csv
+logs/

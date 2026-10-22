@@ -230,3 +230,76 @@ A2, A6) that the policy twin catches these patterns reliably.
 **Affects:** `docs/research/new-models/qualitative-patterns.md` · `docs/research/new-models/review-3-trials.md` ·
 `docs/decisions/milestones.md` (M1.24, M1.26, M1.27)
 **Replaces:** the reliability claims of `docs/research/new-models/qualitative-patterns.md` §5
+
+## 2026-10-21 — M2: WorkBench is the second benchmark; AgentDojo dropped; WebArena only as a write-up point
+**By:** Hammad + Claude
+**Why:** The phase 1 checkups (`docs/research/other-benchmarks/plan.md` §4) showed:
+- AgentDojo's no-op credit sits in the security metric. AgentDojo already reports it next to
+  utility, and only 2 of its 97 user tasks are no-ops of the τ² type.
+- WebArena-Verified already fixed the main hole, partly with our own mechanism (a required page
+  visit on 9 of its 40 failure tasks). A do-nothing agent gets at most 41/812 there.
+- WorkBench has 122 of 690 tasks (17.7%) with an empty gold outcome. All are of the τ²
+  "possible" type (a false condition or an empty set). It runs on a laptop, and it publishes
+  per-task results with every tool call for 24 models.
+
+Hammad treats M2 as a small add-on, not a critical part of the project.
+- **AgentDojo: dropped.** Its checkup stays in `plan.md` §4.1 as a record.
+- **WebArena: no more runs.** Its checkup findings (original and Verified) are kept for the
+  write-up.
+- **BFCL:** a contrast case only (impossible-type no-ops; only a twin could apply).
+- **WorkBench:** apply the full method (below).
+
+WorkBench is less famous than WebArena (COLM 2024, about 60 citations), but it fits our
+problem best.
+**Affects:** `docs/research/other-benchmarks/plan.md` · `docs/decisions/milestones.md` (M2.1–M2.3)
+**Replaces:** the 2026-10-20 choice of AgentDojo + WebArena (recorded in `plan.md` §2)
+
+## 2026-10-22 — WorkBench method: the tau2 newer-model method, with a twin-defined read gate and request twins
+**By:** Hammad + Claude
+**Why:** Hammad asked for the exact method we used on τ²-bench (after all fixes), on the 4 newer
+models only, with 3 trials, and with the same quantitative and qualitative analysis. WorkBench
+differs from τ² in three ways. It has no simulated user, no policy text, and no gold list of
+reads.
+- **Runs.** The 4 newer models (claude-haiku-4.5, gpt-5.4-nano, gpt-6-luna, llama-4-maverick),
+  through Prime Intellect, at temperature 0. 3 trials, labelled seeds 300, 301 and 302. WorkBench
+  has no seed, so the label only names the trial, and trials differ only through provider
+  non-determinism (as in findings §20). We use WorkBench Revisited's settings: all tools, native
+  tool calls, and act without confirmation. The τ² §16 retry for lost tool calls is ported.
+- **Upstream behaviour is kept.** A tool call with an unknown argument ends the episode as an
+  error (a failure). The published runs show the same errors.
+- **Scope of the gates.** The 122 tasks with an empty gold outcome. Two more tasks pass for a
+  null agent (CRM 031 and 032: the gold reassigns a customer to the person who already owns
+  them). We report them, but they are not gated.
+- **DB twin.** One per no-op task: a minimal start-state patch that makes the action correct.
+  Each template's gold rule is re-implemented as a function of the generator's exact
+  parameters. Before any twin is used, the rule must reproduce the official outcome of every
+  task of its template.
+- **Read gate.** A no-op pass needs at least one read whose output differs between the start
+  state and the DB twin's start state. WorkBench has no gold reads, so the twin defines where
+  the deciding evidence lives. This accepts any query wording that would have found it.
+- **Request twin (policy-twin analogue).** WorkBench has no policy text. Where one slot of the
+  request (a threshold or a number of days) can change so that the action becomes correct on the
+  unchanged state, the request twin uses that change. It must be labelled a request flip, not a
+  policy flip.
+- **Scoring.** As in τ²: pair rule per trial, strict and lenient rules, means with ranges,
+  pass^k, stability of removals, behaviour counts, and cost. The qualitative review judges every
+  removal with the two-question rubric of `docs/research/new-models/review-handoff.md` §3.
+- **Results location.** `code/workbench-m2/runs/<run>/`, tracked in git. This extends CLAUDE.md
+  §6, which names only the tau2 folder.
+**Affects:** `code/workbench/` · `code/workbench-m2/` · `docs/research/other-benchmarks/workbench.md`
+**Replaces:** —
+
+## 2026-10-22 — WorkBench runs are tracked as gzipped CSVs and compact traces
+**By:** Hammad + Claude
+**Why:** WorkBench saves the whole prompt again at every step. One trial of the 4 models gave
+about 130 MB of traces, and the results CSVs embed the same trace again. That makes about
+515 MB for all runs.
+- Tracked in git: each run's `_meta.json`, its results as `.csv.gz` (as upstream does), and
+  `_traces.compact.json.gz`. The compact trace keeps action, input, observation and model
+  output for each step. In total this is 16 MB.
+- Raw `.csv` and `_traces.json` stay local and are git-ignored
+  (`code/workbench-m2/.gitignore`). `code/workbench-m2/compact_traces.py` rebuilds the tracked
+  copies.
+- The scorer reads the `.csv.gz` copy when the raw `.csv` is missing.
+**Affects:** `code/workbench-m2/` · CLAUDE.md §6 (results in git)
+**Replaces:** —
