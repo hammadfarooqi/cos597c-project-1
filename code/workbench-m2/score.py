@@ -249,7 +249,7 @@ def main() -> None:
             continue
         noop = [ep[("original", i)] for i in noop_ids]
         noop_pass = [e for e in noop if e["pass"]]
-        removed_reads, removed_db, removed_req, removed_all, removed_all_len = [], [], [], [], []
+        removed_reads, removed_db, removed_req, removed_all, removed_all_len, removed_all_act = [], [], [], [], [], []
         for e in noop_pass:
             i = e["task_id"]
             # No DB twin (not flippable): the read gate does not apply, as for tau2 tasks 6, 13, 46.
@@ -271,6 +271,11 @@ def main() -> None:
                 removed_all.append(i)
             if not (rg and db_ok_l and rq_ok_l):
                 removed_all_len.append(i)
+            # Sensitivity ("acted" rule, not the headline): a twin counts if the agent made any
+            # write, i.e. it acted on the flipped fact even if a detail was wrong.
+            acted = lambda x: x is None or x["pass"] or x["cause"] in ("wrong write", "right write + other difference")
+            if not (rg and acted(dbe) and acted(rqe)):
+                removed_all_act.append(i)
         n_orig = sum(e["pass"] for e in orig_eps)
         cost = sum(e["cost"] for e in ep.values())
         trial_rows.append({
@@ -278,6 +283,7 @@ def main() -> None:
             "db_pairs": sum(1 for e in noop_pass if ep.get(("db", e["task_id"])) and ep[("db", e["task_id"])]["pass"]),
             "req_pairs": sum(1 for e in noop_pass if ep.get(("request", e["task_id"])) and ep[("request", e["task_id"])]["pass"]),
             "all": n_orig - len(removed_all), "all_lenient": n_orig - len(removed_all_len),
+            "all_acted": n_orig - len(removed_all_act),
             "noop_pass": len(noop_pass), "action_pass": n_orig - len(noop_pass),
             "removed_reads": removed_reads, "removed_db": removed_db, "removed_req": removed_req,
             "removed_all": removed_all, "cost": cost,
@@ -299,8 +305,9 @@ def main() -> None:
 
     # ---- means
     lines += ["", "## 2. Mean over trials (min–max)", "",
-              "| Model | Trials | Original | Reads gate | DB pairs | Request pairs | **Reads + twins** | Lenient | No-op passes | Reads change | **All gates change** | Cost, all trials |",
-              "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+              "\"Acted\" is a sensitivity rule, not the headline: a twin counts if the agent made any write.", "",
+              "| Model | Trials | Original | Reads gate | DB pairs | Request pairs | **Reads + twins** | Lenient | Acted | No-op passes | Reads change | **All gates change** | Cost, all trials |",
+              "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     by_model = defaultdict(list)
     for r in trial_rows:
         by_model[r["model"]].append(r)
@@ -313,7 +320,7 @@ def main() -> None:
         rd = sum(r["reads"] for r in rs) / len(rs)
         al = sum(r["all"] for r in rs) / len(rs)
         lines.append(f"| {model} | {len(rs)} | {mm(rs,'original')} | {mm(rs,'reads')} | {mm(rs,'db_pairs')} | {mm(rs,'req_pairs')} | "
-                     f"**{mm(rs,'all')}** | {mm(rs,'all_lenient')} | {mm(rs,'noop_pass')} | {100*(rd-o)/o:+.1f}% | **{100*(al-o)/o:+.1f}%** | "
+                     f"**{mm(rs,'all')}** | {mm(rs,'all_lenient')} | {mm(rs,'all_acted')} | {mm(rs,'noop_pass')} | {100*(rd-o)/o:+.1f}% | **{100*(al-o)/o:+.1f}%** | "
                      f"${sum(r['cost'] for r in rs):.2f} |")
 
     # ---- pass^k

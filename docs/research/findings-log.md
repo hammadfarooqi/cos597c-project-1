@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-10
+updated: 2026-10-22
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-10 (§1–§22; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
+**Last updated:** 2026-10-22 (§1–§24; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
 
 ---
 
@@ -935,3 +935,100 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   the DB twin scores 6 / 4 / 7.
 - **Weak points:** the reviewers are LLM agents with no blind second labeller. The attempted-write
   projection is by hand, not computed by `code/scoreboard.py`.
+
+## 24. WorkBench: phase 1 checkups, and the 4 newer models over 3 trials under the read gate and twins (2026-10-22)
+**By:** Hammad + Claude
+
+- **Why:** M2 (charter §3, Target tier). We apply the τ² method to a second benchmark
+  (decisions log, 2026-10-21 and 2026-10-22). The plan and the checkups of the dropped
+  candidates (AgentDojo, WebArena, BFCL) are in `docs/research/other-benchmarks/plan.md`.
+- **Benchmark:** WorkBench (Styles et al., COLM 2024), our copy at upstream `49c7dfd` in
+  `code/workbench/`. 690 tasks. **122 (17.7%) have an empty gold outcome.** All of these are the
+  τ² "possible" type: a false condition or an empty set.
+- **Runs:** claude-haiku-4.5, gpt-5.4-nano, gpt-6-luna and llama-4-maverick through Prime
+  Intellect, at temperature 0. 3 trials, labelled seeds 300/301/302. WorkBench Revisited
+  settings: all tools, native tool calls, act without confirmation.
+  - Originals: 690 tasks per model and trial.
+  - DB twins: 110, of 113 built. Request twins: 46, plus CRM-070, which is reused.
+  - Command, from `code/workbench/`:
+    `uv run python ../workbench-m2/run.py --model <m> --run original_seed<N>`. For twins, add
+    `--run dbtwin_seed<N>` or `requesttwin_seed<N>` and
+    `--tasks ../workbench-m2/data/twins_{db,request}_tasks_and_outcomes.csv`.
+  - Runs are in `code/workbench-m2/runs/`.
+  - Scoring: `uv run python ../workbench-m2/score.py` writes
+    `docs/research/other-benchmarks/workbench-scoreboard.md`.
+- **Our pipeline reproduces the benchmark.**
+  - haiku trial 1: 510/690, against 516 in WorkBench's published haiku run. No-op passes are
+    93 against 93, and per-task agreement is 642/690.
+  - nano: 353 against 335. We use temperature 0; the published run used the default.
+- **Null agent:** 124/690 (122 no-op tasks, plus CRM 031 and 032, where the gold reassigns a
+  customer to the person who already owns them).
+  - After the read gate: 12. After all gates: 7.
+  - The 7 are CRM 031 and 032, plus 5 no-op tasks that no DB flip can reach (§ weak points).
+- **Mean over 3 trials (min–max), out of 690:**
+
+  | Model | Original | Reads gate | **Reads + twins** | Lenient | Acted (sensitivity) | No-op passes | Reads change | **All gates change** | Cost, 3 trials |
+  |---|---|---|---|---|---|---|---|---|---|
+  | gpt-6-luna | 611.7 (608–615) | 611.7 | **599.0 (596–602)** | 600.0 | 610.3 | 113.7 | +0.0% | **−2.1%** | $6.09 |
+  | claude-haiku-4.5 | 510.0 (510–510) | 509.0 | **494.0 (494–494)** | 495.0 | 506.0 | 93.0 | −0.2% | **−3.1%** | $89.59 |
+  | gpt-5.4-nano | 352.3 (342–362) | 344.7 | **331.7 (325–343)** | 332.7 | 340.0 | 48.7 | −2.2% | **−5.9%** | $11.74 |
+  | llama-4-maverick | 120.0 (108–127) | 93.0 | **84.7 (82–87)** | 84.7 | 86.0 | 38.0 | −22.5% | **−29.4%** | $17.09 |
+  | null agent | 124 | 12 | **7** | 7 | 7 | 122 | −90.3% | **−94.4%** | $0 |
+
+  "Acted" counts a twin as passed when the agent made any write. It is a sensitivity rule, not
+  the headline.
+- **The ranking does not change, and the size of the drop follows the τ² pattern.** luna
+  loses least and maverick most, as on τ² airline (findings §20: −8.5% to −36.8%). The drops
+  are smaller here because no-op tasks are 18% of WorkBench and 46% of airline.
+- **pass^3, reads + twins:** luna 599 → 550, haiku 494 → 494, nano 331.7 → 238, maverick
+  84.7 → 77.
+  - On the no-op tasks alone: luna 101 → 87, haiku 77 → 77, nano 28 → 18, maverick 2.7 → 0.
+- **Stability of removals:**
+  - **haiku is deterministic.** Its tool calls are identical in 688–690 of 690 tasks across
+    trials, so every haiku removal repeats in all 3 trials.
+  - **maverick:** 44 of its 49 tasks are removed in every trial in which they passed.
+  - **luna:** 19 of its 22 removed tasks are removed in only some trials.
+- **Twin failure causes** (all trials):
+
+  | Model | DB twin failures | No write | Wrong write | Right write + other | Error | Request twin failures | No write | Wrong write |
+  |---|---|---|---|---|---|---|---|---|
+  | luna | 25 | 3 | 22 | 0 | 0 | 19 | 1 | 15 |
+  | haiku | 42 | 12 | 27 | 3 | 0 | 15 | 0 | 15 |
+  | nano | 54 | 27 | 23 | 4 | 0 | 17 | 7 | 10 |
+  | maverick | 99 | 51 | 7 | 0 | 41 | 46 | 16 | 4 |
+
+  For luna and haiku, most failures are "acted, but a detail is wrong" against WorkBench's
+  exact-match gold. Examples: the first free slot tomorrow (13:00), an event name the text does
+  not state, a plot range, a participant left out. The same strictness applies to the template's
+  own action tasks (scoreboard §8). The qualitative review (findings §25) judges each one.
+- **Read gate on the 32 published WorkBench runs** (no model calls;
+  `code/workbench-m2/published_readgate.py`):
+  - 0 removals for the frontier 2026 models: fable-5, opus-4.8, gemini-3.1-pro, gpt-5.5, gpt-5
+    and others.
+  - 0.4–6% of the score for mid-tier 2026 models: gpt-4-turbo −26, gpt-4o −20, gpt-5.1 −18,
+    nano −14.
+  - 10–60% for the 2024 paper models: gpt-4 −10%, claude-2 −18%, mixtral-8x7b 111 → 45 (−59.5%).
+  - claude-2 reads, but not the deciding record. A crude "any read" check keeps its passes; the
+    twin-defined gate removes 33.
+- **llama-4-maverick:**
+  - About a third of its episodes crash on invented tool arguments (upstream rule: an error,
+    counted as a failure).
+  - 609 final answers contain a tool call typed as text.
+  - Its trial 1 had 23 no-op passes; trials 2–3 had 46 and 45, with twice as many episodes that
+    end with no call and no error. The code was the same, so this is provider drift.
+  - The read gate removes the extra passes: after all gates maverick scores 87, 85, 82.
+  - The τ² §16 retry fired 258–298 times per trial, for maverick only.
+- **Weak points:**
+  - 9 no-op tasks cannot be flipped. Example: growth "since Wednesday", where Wednesday is the
+    last day of data, so the growth is 0 on every state.
+  - calendar-073 follows from the system prompt's 9am rule alone.
+  - These 10 tasks have no read gate and no DB twin (as τ² tasks 6, 13, 46). 4 of the 9 have a
+    request twin.
+  - 3 twins were not run after the twin reviews; 2 of them still define the read gate.
+  - Trials differ only through provider non-determinism. For haiku that is none.
+  - 3 maverick episodes ended in a gateway timeout that persisted on retry; they count as
+    errors.
+  - Cost is tokens × Prime Intellect list prices (GET /models, 2026-10-22). Trial 1's crashed
+    episodes have no token counts, because the counter fix came after trial 1.
+  - WorkBench's request twin is our policy-twin analogue (no policy text exists). It is a
+    one-slot request change, and it must not be read as a policy flip.

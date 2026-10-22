@@ -1,7 +1,7 @@
 ---
 title: Other Benchmarks (M2) — Plan and Phase 1 Results
 type: research
-status: needs-review
+status: superseded
 updated: 2026-10-21
 review_by: 2026-11-03
 summary: >-
@@ -9,9 +9,10 @@ summary: >-
   case. Includes the measured phase 1 checkups: what a do-nothing agent scores on WebArena (the
   original, and WebArena-Verified on all 812 tasks offline), BFCL and AgentDojo, and why.
 note: >-
-  Not reviewed yet. AgentDojo was dropped on 2026-10-21 (§2); its checkup stays as a record.
-  Phase 1 was a throwaway spike (scripts in a scratch folder, not committed). Phases 2–5 have
-  not started. Replaces the no-op doctor (abandoned) as the route to M2.
+  The phase 1 checkups here are a record. WorkBench became the second benchmark on 2026-10-21
+  (decisions log); its runs and results are in findings-log §24–§25 and
+  docs/research/other-benchmarks/workbench-scoreboard.md, which supersede §5–§6 of this plan.
+  AgentDojo was dropped (§2). Phase 1 scripts were a throwaway spike (not committed).
 ---
 
 # Other Benchmarks (M2) — Plan and Phase 1 Results
