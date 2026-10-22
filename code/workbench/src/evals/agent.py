@@ -460,6 +460,21 @@ def call_llm(model_name: str, system_prompt: str, human_msg: str, temperature: f
     return _call_llm_with_retry(route, system_prompt, human_msg, temperature)
 
 
+# COS597C change: per-thread episode counters, so that tokens and §16 retries are
+# kept even when an episode ends in an exception (e.g. a bad tool argument).
+_EPISODE = threading.local()
+
+
+def reset_episode_counters() -> None:
+    _EPISODE.c = {"prompt_tokens": 0, "completion_tokens": 0, "empty_tool_retries": 0}
+
+
+def episode_counters() -> dict[str, int]:
+    if not hasattr(_EPISODE, "c"):
+        reset_episode_counters()
+    return dict(_EPISODE.c)
+
+
 @dataclass
 class TraceStep:
     llm_input: str
@@ -636,6 +651,11 @@ def run_agent_structured(
         for k in usage:
             usage[k] += response["usage"][k]
         retries += int(response["empty_tool_retry"])
+        counters = getattr(_EPISODE, "c", None)
+        if counters is not None:
+            for k in usage:
+                counters[k] += response["usage"][k]
+            counters["empty_tool_retries"] += int(response["empty_tool_retry"])
 
         for tc in response["tool_calls"]:
             tc["name"] = _sanitize_tool_name(tc["name"])

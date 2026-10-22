@@ -19,6 +19,8 @@ from src.evals.agent import (
     AgentResult,
     Route,
     build_system_prompt,
+    episode_counters,
+    reset_episode_counters,
     resolve_route,
     run_agent,
     run_agent_structured,
@@ -104,6 +106,7 @@ def _run_single_task(
     agent_fn = run_agent_structured if structured_outputs else run_agent
     # COS597C change: a twin task starts from a patched state (None = upstream state).
     set_state_patch(state_patch)
+    reset_episode_counters()
     try:
         result = agent_fn(
             model_name,
@@ -114,7 +117,6 @@ def _run_single_task(
             act_without_confirmation=act_without_confirmation,
         )
         response = result
-        usage, empty_tool_retries = result.usage, result.empty_tool_retries
         _collect_result(result, function_calls, all_traces)
         if result.output == AGENT_STOPPED_MESSAGE:
             error = result.output
@@ -127,6 +129,10 @@ def _run_single_task(
             logger.exception("Unexpected error with task: %s", task)
             error = str(e)
 
+    # Counters survive an exception inside the agent loop (COS597C change).
+    counted = episode_counters()
+    usage = {k: counted[k] for k in ("prompt_tokens", "completion_tokens")}
+    empty_tool_retries = counted["empty_tool_retries"]
     elapsed = time.time() - task_start
     num_steps = len(all_traces)
     print(f"### Task: {task}")
