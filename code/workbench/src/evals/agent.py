@@ -259,6 +259,16 @@ def _is_dropped_tool_call(response: ChatCompletion, tools_schema: list[dict]) ->
     return _usage_dict(response)["completion_tokens"] > 0
 
 
+def _count_usage(usage: dict[str, int], retry: bool = False) -> None:
+    """Add one response's tokens (or one §16 retry) to this thread's episode counters."""
+    counters = getattr(_EPISODE, "c", None)
+    if counters is None:
+        return
+    for k, v in usage.items():
+        counters[k] += v
+    counters["empty_tool_retries"] += int(retry)
+
+
 def _call_llm_structured(
     route: "Route",
     system_prompt: str,
@@ -276,14 +286,17 @@ def _call_llm_structured(
         kwargs["temperature"] = temperature
     response = _create_with_deadline(client, **kwargs)
     usage = _usage_dict(response)
+    _count_usage(usage)
     # COS597C change: re-ask once with tool_choice="required" when the gateway
     # lost the tool call (same rule as the tau2 retry, findings-log §16).
     empty_tool_retry = False
     if _is_dropped_tool_call(response, tools_schema):
         print(f"{route.model_id}: tool call lost by the gateway; retrying with tool_choice='required'")
+        _count_usage({}, retry=True)
         response = _create_with_deadline(client, **kwargs, tool_choice="required")
         empty_tool_retry = True
         retry_usage = _usage_dict(response)
+        _count_usage(retry_usage)
         usage = {k: usage[k] + retry_usage[k] for k in usage}
     msg = response.choices[0].message
     tool_calls = []
@@ -651,11 +664,6 @@ def run_agent_structured(
         for k in usage:
             usage[k] += response["usage"][k]
         retries += int(response["empty_tool_retry"])
-        counters = getattr(_EPISODE, "c", None)
-        if counters is not None:
-            for k in usage:
-                counters[k] += response["usage"][k]
-            counters["empty_tool_retries"] += int(response["empty_tool_retry"])
 
         for tc in response["tool_calls"]:
             tc["name"] = _sanitize_tool_name(tc["name"])

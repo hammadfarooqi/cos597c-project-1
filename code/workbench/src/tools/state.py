@@ -90,6 +90,9 @@ _local = threading.local()
 def _patched(state: "ToolState") -> "ToolState":
     for edit in getattr(_local, "state_patch", None) or []:
         df = getattr(state, edit["table"])
+        for col, val in {**edit.get("row", {}), **edit.get("values", {})}.items():
+            if col in df.columns and df[col].dtype == bool and not isinstance(val, bool):
+                raise ValueError(f"patch: column {col} of {edit['table']} needs a JSON boolean, got {val!r}")
         if edit["op"] == "append":
             row = {c: edit["row"].get(c) for c in df.columns}
             unknown = set(edit["row"]) - set(df.columns)
@@ -117,8 +120,14 @@ def _patched(state: "ToolState") -> "ToolState":
 
 def set_state_patch(patch: list[dict] | None) -> None:
     """Set (or clear, with None) this thread's start-state patch and reset the state to it."""
+    previous = getattr(_local, "state_patch", None)
     _local.state_patch = patch
-    reset_state()
+    try:
+        reset_state()
+    except Exception:
+        _local.state_patch = previous
+        reset_state()
+        raise
 
 
 def get_state() -> "ToolState":

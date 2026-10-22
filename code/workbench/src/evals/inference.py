@@ -1,6 +1,7 @@
 import ast
 import csv
 import glob
+import hashlib
 import json
 import logging
 import os
@@ -105,9 +106,9 @@ def _run_single_task(
     empty_tool_retries = 0
     agent_fn = run_agent_structured if structured_outputs else run_agent
     # COS597C change: a twin task starts from a patched state (None = upstream state).
-    set_state_patch(state_patch)
     reset_episode_counters()
     try:
+        set_state_patch(state_patch)
         result = agent_fn(
             model_name,
             tools,
@@ -183,6 +184,15 @@ def _find_latest_results_path(save_dir: str, model_name: str, tool_selection: st
     return max(matches)
 
 
+_INFRA_ERROR_PATTERNS = ("timeout", "timed out", "connection", "rate limit", "rate_limit", "ratelimit", "502", "503", "504",
+                         "500", "internal server error", "service unavailable", "overloaded", "wall-clock deadline")
+
+
+def _is_infrastructure_error(error: str) -> bool:
+    e = (error or "").lower()
+    return bool(e) and any(p in e for p in _INFRA_ERROR_PATTERNS)
+
+
 def _load_existing_progress(save_path: str, tasks: list[str], log_traces: bool) -> tuple[list[dict], set[int]]:
     """Load prior results from `save_path` and return (rows_to_keep, indices_to_skip).
 
@@ -207,7 +217,9 @@ def _load_existing_progress(save_path: str, tasks: list[str], log_traces: bool) 
     skip: set[int] = set()
     for i, task in enumerate(tasks):
         row = by_task.get(task)
-        if row is None or row.get("error", ""):
+        # COS597C change: keep model-caused errors (e.g. an unknown tool argument); they are
+        # failures under the upstream rule. Re-run only missing rows and infrastructure errors.
+        if row is None or _is_infrastructure_error(row.get("error", "")):
             continue
         rows.append(
             {
@@ -262,6 +274,8 @@ def _write_run_metadata(
         "act_without_confirmation": act_without_confirmation,
         "structured_outputs": structured_outputs,
         "datetime_prefix": datetime_prefix,
+        # COS597C addition: detects a task file (e.g. a twin file) rebuilt after the run.
+        "tasks_sha256": hashlib.sha256(open(tasks_path, "rb").read()).hexdigest(),
         "sample_system_prompt": sample_system_prompt,
         "started_at": started_at,
         "finished_at": finished_at,
@@ -360,6 +374,10 @@ def generate_results(
         if "state_patch" in tasks_df.columns
         else [None] * len(tasks)
     )
+    for i, p in enumerate(patches):  # apply each patch once before any paid call
+        if p is not None:
+            set_state_patch(p)
+            set_state_patch(None)
     pending = [(i, task) for i, task in enumerate(tasks) if i not in skip_indices]
     with ThreadPoolExecutor(max_workers=workers) as executor:
         futures = [
