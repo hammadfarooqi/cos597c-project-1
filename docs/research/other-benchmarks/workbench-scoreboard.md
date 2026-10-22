@@ -21,8 +21,8 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | gpt-5.4-nano | 301 | 362 | 356 | 31 | 8 | **343** | 343 | 50 | 0 | 0 | 3.85 |  |
 | gpt-5.4-nano | 302 | 342 | 335 | 24 | 8 | **325** | 327 | 46 | 1 | 0 | 3.93 |  |
 | llama-4-maverick | 300 | 108 | 95 | 0 | 1 | **87** | 87 | 23 | 247 | 153 | 4.54 |  |
-| llama-4-maverick | 301 | 127 | 93 | 1 | 2 | **85** | 85 | 46 | 189 | 386 | 6.25 |  |
-| llama-4-maverick | 302 | 125 | 91 | 1 | 1 | **82** | 82 | 45 | 184 | 393 | 6.30 |  |
+| llama-4-maverick | 301 | 104 | 91 | 1 | 1 | **83** | 83 | 23 | 245 | 386 | 6.25 |  |
+| llama-4-maverick | 302 | 102 | 89 | 0 | 0 | **80** | 80 | 22 | 240 | 393 | 6.30 |  |
 | null agent | — | 124 | 12 | 0 | 0 | **7** | 7 | 122 | 0 | 0 | 0.00 |  |
 
 ## 2. Mean over trials (min–max)
@@ -34,7 +34,7 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | gpt-6-luna | 3 | 611.7 (608–615) | 611.7 (608–615) | 95.0 (94–97) | 39.0 (39–39) | **599.0 (596–602)** | 600.0 (598–603) | 610.3 (607–613) | 113.7 (113–114) | +0.0% | **-2.1%** | $6.09 |
 | claude-haiku-4.5 | 3 | 510.0 (510–510) | 509.0 (509–509) | 70.0 (70–70) | 36.0 (36–36) | **494.0 (494–494)** | 495.0 (495–495) | 506.0 (506–506) | 93.0 (93–93) | -0.2% | **-3.1%** | $89.59 |
 | gpt-5.4-nano | 3 | 352.3 (342–362) | 344.7 (335–356) | 25.3 (21–31) | 6.7 (4–8) | **331.7 (325–343)** | 332.7 (327–343) | 340.0 (332–352) | 48.7 (46–50) | -2.2% | **-5.9%** | $11.74 |
-| llama-4-maverick | 3 | 120.0 (108–127) | 93.0 (91–95) | 0.7 (0–1) | 1.3 (1–2) | **84.7 (82–87)** | 84.7 (82–87) | 86.0 (84–88) | 38.0 (23–46) | -22.5% | **-29.4%** | $17.09 |
+| llama-4-maverick | 3 | 104.7 (102–108) | 91.7 (89–95) | 0.3 (0–1) | 0.7 (0–1) | **83.3 (80–87)** | 83.3 (80–87) | 84.7 (82–88) | 22.7 (22–23) | -12.4% | **-20.4%** | $17.09 |
 | null agent | 1 | 124.0 (124–124) | 12.0 (12–12) | 0.0 (0–0) | 0.0 (0–0) | **7.0 (7–7)** | 7.0 (7–7) | 7.0 (7–7) | 122.0 (122–122) | -90.3% | **-94.4%** | $0.00 |
 
 ## 3. pass^k over the trials (sum over tasks of C(c,k)/C(n,k))
@@ -44,7 +44,7 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | gpt-6-luna | 611.7 → 572 | 599.0 → 550 | 101.0 → 87 |
 | claude-haiku-4.5 | 510.0 → 510 | 494.0 → 494 | 77.0 → 77 |
 | gpt-5.4-nano | 352.3 → 252 | 331.7 → 238 | 28.0 → 18 |
-| llama-4-maverick | 120.0 → 98 | 84.7 → 77 | 2.7 → 0 |
+| llama-4-maverick | 104.7 → 98 | 83.3 → 77 | 1.3 → 0 |
 | null agent | 124.0 → 124 | 7.0 → 7 | 5.0 → 5 |
 
 ## 4. Stability of removals (no-op tasks passed upstream in at least one trial)
@@ -54,7 +54,7 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | gpt-6-luna | 118 | 3 | 19 | 96 | 38 |
 | claude-haiku-4.5 | 93 | 16 | 0 | 77 | 48 |
 | gpt-5.4-nano | 69 | 30 | 9 | 30 | 62 |
-| llama-4-maverick | 49 | 44 | 1 | 4 | 106 |
+| llama-4-maverick | 26 | 23 | 1 | 2 | 64 |
 | null agent | 122 | 117 | 0 | 5 | 117 |
 
 ## 5. Behaviour on no-op tasks (all trials)
@@ -64,7 +64,7 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | gpt-6-luna | 366 | 341 | 0 | 0 | 7 | 0 | 0 |
 | claude-haiku-4.5 | 366 | 279 | 0 | 3 | 0 | 0 | 0 |
 | gpt-5.4-nano | 366 | 146 | 0 | 23 | 4 | 1 | 1 |
-| llama-4-maverick | 366 | 114 | 78 | 81 | 7 | 609 | 620 |
+| llama-4-maverick | 366 | 68 | 32 | 39 | 7 | 609 | 732 |
 | null agent | 122 | 122 | 122 | 112 | 0 | 0 | 0 |
 
 ## 6. Why twins failed (all trials; twins of no-op tasks the model passed in that trial)
@@ -77,8 +77,8 @@ Scores are out of 690. "DB pairs" and "Request pairs" count no-op tasks passed t
 | claude-haiku-4.5 | request | 15 | 0 | 15 | 0 | 0 |
 | gpt-5.4-nano | db | 54 | 27 | 23 | 4 | 0 |
 | gpt-5.4-nano | request | 17 | 7 | 10 | 0 | 0 |
-| llama-4-maverick | db | 99 | 51 | 7 | 0 | 41 |
-| llama-4-maverick | request | 46 | 16 | 4 | 1 | 25 |
+| llama-4-maverick | db | 60 | 50 | 7 | 0 | 3 |
+| llama-4-maverick | request | 22 | 16 | 4 | 1 | 1 |
 | null agent | db | 110 | 110 | 0 | 0 | 0 |
 | null agent | request | 48 | 48 | 0 | 0 | 0 |
 
@@ -100,46 +100,46 @@ Cell: `passes/trials`, then the gates that removed it (R = reads, D = DB twin, Q
 | calendar-091 | Cancel future {event_name} meetings | 3/3 | 3/3 | 3/3 | 0/3 | 1/1 R1 D1 |
 | calendar-094 | Cancel future {event_name} meetings | 3/3 | 3/3 | 3/3 | 0/3 | 1/1 R1 D1 |
 | calendar-097 | Cancel future {event_name} meetings | 1/3 | 3/3 | 3/3 | 0/3 | 1/1 R1 D1 |
-| analytics-030 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-037 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-050 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 1/3 Q1 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
+| analytics-030 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-037 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-050 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 1/3 Q1 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-052 | If {natural_language_metric} was {more_or_less} th | 3/3 D1 | 3/3 D3 | 3/3 D1 Q1 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-054 | If {natural_language_metric} was {more_or_less} th | 3/3 Q2 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-056 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-057 | If {natural_language_metric} was {more_or_less} th | 3/3 Q2 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-058 | If {natural_language_metric} was {more_or_less} th | 3/3 | 3/3 Q3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
-| analytics-060 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 Q1 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-062 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 Q1 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
+| analytics-060 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 Q1 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-062 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 Q1 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-064 | If {natural_language_metric} is more than {natural | 0/3 | 3/3 D3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-067 | If {natural_language_metric} is more than {natural | 0/3 | 0/3 | 2/3 | 0/3 | 1/1 R1 D1 |
 | analytics-068 | If {natural_language_metric} is more than {natural | 3/3 Q1 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
-| analytics-071 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 | 1/1 R1 D1 Q1 |
-| analytics-072 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 | 2/3 R2 D1 Q2 | 1/1 R1 D1 Q1 |
-| analytics-073 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 3/3 | 2/3 | 1/1 |
-| analytics-074 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-076 | If {natural_language_metric} is more than {natural | 3/3 Q1 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
+| analytics-071 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-072 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 1/3 D1 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-073 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 3/3 | 0/3 | 1/1 |
+| analytics-074 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-076 | If {natural_language_metric} is more than {natural | 3/3 Q1 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-077 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 3/3 | 1/3 | 1/1 |
 | analytics-078 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
 | analytics-079 | If {natural_language_metric} is more than {natural | 3/3 | 3/3 | 2/3 | 0/3 | 1/1 |
-| analytics-082 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-083 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 1/3 D1 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-085 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
+| analytics-082 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-083 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 1/3 D1 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-085 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-086 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 3/3 | 0/3 | 1/1 R1 D1 Q1 |
 | analytics-088 | If {natural_language_metric} on {day_of_week} was  | 3/3 | 3/3 | 1/3 D1 Q1 | 0/3 | 1/1 R1 D1 Q1 |
-| analytics-092 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 | 1/1 R1 D1 |
-| analytics-093 | Can you check the percent growth of {natural_langu | 3/3 | 0/3 | 1/3 R1 | 2/3 R2 D2 | 1/1 R1 D1 |
-| analytics-094 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 R1 D1 | 2/3 R2 D2 | 1/1 R1 D1 |
-| analytics-095 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 | 1/1 R1 D1 |
-| analytics-096 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 | 2/3 R2 | 1/1 R1 |
-| analytics-097 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 Q2 | 1/1 R1 D1 Q1 |
-| analytics-098 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 | 2/3 | 1/1 |
+| analytics-092 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
+| analytics-093 | Can you check the percent growth of {natural_langu | 3/3 | 0/3 | 1/3 R1 | 0/3 | 1/1 R1 D1 |
+| analytics-094 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 R1 D1 | 0/3 | 1/1 R1 D1 |
+| analytics-095 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
+| analytics-096 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 | 0/3 | 1/1 R1 |
+| analytics-097 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 Q1 |
+| analytics-098 | Can you check the percent growth of {natural_langu | 3/3 | 3/3 | 1/3 | 0/3 | 1/1 |
 | analytics-099 | Can you check the percent growth of {natural_langu | 1/3 | 0/3 | 1/3 | 0/3 | 1/1 |
-| analytics-111 | If we got more traffic from {traffic_source_1} tha | 3/3 D2 | 3/3 | 0/3 | 2/3 R2 D2 | 1/1 R1 D1 |
+| analytics-111 | If we got more traffic from {traffic_source_1} tha | 3/3 D2 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
 | analytics-113 | If we got more traffic from {traffic_source_1} tha | 3/3 D2 | 3/3 | 0/3 | 3/3 D3 | 1/1 R1 D1 |
 | analytics-114 | If we got more traffic from {traffic_source_1} tha | 1/3 | 3/3 | 0/3 | 3/3 D3 | 1/1 R1 D1 |
-| analytics-115 | If we got more traffic from {traffic_source_1} tha | 3/3 | 3/3 | 0/3 | 2/3 R2 D2 | 1/1 R1 D1 |
-| analytics-117 | If we got more traffic from {traffic_source_1} tha | 3/3 D1 | 3/3 | 0/3 | 1/3 R1 D1 | 1/1 R1 D1 |
-| analytics-118 | If we got more traffic from {traffic_source_1} tha | 2/3 | 0/3 | 0/3 | 2/3 R1 D2 | 1/1 R1 D1 |
+| analytics-115 | If we got more traffic from {traffic_source_1} tha | 3/3 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
+| analytics-117 | If we got more traffic from {traffic_source_1} tha | 3/3 D1 | 3/3 | 0/3 | 0/3 | 1/1 R1 D1 |
+| analytics-118 | If we got more traffic from {traffic_source_1} tha | 2/3 | 0/3 | 0/3 | 1/3 D1 | 1/1 R1 D1 |
 | project_management-000 | Move all of {name}'s tasks that are in progress to | 3/3 | 3/3 | 3/3 | 0/3 | 1/1 R1 D1 |
 | project_management-001 | Move all of {name}'s tasks that are in progress to | 3/3 | 3/3 | 3/3 | 3/3 R3 D3 | 1/1 R1 D1 |
 | project_management-005 | Move all of {name}'s tasks that are in progress to | 3/3 | 3/3 | 3/3 D1 | 3/3 R3 D3 | 1/1 R1 D1 |

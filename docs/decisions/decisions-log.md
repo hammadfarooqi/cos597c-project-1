@@ -303,3 +303,24 @@ about 130 MB of traces, and the results CSVs embed the same trace again. That ma
 - The scorer reads the `.csv.gz` copy when the raw `.csv` is missing.
 **Affects:** `code/workbench-m2/` · CLAUDE.md §6 (results in git)
 **Replaces:** —
+
+## 2026-10-22 — WorkBench: lead with the read gate; report the twins only with their FP rates
+**By:** Hammad + Claude
+**Why:** The full review (findings §26) gives the same picture as τ² (2026-10-10 entry).
+- The read gate removed 65 passes, and all 65 were right.
+- The DB twin removed 181 passes: 93 FP, 55 WM, 33 TP. The request twin removed 73: 43 FP,
+  26 WM, 4 TP.
+- Most twin FPs are reasoned no-op passes where, on the twin, the agent acted on the flipped
+  fact but got a detail wrong that WorkBench's exact-match gold rejects. The details: an event
+  name the text does not give, the first free slot, a plot range, a participant left out.
+
+So, following the 2026-10-10 rule:
+- Report the read gate as the evidence on WorkBench.
+- Report "reads + twins" (strict) next to it, always with the twin FP rates.
+- Report the "acted" rule (a twin counts if the agent made any write) as a sensitivity
+  analysis. It is a candidate rule and not adopted, because it would also accept a wrong action.
+
+Not settled: whether an abstention on an ungated "since Wednesday" task counts as reasoned.
+Both readings are reported.
+**Affects:** `docs/research/findings-log.md` §24–§26 · `docs/research/other-benchmarks/workbench.md`
+**Replaces:** —

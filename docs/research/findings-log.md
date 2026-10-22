@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-22 (§1–§24; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
+**Last updated:** 2026-10-22 (§1–§26; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
 
 ---
 
@@ -1032,3 +1032,115 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     episodes have no token counts, because the counter fix came after trial 1.
   - WorkBench's request twin is our policy-twin analogue (no policy text exists). It is a
     one-slot request change, and it must not be read as a policy flip.
+
+## 25. Correction to §24: a resume erased 112 llama-4-maverick crash errors (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was wrong.** §24 says that maverick's no-op passes rose from 23 (trial 1) to 46 and 45
+  (trials 2–3), "with twice as many episodes that end with no call and no error", and it calls
+  this provider drift. **That explanation is wrong.**
+  - To retry 3 gateway timeouts, we resumed `original_seed301/analytics` and
+    `original_seed302/analytics` for maverick.
+  - `_load_existing_progress()` in `code/workbench/src/evals/inference.py` kept the rows that
+    ended in a model error, as we intended. But it rebuilt every kept row with `"error": ""`,
+    as upstream does, because upstream kept only error-free rows.
+  - The crashed episodes have no tool calls, so with the error erased they scored as no-op
+    passes. 56 errors were erased in each seed.
+  - The maverick reviewer found this (`docs/research/other-benchmarks/workbench-review/llama-4-maverick.md`).
+- **Fix.**
+  - The kept row now keeps its error (`code/workbench/src/evals/inference.py`).
+  - `code/workbench-m2/restore_resume_errors.py` restores the 112 errors from the runs' logs.
+    It uses the exception handler's "Unexpected error with task" line for each crashed episode,
+    and finds 56 of 56 in each seed. The calls and other columns of those rows were already
+    correct.
+  - No new runs. No other run was resumed (every `_meta.json` was checked).
+- **Corrected maverick numbers** (mean over 3 trials, min–max; out of 690):
+  - Original: 104.7 (102–108), not 120.0.
+  - Reads gate: 91.7.
+  - **Reads + twins: 83.3 (80–87)**, not 84.7.
+  - Change: reads −12.4%, **all gates −20.4%** (not −22.5% and −29.4%).
+  - No-op passes: 23, 23, 22 per trial. Errors: 247, 245, 240.
+  - pass^3, reads + twins: 77.
+- **What it means.** There was no provider drift; maverick behaves the same in all 3 trials. The
+  other three models and the null agent are unchanged. The order of the models and the τ²
+  pattern in §24 still hold: luna −2.1%, haiku −3.1%, nano −5.9%, maverick −20.4%. The scoreboard
+  (`docs/research/other-benchmarks/workbench-scoreboard.md`) is regenerated with the
+  corrected data.
+
+## 26. WorkBench: every removal judged over 3 trials; the read gate is exact, the twins mostly penalise template strictness (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was done.**
+  - One reviewer agent per model judged every removal event, in all 3 trials, with the
+    two-question rubric (`docs/research/other-benchmarks/workbench-review-handoff.md` §3):
+    Q1, was the original pass reasoned? Q2, why did the gate fail?
+  - The reviewers also read the kept no-op passes, to find false negatives (FN).
+  - Per-model files are in `docs/research/other-benchmarks/workbench-review/`.
+  - New this time: a **blind second labeller** independently judged a stratified random sample
+    of 40 events (10 per model, seed 597). Its labels are in
+    `code/workbench-m2/data/blind_labels.json`.
+- **Verdicts.** Strict rule, per removal event, all 3 trials. Maverick's 42 events that came from
+  the erased crashes (§25) are left out, because those episodes are now failures, not passes.
+
+  | Gate | Removals | TP | WM (right removal, wrong mechanism) | FP |
+  |---|---|---|---|---|
+  | Read gate | 65 | **65** | 0 | **0** |
+  | DB twin | 181 | 33 | 55 | 93 |
+  | Request twin | 73 | 4 | 26 | 43 |
+
+  Per model:
+
+  | Model | R (TP/WM/FP) | D | Q | FN found |
+  |---|---|---|---|---|
+  | gpt-6-luna | 0 / 0 / 0 | 0 / 0 / 25 | 0 / 3 / 16 | 2 |
+  | claude-haiku-4.5 | 3 / 0 / 0 | 6 / 0 / 36 | 0 / 3 / 12 | 7 |
+  | gpt-5.4-nano | 23 / 0 / 0 | 18 / 10 / 26 | 1 / 1 / 15 | 5 |
+  | llama-4-maverick | 39 / 0 / 0 | 9 / 45 / 6 | 3 / 19 / 0 | 3 (+1 possible) |
+
+  The blind sample agrees on direction: R 12 TP / 0 FP; D 8 TP / 7 WM / 17 FP; Q 1 TP / 6 WM /
+  14 FP.
+- **Meaning.**
+  - **The read gate is exact here too.** Every removal had no read that showed the deciding
+    record. The same held on τ² (findings §23: 14 / 14). This is the result to lead with.
+  - **The twins remove reasoned passes from the strong models.** luna has 0 TP in 44 twin
+    removals. Of haiku's 14 distinct DB-twin removals, 12 are FP.
+    - The usual cause is not the decision. The agent acted on the flipped fact, but WorkBench's
+      exact-match gold rejected a detail.
+    - The details: the event name "catch-up", which some wordings never state (15 luna
+      events); the first free slot tomorrow (13:00); a plot's start day; a participant left
+      out in the "for us" templates; an invented e-mail address (nano).
+    - The control in scoreboard §8 shows the same failures on the templates' ordinary action
+      tasks. For these models, the twins mostly measure template accuracy.
+  - **For the weak models the twins work as designed.**
+    - maverick's original passes are almost never reasoned: 6 of its 106 events. Its twin
+      failures are mostly crashes or calls typed as text (WM).
+    - nano has 18 DB-twin TPs. These are failed lookups followed by a question to the user,
+      and "write first, decide later" with an invented e-mail address.
+  - **The "acted" sensitivity rule** counts a twin when the agent made any write. It drops
+    most twin FPs and keeps the "no write" catches. Under it the change is: luna −0.2%, haiku
+    −0.8%, nano −3.5%, maverick about −19% (scoreboard §2). It is a candidate rule, not the
+    headline.
+- **Patterns** (each with examples in the per-model files):
+  1. **A tool error, not the agent, stops a forbidden write.** luna sent 34 `send_email` calls
+     with an empty or invalid recipient, and nano and maverick called `create_task` with
+     `@example.com` addresses. The rejection then produces a no-op pass. This is the
+     "attempted write" pattern of τ² §23.
+  2. **Deferring to the user scores as a correct no-op.** There is no simulated user, so "Would
+     you like me to…" ends the episode with no change. This happens with haiku, nano and luna.
+  3. **Calls typed as text end the episode** (maverick, 609 final answers). The §16 retry does
+     not catch a call inside prose.
+  4. **Words and actions disagree.** Examples: luna says "I haven't made any" and makes a chart;
+     nano claims plots it never made.
+  5. **"Growth from a day to itself" is never reasoned.** On the 9 ungated "since Wednesday"
+     tasks, models abstain, or use another window ("Tuesday to Wednesday"). These are the main
+     source of FNs.
+- **Weak points.**
+  - The reviewers and the second labeller are LLM agents.
+  - Agreement between the primary reviewers and the blind labels is computed separately
+    (`code/workbench-m2/data/review_agreement.json`).
+  - Two counting rules change the FN counts, and the files report both readings:
+    - whether an abstention on a "since Wednesday" task counts as reasoned (luna FN 2 → 18,
+      nano 5 → 14);
+    - whether a twin read with an invented argument is (a) or (d).
+  - The calendar-060 and calendar-065 request twin is shared, so one failure removes two
+    originals.

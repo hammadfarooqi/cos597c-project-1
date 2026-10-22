@@ -1,0 +1,347 @@
+[
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "analytics-111",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "multi_domain-170",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "calendar-078",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "multi_domain-172",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-060",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "analytics-054",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "analytics-068",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "multi_domain-115",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "calendar-060",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-172",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "analytics-058",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "customer_relationship_manager-077",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-133",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-062",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 300,
+  "task_id": "multi_domain-175",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-058",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-175",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "multi_domain-005",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-136",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "multi_domain-049",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "multi_domain-042",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "project_management-067",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-004",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-046",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gates": [
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "project_management-005",
+  "gates": [
+   "D"
+  ]
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "customer_relationship_manager-063",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-071",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "calendar-062",
+  "gates": [
+   "R",
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-062",
+  "gates": [
+   "R",
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "email-010",
+  "gates": [
+   "R",
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-072",
+  "gates": [
+   "R",
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "multi_domain-040",
+  "gates": [
+   "R",
+   "D",
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "multi_domain-085",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "calendar-073",
+  "gates": [
+   "Q"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-115",
+  "gates": [
+   "R",
+   "D"
+  ]
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "project_management-046",
+  "gates": [
+   "R",
+   "D"
+  ]
+ }
+]

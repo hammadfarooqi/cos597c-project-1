@@ -226,7 +226,9 @@ def _load_existing_progress(save_path: str, tasks: list[str], log_traces: bool) 
                 "task": task,
                 "function_calls": row.get("function_calls", ""),
                 "full_response": row.get("full_response", ""),
-                "error": "",
+                # COS597C fix: keep the kept row's error. Upstream kept only error-free rows, so it
+                # wrote "" here; we also keep model-caused errors, which must stay failures.
+                "error": row.get("error", ""),
                 "prompt_tokens": row.get("prompt_tokens", 0),
                 "completion_tokens": row.get("completion_tokens", 0),
                 "empty_tool_retries": row.get("empty_tool_retries", 0),
