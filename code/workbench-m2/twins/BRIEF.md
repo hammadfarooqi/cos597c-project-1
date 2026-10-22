@@ -1,3 +1,13 @@
+---
+title: Brief for the WorkBench Twin Designers
+type: index
+status: current
+updated: 2026-10-22
+summary: >-
+  The instructions given to the three subagents that wrote the WorkBench twin specs: the spec
+  contract, the design rules for flips (lessons from tau2), the checks, and the hard rules.
+---
+
 # Brief: write WorkBench twin specs (for subagents)
 
 Read this whole file first. Then read `framework.py`, `build.py`, `readgate.py` and the

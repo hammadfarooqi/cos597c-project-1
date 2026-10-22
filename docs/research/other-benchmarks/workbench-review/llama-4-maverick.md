@@ -9,6 +9,9 @@ summary: >-
   7 FNs and 1 possible FN. The extra no-op passes in seeds 301–302 are not provider drift: they
   are 23 crashes per trial whose error the resume step erased (inference.py writes error="").
 note: >-
+  After this review the erased errors were restored (findings-log §25). The 42 G1 events are
+  no longer removals: those episodes are now failures. Corrected counts without them: read gate
+  39 TP; DB twin 9 TP / 45 WM / 6 FP; request twin 3 TP / 19 WM / 0 FP (findings-log §26).
   Written by a reviewer agent from the rubric in
   docs/research/other-benchmarks/workbench-review-handoff.md. Not yet checked by a second
   labeller. The README index was not regenerated (the reviewer could edit only this file).

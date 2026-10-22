@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-10
+**Last updated:** 2026-10-22
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -88,7 +88,7 @@ The next thing each person is doing. Keep this short.
 |---|---|---|---|---|---|
 | M2.1 | Choose 1–2 benchmarks with the same outcome-validity issue | Hammad + Claude | — | done | WorkBench (decisions log 2026-10-21); AgentDojo, WebArena, BFCL checked and set aside: `docs/research/other-benchmarks/plan.md` §4 |
 | M2.2 | Measure the null-agent pass rate on each | Hammad + Claude | — | done | WorkBench 124/690 (findings-log §24); WebArena ≥36/812 original, 0–41/812 Verified; BFCL 1,124 entries = 10/100 points; AgentDojo 0/629 attacks (`plan.md` §4) |
-| M2.3 | Apply the grader and report before vs after | Hammad + Claude | — | in progress | WorkBench, 4 newer models × 3 trials: scores before/after (findings-log §24, `docs/research/other-benchmarks/workbench-scoreboard.md`); qualitative review running |
+| M2.3 | Apply the grader and report before vs after | Hammad + Claude | — | done | WorkBench, 4 newer models × 3 trials: `docs/research/other-benchmarks/workbench.md`; scores findings-log §24–§25, review of every removal §26, blind second labeller §27 (kappa 0.91) |
 
 ## M3 — Stretch goal: a general framework
 
@@ -120,3 +120,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-10 — Hammad + Claude — merged main (M0.10); M1.23 evidence renumbered to findings §21; M1.17 evidence: 3-trial pass^k and stability (findings §22).
 - 2026-10-10 — Vatsal + Claude — added M1.26 (done, 3-trial review, findings §23) and M1.27 (no-write-attempted gate); M1.24 scope widened.
 - 2026-10-22 — Hammad + Claude — M2.1, M2.2 done (WorkBench chosen; null-agent checkups on 4 benchmarks); M2.3 in progress (WorkBench runs and scores, findings §24).
+- 2026-10-22 — Hammad + Claude — M2.3 done: WorkBench gates, 3 trials, full review and blind second labeller (findings §24–§27).

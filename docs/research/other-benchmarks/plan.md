@@ -2,7 +2,7 @@
 title: Other Benchmarks (M2) — Plan and Phase 1 Results
 type: research
 status: superseded
-updated: 2026-10-21
+updated: 2026-10-22
 review_by: 2026-11-03
 summary: >-
   Plan for applying the read gate, DB twin and policy twin to WebArena, with BFCL as a contrast
@@ -17,7 +17,7 @@ note: >-
 
 # Other Benchmarks (M2) — Plan and Phase 1 Results
 
-**Last updated:** 2026-10-21 · **By:** Hammad + Claude
+**Last updated:** 2026-10-22 · **By:** Hammad + Claude
 
 ## 1. Goal
 

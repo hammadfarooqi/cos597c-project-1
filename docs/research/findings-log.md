@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-22 (§1–§26; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
+**Last updated:** 2026-10-22 (§1–§27; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge; §15–§16 of the scoreboard branch renumbered §18–§19, and its §20 renumbered §21, at the 2026-10-10 merges)
 
 ---
 
@@ -1144,3 +1144,35 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
     - whether a twin read with an invented argument is (a) or (d).
   - The calendar-060 and calendar-065 request twin is shared, so one failure removes two
     originals.
+
+## 27. WorkBench review: agreement between the primary reviewers and a blind second labeller (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was done.**
+  - A blind labeller judged 40 removal events, 10 per model, drawn at random with seed 597
+    (`code/workbench-m2/data/blind_sample.json`). It did not see the primary reviews.
+  - A separate agent then matched each blind (event, gate) verdict with the primary verdict,
+    under the strict rule.
+  - 10 rows (4 maverick events) were excluded, because their episodes are erased crashes and
+    now count as failures (§25). The two raters agreed on all 10.
+  - Output: `code/workbench-m2/data/review_agreement.json`.
+- **Results:**
+
+  | Gate | n | Agree | % | Cohen's kappa |
+  |---|---|---|---|---|
+  | Read gate | 8 | 8 | 100 | — (both raters gave TP to all 8) |
+  | DB twin | 28 | 27 | 96.4 | 0.934 |
+  | Request twin | 19 | 17 | 89.5 | 0.774 |
+  | **Overall** | **55** | **52** | **94.5** | **0.908** |
+
+  - Q1 (was the pass reasoned?): 34 of 36 events agree, kappa 0.883.
+  - **The raters never mix TP and FP.** All 3 disagreements are on the WM boundary:
+    - 2 are the same haiku multi_domain-175 episode. One rater counts the abstention "I cannot
+      calculate the percent growth" as reasoned, and the other does not.
+    - 1 is a Q2 split, (a) against (b), on a nano twin that tried to write with an invented
+      address.
+- **Meaning.** The verdicts in §26 are stable across two independent raters. This answers the
+  weak point "no blind second labeller" of the τ² review (§23). The open abstention rule is the
+  main source of disagreement (decisions log, 2026-10-22).
+- **Weak point.** Both raters are LLM agents with the same rubric. Their agreement shows the
+  rubric is consistent, not that it is correct.
