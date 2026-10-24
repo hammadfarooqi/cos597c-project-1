@@ -2,7 +2,7 @@
 title: Code
 type: index
 status: current
-updated: 2026-10-10
+updated: 2026-10-24
 summary: >-
   What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines.
   The reasoning behind each change is in docs/.
@@ -68,11 +68,14 @@ uv run tau2 run --domain airline --task-set-name airline_twins --task-split-name
   --agent-llm ... --save-to airline_twins_<model>
 uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twins \
   --task-split-name pf_delay_no_change --agent-llm ... --save-to airline_twins_pf_<model>
-uv run python ../twins/score_pairs.py claude-sonnet-4.5 gpt-4.1   # needs airline_<model> runs too
+uv run python ../twins/score_pairs.py gpt-6-luna claude-haiku-4.5   # needs airline_<model> runs too
 uv run python ../twins/average_trials.py gpt-6-luna:300,301,302   # model:seeds
 ```
 
 ## Setup
+
+The root `README.md` has the short version of setup, runs, and scoring. This file has the detail.
+
 
 ```bash
 cd code/tau2-bench
