@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-10
+updated: 2026-10-24
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-10
+**Last updated:** 2026-10-24
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -49,6 +49,7 @@ The next thing each person is doing. Keep this short.
 | M0.8 | Newer models (claude-haiku-4.5, gpt-6-luna, gpt-5.4-nano): 50 airline tasks + 15 twins, 1 trial | Vatsal + Claude | — | done | `docs/research/findings-log.md` §15 · `code/tau2-bench/data/simulations/airline*_<model>/` |
 | M0.9 | llama-4-maverick: 50 airline tasks + 15 twins, 1 trial, with the tool-call retry; one table for all 9 models | Vatsal + Claude | — | done | `docs/research/findings-log.md` §16–§17 · `code/tau2-bench/data/simulations/airline*_llama-4-maverick/` |
 | M0.10 | Trials 2 and 3 (seeds 301, 302) for luna, haiku-4.5, gpt-5.4-nano, maverick; mean over 3 trials | Vatsal + Claude | — | done | `docs/research/findings-log.md` §20 · `code/tau2-bench/data/simulations/airline*_<model>_seed30{1,2}/` · `code/twins/average_trials.py` |
+| M0.11 | Submission-ready repository: hand-written root README (results, quick start, layout); document index moved to `docs/README.md`; stray mock run removed | Vatsal + Claude | — | in progress | decisions log 2026-10-24 |
 
 ## M1 — Minimal goal: justified vs unjustified no-action in τ²-bench
 
@@ -107,3 +108,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-09 — Vatsal + Claude — added M0.8 (done): three newer models, airline + twins.
 - 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.
 - 2026-10-10 — Vatsal + Claude — added M0.10 (done): 3 trials of the 4 newer models; M1.17 in progress.
+- 2026-10-24 — Vatsal + Claude — added M0.11 (in progress): submission cleanup.

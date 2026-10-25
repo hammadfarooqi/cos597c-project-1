@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-08
+updated: 2026-10-24
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -168,3 +168,28 @@ leaves upstream scoring intact and reproducible. Choices:
 **Affects:** `docs/research/findings-log.md` · `docs/decisions/milestones.md` ·
 `docs/decisions/charter.md` §6 · `code/README.md`
 **Replaces:** —
+
+## 2026-10-24 — Make the repository submission-ready; the root README becomes hand-written
+**By:** Vatsal + Claude
+**Why:** The repository is the submission. A reader who opens it must see what the project
+found and how to run it, not a generated table of documents. Choices:
+- **Scope of the submission:** the airline domain and the four newer models (gpt-6-luna,
+  claude-haiku-4.5, gpt-5.4-nano, llama-4-maverick), 3 trials each (findings-log §20). Vatsal
+  set this scope on 2026-10-10. Retail and telecom are out of scope. The older-model runs stay
+  in `code/tau2-bench/data/simulations/`, because findings-log §7–§17 cite them, but the root
+  README does not report them as results.
+- **The no-op doctor tool is not submitted.** It was never merged to `main`, so nothing is
+  removed. The root README does not mention it.
+- **The root `README.md` is hand-written.** It has the results table, a quick start, the run
+  and scoring commands, the layout, and the limitations. Its table reports the twin pairs with
+  the lenient rule. This replaces the CLAUDE.md rule "README.md is generated, never edit it by
+  hand".
+- **The generated document index moves to `docs/README.md`.** `tools/build_index.py` now
+  writes that file. All other doc rules are unchanged.
+- **Removed:** the results folder `20260925_150033_mock_llm_agent_gpt-3.5-turbo_user_simulator_gpt-3.5-turbo`
+  in `code/tau2-bench/data/simulations/`,
+  a mock-LLM smoke-test run that no document cites.
+**Affects:** `README.md` · `docs/README.md` · `tools/build_index.py` · `CLAUDE.md` §1, §3,
+§5.7 · `code/README.md` · `docs/decisions/milestones.md` M0.11
+**Replaces:** the "README.md is generated" rule in `CLAUDE.md` (set when the repository was
+created, 2026-10-03).
