@@ -2,7 +2,7 @@
 title: Milestones
 type: milestones
 status: current
-updated: 2026-10-24
+updated: 2026-10-26
 summary: >-
   The master tracker. Every milestone, its owner, its status, and the evidence that it is done.
   Update it in the same commit as the work.
@@ -12,7 +12,7 @@ note: >-
 
 # Milestones — Master Tracker
 
-**Last updated:** 2026-10-24
+**Last updated:** 2026-10-26
 
 **How to use this file** (rules in `CLAUDE.md` §5.3):
 
@@ -80,9 +80,9 @@ The next thing each person is doing. Keep this short.
 
 | ID | Milestone | Owner | Due | Status | Evidence |
 |---|---|---|---|---|---|
-| M2.1 | Choose 1–2 benchmarks with the same outcome-validity issue | ? | TBD | todo | |
-| M2.2 | Measure the null-agent pass rate on each | ? | TBD | todo | |
-| M2.3 | Apply the grader and report before vs after | ? | TBD | todo | |
+| M2.1 | Choose 1–2 benchmarks with the same outcome-validity issue | Hammad + Claude | — | done | WorkBench (decisions log 2026-10-21). WebArena-Verified already has our read gate on 8 of its 40 failure tasks: `docs/research/other-benchmarks/webarena-verified.md` |
+| M2.2 | Measure the null-agent pass rate on each | Hammad + Claude | — | done | WorkBench 124/690 (findings-log §24) |
+| M2.3 | Apply the grader and report before vs after | Hammad + Claude | — | done | WorkBench, 4 newer models × 3 trials: `docs/research/other-benchmarks/workbench.md`; scores findings-log §24–§25, review of every removal §26, blind second labeller §27 (kappa 0.91) |
 
 ## M3 — Stretch goal: a general framework
 
@@ -109,3 +109,4 @@ Append one line per change to this file: date, who, which rows.
 - 2026-10-09 — Vatsal + Claude — added M0.9 (done): llama-4-maverick, airline + twins; 9-model table.
 - 2026-10-10 — Vatsal + Claude — added M0.10 (done): 3 trials of the 4 newer models; M1.17 in progress.
 - 2026-10-24 — Vatsal + Claude — added M0.11 (in progress): submission cleanup.
+- 2026-10-26 — Hammad + Claude — M2.1, M2.2, M2.3 done: WorkBench and the WebArena-Verified note brought in from `workbench/m2` (decisions log, 2026-10-26).

@@ -1,0 +1,652 @@
+[
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "analytics-111",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "d",
+  "verdict": "FP",
+  "note": "Original summed both sources (referral 22 vs direct 128) and declined correctly; on the twin it computed 81 vs 69 and wrote 'I'll make bar charts for both' but ended the turn without calling create_plot."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "multi_domain-170",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "c",
+  "verdict": "WM",
+  "note": "Original called create_event('Discuss engaged users', participant_email='') before deciding, so the no-op came from the failed write, not from the growth check; twin created the task correctly but the meeting failed for the missing participant ('for us' template)."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "calendar-078",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original searched the whole of Tuesday and saw the only late meeting ends at 15:00 ('nothing was canceled'); on the twin it searched with query='meeting', which hid the new 'sync up' event at 15:30."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original cited the two 2023-11-27 meetings with Sofia inside the 8-day window; twin booked 2023-12-01 13:00 correctly but named it 'Catch up with Sofia' instead of gold 'catch-up'."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-27 meetings; shared request twin (calendar-060_req) booked the right slot but used the name 'Catch up with Sofia', not 'catch-up'."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "multi_domain-172",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original computed session duration -18% vs engaged users +150% and declined; twin created the task correctly, but create_event failed with participant_email='' ('for us' template)."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-060",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original cited the two 11-27 meetings in the 3-day window; twin booked 13:00 correctly but used the name 'Catch-up with Sofia', not 'catch-up'."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 302,
+  "task_id": "calendar-060",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-27 meetings; request twin wrote create_event('Catch up with Sofia', 13:00), so only the catch-up name differs from gold."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "analytics-054",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original read 11-23..11-29 and saw every day >= 6 ('No... at least 6'); twin acted but used time_min 2023-11-24 instead of 2023-11-23."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "analytics-068",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original saw 10-21 = 11 and no later value above 12.1 ('highest count afterward was 10'); twin plotted from 2023-10-22 instead of 2023-10-21."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 300,
+  "task_id": "multi_domain-115",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original saw the peak of 11 on 10-21, 'not more than 11'; twin created the task but with due_date 2023-12-01 instead of next Friday 2023-12-08."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "calendar-060",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original cited the two 11-27 meetings with Sofia; twin booked 13:00 correctly but named it 'Catch up with Sofia'."
+ },
+ {
+  "model": "gpt-6-luna",
+  "seed": 301,
+  "task_id": "calendar-060",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-27 meetings; request twin booked 'Catch up with Sofia' at 13:00, so only the name is wrong."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-172",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original computed -18% vs +150% and said 'the condition ... is not met'; twin created the task and meeting but booked the meeting at 09:00 (busy) instead of 13:00."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "analytics-058",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original found the 5-week maximum 19 < 21 and declined; twin plotted from 2023-11-02 instead of 2023-10-26 ('last 5 weeks' range)."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "customer_relationship_manager-077",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original filtered Proposal+Software with last_contact_date_max 2023-10-19 (correct 6-week cutoff) and got none; twin moved Morgan Robinson correctly but also moved Avery Thompson (last contact 32 days ago), an extra write that the lenient rule keeps."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-133",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Original compared summed totals ('27/55 = 49.09% ... less than 100%') instead of growth since Saturday; the twin used the same wrong method (23 vs 55) and again did nothing."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-062",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original found the 2023-11-24 meeting with Aisha inside 9 days; twin decided correctly to book but its day search (time_min=time_max='2023-12-01') returned nothing, so it booked 09:00 instead of 13:00."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-062",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-24 meeting; request twin booked 'catch-up' at 09:00 instead of 13:00 after an empty calendar search."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 300,
+  "task_id": "multi_domain-175",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Uncertain: ungated 'since Wednesday' task; original saw only the 11-29 bucket, made no write and said it 'cannot calculate the percent growth'; twin created the task but booked the meeting at 15:00 with no participant (slot wrong and 'for us' participant missing)."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-058",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original searched query='Akira' with no date range; the 5-row cap returned only August meetings, and it concluded 'There don't seem to be any upcoming meetings'."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "calendar-058",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Twin made the same capped search with no date range, saw only August rows, and missed the new 2023-12-04 meeting."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 301,
+  "task_id": "multi_domain-175",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Uncertain: same as seed 300; original made no write because Wednesday is the only data point; twin booked 15:00 with no participant instead of 13:00 with nia."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original cited the two 11-27 meetings in the 3-day window; twin booked 'Catch up with Sofia' at 15:00, which is not the first free slot (13:00), and the name differs from 'catch-up'."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-27 meetings; request twin booked at 15:00 instead of 13:00 and also used a non-gold name."
+ },
+ {
+  "model": "claude-haiku-4.5",
+  "seed": 302,
+  "task_id": "multi_domain-005",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original used last_contact_date 2023-11-18 ('12 days ... not quite over 14'), the field upstream uses, although the notes end on 11-10; twin booked the meeting with lena at 15:00 instead of 13:00."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-136",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Original called create_task(assigned_to_email='kofi@example.com') before deciding and the invalid email blocked it, so the no-op was accidental; the twin repeated create_task with assignee 'kofi' and failed the same way whatever the data showed."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "multi_domain-049",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original found Akira's emails of 11-26 and 11-27 within 3 days and did not book; twin acted but invented participant_email='akira@example.com'."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "multi_domain-042",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original saw Luis's email of 11-29 ('has emailed you in the past 4 days'); twin booked the meeting but with invented participant_email='luis@example.com'."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "project_management-067",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Original listed Chenwei's own overdue tasks as 'tasks ... yuki hasn't started' and never examined yuki's tasks; twin searched assigned_to_email='chenwei' and again did nothing."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-004",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original looked up the CRM customer Quinn Harris only in the company directory ('No employee found') and stopped without reading the CRM."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-004",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Twin made the same directory-only lookup and stopped, so it never saw the changed last-contact date."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-046",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original found yuki's email of 2023-11-26 inside the 4-day window; twin booked the meeting but with invented participant_email='yuki@example.com'."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 301,
+  "task_id": "multi_domain-046",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original reasoned from the 11-26 email; request twin booked Monday 15:00 but with participant_email='yuki'."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Hard to judge: original cited the two 11-27 meetings, but also the later-today 11-30 14:30 meeting; the twin keeps that same-day future meeting, and the agent read it as 'You have met with Sofia', so the twin is ambiguous on a meeting that has not happened yet."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "calendar-065",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Hard to judge: on the request twin (2 days) the agent again treated the 11-30 14:30 meeting (later today) as already met; the twin gold ignores that meeting."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original cited the 11-27 meetings, plus the 11-30 meeting; twin acted but invented participant_email='sofia@example.com' and booked 09:00 instead of 13:00."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "calendar-060",
+  "gate": "Q",
+  "q1": "reasoned",
+  "q2": "c",
+  "verdict": "FP",
+  "note": "Hard to judge: request twin found the 11-30 14:30 meeting and said 'Since there was a meeting today, I did not schedule'; the twin gold ignores that later-today meeting."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 300,
+  "task_id": "project_management-005",
+  "gate": "D",
+  "q1": "reasoned",
+  "q2": "b",
+  "verdict": "FP",
+  "note": "Original searched kofi.mensah@atlas.com + 'In Progress' and got none, a correct check; twin searched task_name='kofi' (wrong field), so it missed the new in-progress task."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "customer_relationship_manager-063",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original searched with an invented assigned_to_email='lena@example.com', got [] and concluded 'nothing to delete'."
+ },
+ {
+  "model": "gpt-5.4-nano",
+  "seed": 302,
+  "task_id": "customer_relationship_manager-063",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Twin searched customer_name='Lena' (wrong field), got [] and again did nothing."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-071",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original episode has zero steps and no calls (empty turn)."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-071",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin crashed on an invented argument ('unexpected keyword argument time_max=') before any action."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "calendar-062",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original's only Aisha search used an inverted range (time_min 12-01, time_max 11-30); it then said 'Since you haven't met with Aisha... I will schedule', and that call was typed as text."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "calendar-062",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin made no tool calls; it wrote a plan in prose (text_form_call) and ended."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "calendar-062",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Request twin made no tool calls; prose plan only (text_form_call)."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-062",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original episode has zero steps and no calls."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-062",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin crashed ('unexpected keyword argument time_max:')."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "analytics-062",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Request twin crashed on malformed JSON ('Unterminated string')."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "email-010",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original searched query='from:yuki' (unsupported syntax, returns []) and then tried to delete an invented id '12345678'."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "email-010",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Twin repeated the same broken 'from:yuki' search and fake delete, so it ignored the new 11-29 email."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "email-010",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Request twin made the same broken 'from:yuki' search and fake delete, then ended with a search typed as text."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-072",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original episode has zero steps and no calls."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-072",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin crashed ('unexpected keyword argument time_max=')."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-072",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Request twin crashed ('unexpected keyword argument time_max=')."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "multi_domain-040",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original only typed '[email_search_emails(query=\"from:yuki\", ...)]' as text; no call ran."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "multi_domain-040",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin's output was the same text-only search call and nothing ran."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "multi_domain-040",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Request twin typed the search, lookup and create_event calls as text; nothing ran."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "multi_domain-085",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original searched tasks with invented 'dmitri@example.com' and due_date 11-30, got [], and ended with a directory lookup typed as text (task is also one of the ambiguous due-11-30 originals)."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "multi_domain-085",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "a",
+  "verdict": "TP",
+  "note": "Twin repeated the identical fake-email searches and the same text-form ending, so it could not see the task now due 11-27."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 302,
+  "task_id": "calendar-073",
+  "gate": "Q",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Original (9am-rule task) only typed a search as text and never noted the 9am rule; request twin also typed a search as text and nothing ran."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-115",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original episode has zero steps and no calls."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 301,
+  "task_id": "analytics-115",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin crashed ('create_plot() got an unexpected keyword argument plot_type:')."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "project_management-046",
+  "gate": "R",
+  "q1": "not reasoned",
+  "q2": "no valid read",
+  "verdict": "TP",
+  "note": "Original wrote a plan in prose with an invented santiago@example.com search typed as text and 'let's assume' results; no call ran."
+ },
+ {
+  "model": "llama-4-maverick",
+  "seed": 300,
+  "task_id": "project_management-046",
+  "gate": "D",
+  "q1": "not reasoned",
+  "q2": "d",
+  "verdict": "WM",
+  "note": "Twin's output was the same prose plan with calls typed as text; no call ran."
+ }
+]

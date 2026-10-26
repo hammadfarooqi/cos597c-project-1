@@ -2,7 +2,7 @@
 title: Findings Log
 type: log
 status: current
-updated: 2026-10-10
+updated: 2026-10-26
 summary: >-
   Append-only raw evidence: every experiment run that matters, with its command, results folder,
   numbers, and meaning. The charter holds the decisions; this holds the proof.
@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-10 (§1–§17; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-26 (§24–§27 added from the WorkBench branch; §28 added; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -722,3 +722,291 @@ the results folder, the numbers, and what they mean. Sign each entry (`**By:**`)
   - `max_steps` (counted as a failure): gpt-5.4-nano task 15 at seed 301 (also at seed 300,
     §15), llama-4-maverick task 6 at seed 301.
   - Cost is saved tokens × the list prices of §15 and §17. Prime's real price was not checked.
+
+*§24–§27 were written on 2026-10-22 on the `workbench/m2` branch and brought into `main` on
+2026-10-26 (decisions log, 2026-10-26). They are unchanged, except for one path in §24. Their
+references to §21–§23 point to the τ²-bench review on the `analysis/new-models` branch, which
+is not part of this repository.*
+
+## 24. WorkBench: phase 1 checkups, and the 4 newer models over 3 trials under the read gate and twins (2026-10-22)
+**By:** Hammad + Claude
+
+- **Why:** M2 (charter §3, Target tier). We apply the τ² method to a second benchmark
+  (decisions log, 2026-10-21 and 2026-10-22). The WebArena-Verified check is in
+  `docs/research/other-benchmarks/webarena-verified.md`. The checkups of the other candidates
+  are not in this repository (decisions log, 2026-10-26).
+- **Benchmark:** WorkBench (Styles et al., COLM 2024), our copy at upstream `49c7dfd` in
+  `code/workbench/`. 690 tasks. **122 (17.7%) have an empty gold outcome.** All of these are the
+  τ² "possible" type: a false condition or an empty set.
+- **Runs:** claude-haiku-4.5, gpt-5.4-nano, gpt-6-luna and llama-4-maverick through Prime
+  Intellect, at temperature 0. 3 trials, labelled seeds 300/301/302. WorkBench Revisited
+  settings: all tools, native tool calls, act without confirmation.
+  - Originals: 690 tasks per model and trial.
+  - DB twins: 110, of 113 built. Request twins: 46, plus CRM-070, which is reused.
+  - Command, from `code/workbench/`:
+    `uv run python ../workbench-m2/run.py --model <m> --run original_seed<N>`. For twins, add
+    `--run dbtwin_seed<N>` or `requesttwin_seed<N>` and
+    `--tasks ../workbench-m2/data/twins_{db,request}_tasks_and_outcomes.csv`.
+  - Runs are in `code/workbench-m2/runs/`.
+  - Scoring: `uv run python ../workbench-m2/score.py` writes
+    `docs/research/other-benchmarks/workbench-scoreboard.md`.
+- **Our pipeline reproduces the benchmark.**
+  - haiku trial 1: 510/690, against 516 in WorkBench's published haiku run. No-op passes are
+    93 against 93, and per-task agreement is 642/690.
+  - nano: 353 against 335. We use temperature 0; the published run used the default.
+- **Null agent:** 124/690 (122 no-op tasks, plus CRM 031 and 032, where the gold reassigns a
+  customer to the person who already owns them).
+  - After the read gate: 12. After all gates: 7.
+  - The 7 are CRM 031 and 032, plus 5 no-op tasks that no DB flip can reach (§ weak points).
+- **Mean over 3 trials (min–max), out of 690:**
+
+  | Model | Original | Reads gate | **Reads + twins** | Lenient | Acted (sensitivity) | No-op passes | Reads change | **All gates change** | Cost, 3 trials |
+  |---|---|---|---|---|---|---|---|---|---|
+  | gpt-6-luna | 611.7 (608–615) | 611.7 | **599.0 (596–602)** | 600.0 | 610.3 | 113.7 | +0.0% | **−2.1%** | $6.09 |
+  | claude-haiku-4.5 | 510.0 (510–510) | 509.0 | **494.0 (494–494)** | 495.0 | 506.0 | 93.0 | −0.2% | **−3.1%** | $89.59 |
+  | gpt-5.4-nano | 352.3 (342–362) | 344.7 | **331.7 (325–343)** | 332.7 | 340.0 | 48.7 | −2.2% | **−5.9%** | $11.74 |
+  | llama-4-maverick | 120.0 (108–127) | 93.0 | **84.7 (82–87)** | 84.7 | 86.0 | 38.0 | −22.5% | **−29.4%** | $17.09 |
+  | null agent | 124 | 12 | **7** | 7 | 7 | 122 | −90.3% | **−94.4%** | $0 |
+
+  "Acted" counts a twin as passed when the agent made any write. It is a sensitivity rule, not
+  the headline.
+- **The ranking does not change, and the size of the drop follows the τ² pattern.** luna
+  loses least and maverick most, as on τ² airline (findings §20: −8.5% to −36.8%). The drops
+  are smaller here because no-op tasks are 18% of WorkBench and 46% of airline.
+- **pass^3, reads + twins:** luna 599 → 550, haiku 494 → 494, nano 331.7 → 238, maverick
+  84.7 → 77.
+  - On the no-op tasks alone: luna 101 → 87, haiku 77 → 77, nano 28 → 18, maverick 2.7 → 0.
+- **Stability of removals:**
+  - **haiku is deterministic.** Its tool calls are identical in 688–690 of 690 tasks across
+    trials, so every haiku removal repeats in all 3 trials.
+  - **maverick:** 44 of its 49 tasks are removed in every trial in which they passed.
+  - **luna:** 19 of its 22 removed tasks are removed in only some trials.
+- **Twin failure causes** (all trials):
+
+  | Model | DB twin failures | No write | Wrong write | Right write + other | Error | Request twin failures | No write | Wrong write |
+  |---|---|---|---|---|---|---|---|---|
+  | luna | 25 | 3 | 22 | 0 | 0 | 19 | 1 | 15 |
+  | haiku | 42 | 12 | 27 | 3 | 0 | 15 | 0 | 15 |
+  | nano | 54 | 27 | 23 | 4 | 0 | 17 | 7 | 10 |
+  | maverick | 99 | 51 | 7 | 0 | 41 | 46 | 16 | 4 |
+
+  For luna and haiku, most failures are "acted, but a detail is wrong" against WorkBench's
+  exact-match gold. Examples: the first free slot tomorrow (13:00), an event name the text does
+  not state, a plot range, a participant left out. The same strictness applies to the template's
+  own action tasks (scoreboard §8). The qualitative review (findings §25) judges each one.
+- **Read gate on the 32 published WorkBench runs** (no model calls;
+  `code/workbench-m2/published_readgate.py`):
+  - 0 removals for the frontier 2026 models: fable-5, opus-4.8, gemini-3.1-pro, gpt-5.5, gpt-5
+    and others.
+  - 0.4–6% of the score for mid-tier 2026 models: gpt-4-turbo −26, gpt-4o −20, gpt-5.1 −18,
+    nano −14.
+  - 10–60% for the 2024 paper models: gpt-4 −10%, claude-2 −18%, mixtral-8x7b 111 → 45 (−59.5%).
+  - claude-2 reads, but not the deciding record. A crude "any read" check keeps its passes; the
+    twin-defined gate removes 33.
+- **llama-4-maverick:**
+  - About a third of its episodes crash on invented tool arguments (upstream rule: an error,
+    counted as a failure).
+  - 609 final answers contain a tool call typed as text.
+  - Its trial 1 had 23 no-op passes; trials 2–3 had 46 and 45, with twice as many episodes that
+    end with no call and no error. The code was the same, so this is provider drift.
+  - The read gate removes the extra passes: after all gates maverick scores 87, 85, 82.
+  - The τ² §16 retry fired 258–298 times per trial, for maverick only.
+- **Weak points:**
+  - 9 no-op tasks cannot be flipped. Example: growth "since Wednesday", where Wednesday is the
+    last day of data, so the growth is 0 on every state.
+  - calendar-073 follows from the system prompt's 9am rule alone.
+  - These 10 tasks have no read gate and no DB twin (as τ² tasks 6, 13, 46). 4 of the 9 have a
+    request twin.
+  - 3 twins were not run after the twin reviews; 2 of them still define the read gate.
+  - Trials differ only through provider non-determinism. For haiku that is none.
+  - 3 maverick episodes ended in a gateway timeout that persisted on retry; they count as
+    errors.
+  - Cost is tokens × Prime Intellect list prices (GET /models, 2026-10-22). Trial 1's crashed
+    episodes have no token counts, because the counter fix came after trial 1.
+  - WorkBench's request twin is our policy-twin analogue (no policy text exists). It is a
+    one-slot request change, and it must not be read as a policy flip.
+
+## 25. Correction to §24: a resume erased 112 llama-4-maverick crash errors (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was wrong.** §24 says that maverick's no-op passes rose from 23 (trial 1) to 46 and 45
+  (trials 2–3), "with twice as many episodes that end with no call and no error", and it calls
+  this provider drift. **That explanation is wrong.**
+  - To retry 3 gateway timeouts, we resumed `original_seed301/analytics` and
+    `original_seed302/analytics` for maverick.
+  - `_load_existing_progress()` in `code/workbench/src/evals/inference.py` kept the rows that
+    ended in a model error, as we intended. But it rebuilt every kept row with `"error": ""`,
+    as upstream does, because upstream kept only error-free rows.
+  - The crashed episodes have no tool calls, so with the error erased they scored as no-op
+    passes. 56 errors were erased in each seed.
+  - The maverick reviewer found this (`docs/research/other-benchmarks/workbench-review/llama-4-maverick.md`).
+- **Fix.**
+  - The kept row now keeps its error (`code/workbench/src/evals/inference.py`).
+  - `code/workbench-m2/restore_resume_errors.py` restores the 112 errors from the runs' logs.
+    It uses the exception handler's "Unexpected error with task" line for each crashed episode,
+    and finds 56 of 56 in each seed. The calls and other columns of those rows were already
+    correct.
+  - No new runs. No other run was resumed (every `_meta.json` was checked).
+- **Corrected maverick numbers** (mean over 3 trials, min–max; out of 690):
+  - Original: 104.7 (102–108), not 120.0.
+  - Reads gate: 91.7.
+  - **Reads + twins: 83.3 (80–87)**, not 84.7.
+  - Change: reads −12.4%, **all gates −20.4%** (not −22.5% and −29.4%).
+  - No-op passes: 23, 23, 22 per trial. Errors: 247, 245, 240.
+  - pass^3, reads + twins: 77.
+- **What it means.** There was no provider drift; maverick behaves the same in all 3 trials. The
+  other three models and the null agent are unchanged. The order of the models and the τ²
+  pattern in §24 still hold: luna −2.1%, haiku −3.1%, nano −5.9%, maverick −20.4%. The scoreboard
+  (`docs/research/other-benchmarks/workbench-scoreboard.md`) is regenerated with the
+  corrected data.
+
+## 26. WorkBench: every removal judged over 3 trials; the read gate is exact, the twins mostly penalise template strictness (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was done.**
+  - One reviewer agent per model judged every removal event, in all 3 trials, with the
+    two-question rubric (`docs/research/other-benchmarks/workbench-review-handoff.md` §3):
+    Q1, was the original pass reasoned? Q2, why did the gate fail?
+  - The reviewers also read the kept no-op passes, to find false negatives (FN).
+  - Per-model files are in `docs/research/other-benchmarks/workbench-review/`.
+  - New this time: a **blind second labeller** independently judged a stratified random sample
+    of 40 events (10 per model, seed 597). Its labels are in
+    `code/workbench-m2/data/blind_labels.json`.
+- **Verdicts.** Strict rule, per removal event, all 3 trials. Maverick's 42 events that came from
+  the erased crashes (§25) are left out, because those episodes are now failures, not passes.
+
+  | Gate | Removals | TP | WM (right removal, wrong mechanism) | FP |
+  |---|---|---|---|---|
+  | Read gate | 65 | **65** | 0 | **0** |
+  | DB twin | 181 | 33 | 55 | 93 |
+  | Request twin | 73 | 4 | 26 | 43 |
+
+  Per model:
+
+  | Model | R (TP/WM/FP) | D | Q | FN found |
+  |---|---|---|---|---|
+  | gpt-6-luna | 0 / 0 / 0 | 0 / 0 / 25 | 0 / 3 / 16 | 2 |
+  | claude-haiku-4.5 | 3 / 0 / 0 | 6 / 0 / 36 | 0 / 3 / 12 | 7 |
+  | gpt-5.4-nano | 23 / 0 / 0 | 18 / 10 / 26 | 1 / 1 / 15 | 5 |
+  | llama-4-maverick | 39 / 0 / 0 | 9 / 45 / 6 | 3 / 19 / 0 | 3 (+1 possible) |
+
+  The blind sample agrees on direction: R 12 TP / 0 FP; D 8 TP / 7 WM / 17 FP; Q 1 TP / 6 WM /
+  14 FP.
+- **Meaning.**
+  - **The read gate is exact here too.** Every removal had no read that showed the deciding
+    record. The same held on τ² (findings §23: 14 / 14). This is the result to lead with.
+  - **The twins remove reasoned passes from the strong models.** luna has 0 TP in 44 twin
+    removals. Of haiku's 14 distinct DB-twin removals, 12 are FP.
+    - The usual cause is not the decision. The agent acted on the flipped fact, but WorkBench's
+      exact-match gold rejected a detail.
+    - The details: the event name "catch-up", which some wordings never state (15 luna
+      events); the first free slot tomorrow (13:00); a plot's start day; a participant left
+      out in the "for us" templates; an invented e-mail address (nano).
+    - The control in scoreboard §8 shows the same failures on the templates' ordinary action
+      tasks. For these models, the twins mostly measure template accuracy.
+  - **For the weak models the twins work as designed.**
+    - maverick's original passes are almost never reasoned: 6 of its 106 events. Its twin
+      failures are mostly crashes or calls typed as text (WM).
+    - nano has 18 DB-twin TPs. These are failed lookups followed by a question to the user,
+      and "write first, decide later" with an invented e-mail address.
+  - **The "acted" sensitivity rule** counts a twin when the agent made any write. It drops
+    most twin FPs and keeps the "no write" catches. Under it the change is: luna −0.2%, haiku
+    −0.8%, nano −3.5%, maverick about −19% (scoreboard §2). It is a candidate rule, not the
+    headline.
+- **Patterns** (each with examples in the per-model files):
+  1. **A tool error, not the agent, stops a forbidden write.** luna sent 34 `send_email` calls
+     with an empty or invalid recipient, and nano and maverick called `create_task` with
+     `@example.com` addresses. The rejection then produces a no-op pass. This is the
+     "attempted write" pattern of τ² §23.
+  2. **Deferring to the user scores as a correct no-op.** There is no simulated user, so "Would
+     you like me to…" ends the episode with no change. This happens with haiku, nano and luna.
+  3. **Calls typed as text end the episode** (maverick, 609 final answers). The §16 retry does
+     not catch a call inside prose.
+  4. **Words and actions disagree.** Examples: luna says "I haven't made any" and makes a chart;
+     nano claims plots it never made.
+  5. **"Growth from a day to itself" is never reasoned.** On the 9 ungated "since Wednesday"
+     tasks, models abstain, or use another window ("Tuesday to Wednesday"). These are the main
+     source of FNs.
+- **Weak points.**
+  - The reviewers and the second labeller are LLM agents.
+  - Agreement between the primary reviewers and the blind labels is computed separately
+    (`code/workbench-m2/data/review_agreement.json`).
+  - Two counting rules change the FN counts, and the files report both readings:
+    - whether an abstention on a "since Wednesday" task counts as reasoned (luna FN 2 → 18,
+      nano 5 → 14);
+    - whether a twin read with an invented argument is (a) or (d).
+  - The calendar-060 and calendar-065 request twin is shared, so one failure removes two
+    originals.
+
+## 27. WorkBench review: agreement between the primary reviewers and a blind second labeller (2026-10-22)
+**By:** Hammad + Claude
+
+- **What was done.**
+  - A blind labeller judged 40 removal events, 10 per model, drawn at random with seed 597
+    (`code/workbench-m2/data/blind_sample.json`). It did not see the primary reviews.
+  - A separate agent then matched each blind (event, gate) verdict with the primary verdict,
+    under the strict rule.
+  - 10 rows (4 maverick events) were excluded, because their episodes are erased crashes and
+    now count as failures (§25). The two raters agreed on all 10.
+  - Output: `code/workbench-m2/data/review_agreement.json`.
+- **Results:**
+
+  | Gate | n | Agree | % | Cohen's kappa |
+  |---|---|---|---|---|
+  | Read gate | 8 | 8 | 100 | — (both raters gave TP to all 8) |
+  | DB twin | 28 | 27 | 96.4 | 0.934 |
+  | Request twin | 19 | 17 | 89.5 | 0.774 |
+  | **Overall** | **55** | **52** | **94.5** | **0.908** |
+
+  - Q1 (was the pass reasoned?): 34 of 36 events agree, kappa 0.883.
+  - **The raters never mix TP and FP.** All 3 disagreements are on the WM boundary:
+    - 2 are the same haiku multi_domain-175 episode. One rater counts the abstention "I cannot
+      calculate the percent growth" as reasoned, and the other does not.
+    - 1 is a Q2 split, (a) against (b), on a nano twin that tried to write with an invented
+      address.
+- **Meaning.** The verdicts in §26 are stable across two independent raters. This answers the
+  weak point "no blind second labeller" of the τ² review (§23). The open abstention rule is the
+  main source of disagreement (decisions log, 2026-10-22).
+- **Weak point.** Both raters are LLM agents with the same rubric. Their agreement shows the
+  rubric is consistent, not that it is correct.
+
+## 28. WorkBench re-scored with the "any write" lenient rule; the same rule on τ² airline (2026-10-26)
+**By:** Hammad + Claude
+
+- **Why:** The lenient twin rule is meant to credit an agent that saw that it had to act. On
+  WorkBench, the old lenient rule (the exact gold write) differed from strict by at most 1 task,
+  because most twin failures of the strong models were a write with one wrong detail (§26). The
+  rule is now "any write on the twin" (decisions log, 2026-10-26).
+- **WorkBench command**, from `code/workbench/`:
+  `uv run python ../workbench-m2/score.py --out ../../docs/research/other-benchmarks/workbench-scoreboard.md`.
+  No model calls. Same runs as §24–§25.
+- **WorkBench, mean over 3 trials, out of 690:**
+
+  | Model | Original | Reads gate | **Reads + twins, any write** | Strict | Change (all gates) |
+  |---|---|---|---|---|---|
+  | gpt-6-luna | 611.7 | 611.7 | **610.3** | 599.0 | −0.2% |
+  | claude-haiku-4.5 | 510.0 | 509.0 | **506.0** | 494.0 | −0.8% |
+  | gpt-5.4-nano | 352.3 | 344.7 | **340.0** | 331.7 | −3.5% |
+  | llama-4-maverick | 104.7 | 91.7 | **84.7** | 83.3 | −19.1% |
+  | null agent | 124 | 12 | **7** | 7 | −94.4% |
+
+  The new headline equals the old "acted" column of §26 exactly.
+- **The same rule on τ² airline (not adopted; for the decision).** A scratch re-score of the
+  saved 3-trial runs of §20, using the failure causes of `code/twins/score_pairs.py`. A transfer
+  is not a write, so it still fails the twin. Mean of reads + twins, out of 50:
+
+  | Model | Exact gold write (§20) | Any write | Twin failures over 3 trials, by cause |
+  |---|---|---|---|
+  | gpt-6-luna | 35.7 (−8.5%) | 35.7 (−8.5%) | transfer 7 |
+  | claude-haiku-4.5 | 20.3 (−16.4%) | 20.7 (−15.1%) | transfer 5, no write 4, wrong write 1 |
+  | gpt-5.4-nano | 13.7 (−18.0%) | 14.3 (−14.0%) | transfer 4, wrong write 2, no write 1, right write + other error 1 |
+  | llama-4-maverick | 14.3 (−36.8%) | 14.7 (−35.3%) | no write 11, transfer 6, wrong write 1 |
+
+- **Meaning.** On τ², almost every twin failure is a transfer or no write (38 of 43). Those are
+  the failures a twin is designed to catch, so the τ² twin results do not have WorkBench's
+  exact-match problem. On WorkBench, the any-write rule keeps the twin removals of
+  llama-4-maverick and removes most of those of the strong models.
+- **Weak point.** "Any write" would also accept a wrong action, such as a write to the wrong
+  record. The τ² numbers above come from a scratch script that was not committed; it only
+  re-labels the causes that `score_pairs.py` already reports.
+

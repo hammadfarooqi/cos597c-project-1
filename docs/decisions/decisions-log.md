@@ -2,7 +2,7 @@
 title: Decisions Log
 type: log
 status: current
-updated: 2026-10-24
+updated: 2026-10-26
 summary: >-
   Append-only record of every settled decision, with the date, the reason, and the documents it
   affects. Newest at the bottom. This file outranks every other document.
@@ -193,3 +193,138 @@ found and how to run it, not a generated table of documents. Choices:
 §5.7 · `code/README.md` · `docs/decisions/milestones.md` M0.11
 **Replaces:** the "README.md is generated" rule in `CLAUDE.md` (set when the repository was
 created, 2026-10-03).
+
+*The next four entries (2026-10-21 and 2026-10-22) were written on the `workbench/m2` branch
+and appended here on 2026-10-26. See the 2026-10-26 entry below for what changed in them.*
+
+## 2026-10-21 — M2: WorkBench is the second benchmark; AgentDojo dropped; WebArena only as a write-up point
+**By:** Hammad + Claude
+**Why:** The phase 1 checkups (only the WebArena-Verified one is kept:
+`docs/research/other-benchmarks/webarena-verified.md`) showed:
+- AgentDojo's no-op credit sits in the security metric. AgentDojo already reports it next to
+  utility, and only 2 of its 97 user tasks are no-ops of the τ² type.
+- WebArena-Verified already fixed the main hole, partly with our own mechanism (a required page
+  visit on 9 of its 40 failure tasks). A do-nothing agent gets at most 41/812 there.
+- WorkBench has 122 of 690 tasks (17.7%) with an empty gold outcome. All are of the τ²
+  "possible" type (a false condition or an empty set). It runs on a laptop, and it publishes
+  per-task results with every tool call for 24 models.
+
+Hammad treats M2 as a small add-on, not a critical part of the project.
+- **AgentDojo: dropped.** Its checkup stays in `plan.md` §4.1 as a record.
+- **WebArena: no more runs.** Its checkup findings (original and Verified) are kept for the
+  write-up.
+- **BFCL:** a contrast case only (impossible-type no-ops; only a twin could apply).
+- **WorkBench:** apply the full method (below).
+
+WorkBench is less famous than WebArena (COLM 2024, about 60 citations), but it fits our
+problem best.
+**Affects:** `docs/research/other-benchmarks/webarena-verified.md` · `docs/decisions/milestones.md` (M2.1–M2.3)
+**Replaces:** the 2026-10-20 choice of AgentDojo + WebArena (recorded in `plan.md` §2)
+
+## 2026-10-22 — WorkBench method: the tau2 newer-model method, with a twin-defined read gate and request twins
+**By:** Hammad + Claude
+**Why:** Hammad asked for the exact method we used on τ²-bench (after all fixes), on the 4 newer
+models only, with 3 trials, and with the same quantitative and qualitative analysis. WorkBench
+differs from τ² in three ways. It has no simulated user, no policy text, and no gold list of
+reads.
+- **Runs.** The 4 newer models (claude-haiku-4.5, gpt-5.4-nano, gpt-6-luna, llama-4-maverick),
+  through Prime Intellect, at temperature 0. 3 trials, labelled seeds 300, 301 and 302. WorkBench
+  has no seed, so the label only names the trial, and trials differ only through provider
+  non-determinism (as in findings §20). We use WorkBench Revisited's settings: all tools, native
+  tool calls, and act without confirmation. The τ² §16 retry for lost tool calls is ported.
+- **Upstream behaviour is kept.** A tool call with an unknown argument ends the episode as an
+  error (a failure). The published runs show the same errors.
+- **Scope of the gates.** The 122 tasks with an empty gold outcome. Two more tasks pass for a
+  null agent (CRM 031 and 032: the gold reassigns a customer to the person who already owns
+  them). We report them, but they are not gated.
+- **DB twin.** One per no-op task: a minimal start-state patch that makes the action correct.
+  Each template's gold rule is re-implemented as a function of the generator's exact
+  parameters. Before any twin is used, the rule must reproduce the official outcome of every
+  task of its template.
+- **Read gate.** A no-op pass needs at least one read whose output differs between the start
+  state and the DB twin's start state. WorkBench has no gold reads, so the twin defines where
+  the deciding evidence lives. This accepts any query wording that would have found it.
+- **Request twin (policy-twin analogue).** WorkBench has no policy text. Where one slot of the
+  request (a threshold or a number of days) can change so that the action becomes correct on the
+  unchanged state, the request twin uses that change. It must be labelled a request flip, not a
+  policy flip.
+- **Scoring.** As in τ²: pair rule per trial, strict and lenient rules, means with ranges,
+  pass^k, stability of removals, behaviour counts, and cost. The qualitative review judges every
+  removal with the two-question rubric of `docs/research/other-benchmarks/workbench-review-handoff.md` §3.
+- **Results location.** `code/workbench-m2/runs/<run>/`, tracked in git. This extends CLAUDE.md
+  §6, which names only the tau2 folder.
+**Affects:** `code/workbench/` · `code/workbench-m2/` · `docs/research/other-benchmarks/workbench.md`
+**Replaces:** —
+
+## 2026-10-22 — WorkBench runs are tracked as gzipped CSVs and compact traces
+**By:** Hammad + Claude
+**Why:** WorkBench saves the whole prompt again at every step. One trial of the 4 models gave
+about 130 MB of traces, and the results CSVs embed the same trace again. That makes about
+515 MB for all runs.
+- Tracked in git: each run's `_meta.json`, its results as `.csv.gz` (as upstream does), and
+  `_traces.compact.json.gz`. The compact trace keeps action, input, observation and model
+  output for each step. In total this is 16 MB.
+- Raw `.csv` and `_traces.json` stay local and are git-ignored
+  (`code/workbench-m2/.gitignore`). `code/workbench-m2/compact_traces.py` rebuilds the tracked
+  copies.
+- The scorer reads the `.csv.gz` copy when the raw `.csv` is missing.
+**Affects:** `code/workbench-m2/` · CLAUDE.md §6 (results in git)
+**Replaces:** —
+
+## 2026-10-22 — WorkBench: lead with the read gate; report the twins only with their FP rates
+**By:** Hammad + Claude
+**Why:** The full review (findings §26) gives the same picture as τ² (2026-10-10 entry).
+- The read gate removed 65 passes, and all 65 were right.
+- The DB twin removed 181 passes: 93 FP, 55 WM, 33 TP. The request twin removed 73: 43 FP,
+  26 WM, 4 TP.
+- Most twin FPs are reasoned no-op passes where, on the twin, the agent acted on the flipped
+  fact but got a detail wrong that WorkBench's exact-match gold rejects. The details: an event
+  name the text does not give, the first free slot, a plot range, a participant left out.
+
+So, following the 2026-10-10 rule:
+- Report the read gate as the evidence on WorkBench.
+- Report "reads + twins" (strict) next to it, always with the twin FP rates.
+- Report the "acted" rule (a twin counts if the agent made any write) as a sensitivity
+  analysis. It is a candidate rule and not adopted, because it would also accept a wrong action.
+
+Not settled: whether an abstention on an ungated "since Wednesday" task counts as reasoned.
+Both readings are reported.
+**Affects:** `docs/research/findings-log.md` §24–§26 · `docs/research/other-benchmarks/workbench.md`
+**Replaces:** —
+
+## 2026-10-26 — Add WorkBench and the WebArena-Verified finding to the submission; lenient twins on both benchmarks
+**By:** Hammad + Claude
+**Why:** The 2026-10-24 entry set the submission scope to the airline domain. The M2 work
+(charter, Target tier) was done on the `workbench/m2` branch and was not on `main`. Choices:
+- **Scope.** The submission now also has WorkBench (the 4 newer models, 3 trials) and one note
+  on WebArena-Verified. Retail and telecom stay out of scope.
+- **The lenient twin rule on WorkBench is now "any write".** The intent of the lenient rule is
+  to credit an agent that saw the action was needed. The old rule (the exact gold write) did not
+  do that on WorkBench: most strong-model twin failures were a write with one wrong detail, and
+  it rejected them too. So a twin now counts if the agent made any write on it; a crash or no
+  write still fails it (`code/workbench-m2/score.py`, the former "acted" rule). It is the
+  headline in the README, `workbench.md` and the scoreboard. Strict is reported next to it.
+  This replaces "report reads + twins (strict)" in the 2026-10-22 entry "WorkBench: lead with
+  the read gate", and the "acted rule is a candidate, not adopted" in the same entry. The
+  review verdicts (TP, WM, FP) in findings-log §26 were made under the strict rule and are not
+  changed. Numbers: findings-log §28. **Not yet decided:** whether τ²-bench airline also moves
+  to "any write" (its lenient rule is still the exact gold write).
+- **WebArena-Verified gets its own note**, `docs/research/other-benchmarks/webarena-verified.md`,
+  with a script that reproduces it from the package data. It corrects the 2026-10-21 entry: the
+  dataset has a required page visit on **8** of its 40 failure tasks, not 9.
+- **Not brought in:** `plan.md` (the AgentDojo, BFCL and original-WebArena checkups, and the
+  M2 plan), the tau2 scoreboard and transcript-pattern scripts, the `new-models/` notes,
+  and the τ²-bench review (findings-log §21–§23). They stay on the `workbench/m2` and
+  `analysis/new-models` branches.
+- **How the four entries above changed.** Three paths only: `plan.md` became
+  `webarena-verified.md` (twice), and `new-models/review-handoff.md` became
+  `workbench-review-handoff.md`. They still cite the 2026-10-10 entries and findings §21–§23,
+  which are on `analysis/new-models`. The same holds for findings-log §24–§27 and the
+  per-model review files.
+- **Results location.** WorkBench runs are in `code/workbench-m2/runs/`, tracked in git
+  (2026-10-22 entry). CLAUDE.md §3 and §6 now say so.
+**Affects:** `README.md` · `code/README.md` · `CLAUDE.md` §3, §6 ·
+`docs/research/other-benchmarks/workbench.md` · `docs/research/other-benchmarks/webarena-verified.md` ·
+`docs/research/findings-log.md` §24–§27 · `docs/decisions/milestones.md` M2.1–M2.3
+**Replaces:** the airline-only scope in the 2026-10-24 entry; the strict headline in the
+2026-10-22 entry "WorkBench: lead with the read gate"; the count "9 of 40" in the 2026-10-21 entry

@@ -2,10 +2,10 @@
 title: Code
 type: index
 status: current
-updated: 2026-10-24
+updated: 2026-10-26
 summary: >-
-  What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines.
-  The reasoning behind each change is in docs/.
+  What is in code/, what we changed in tau2-bench and WorkBench, how to set up, and how to run
+  the baselines. The reasoning behind each change is in docs/.
 ---
 
 # Code
@@ -70,6 +70,75 @@ uv run tau2 run --domain airline_pf_delay_no_change --task-set-name airline_twin
   --task-split-name pf_delay_no_change --agent-llm ... --save-to airline_twins_pf_<model>
 uv run python ../twins/score_pairs.py gpt-6-luna claude-haiku-4.5   # needs airline_<model> runs too
 uv run python ../twins/average_trials.py gpt-6-luna:300,301,302   # model:seeds
+```
+
+## `workbench/` — our copy of WorkBench
+
+- **Upstream:** <https://github.com/olly-styles/WorkBench>, commit `49c7dfd` (2026-08-18).
+- **A copy, not a submodule**, as with tau2-bench. It includes WorkBench's published runs in
+  `data/results/`, which `workbench-m2/published_readgate.py` reads.
+- **Setup:** `cd code/workbench && uv sync --frozen`. Every WorkBench command below runs from
+  `code/workbench/`.
+
+Our changes to upstream. Each one is marked `COS597C` in the code:
+
+| File | Change |
+|---|---|
+| `src/tools/state.py` | A per-thread start-state patch, so a twin task can start from changed data. With no patch, behaviour is upstream's. |
+| `src/evals/inference.py` | Applies a twin's patch before the episode. Saves token and retry counts per task. Keeps errors that the model caused (they are failures, as upstream); re-runs only missing rows and infrastructure errors on resume. `--save_dir` keeps our runs apart from the published ones. |
+| `src/evals/agent.py` | Routes through Prime Intellect when `WORKBENCH_ROUTE=prime`, at temperature 0. Re-asks once when the gateway loses a tool call (the tau2 retry, findings-log §16). Adds the two newer models WorkBench lacks. Keeps token counts when an episode ends in an exception. |
+| `src/cli.py` | A `--save_dir` option. For a twin task file, it skips the upstream metrics (they ignore the patch) and points to `score.py`. |
+
+## `workbench-m2/` — the gates on WorkBench
+
+Method and results: `docs/research/other-benchmarks/workbench.md`. Findings-log §24–§27.
+
+| File | What it does |
+|---|---|
+| `run.py` | Runs one model on the original tasks or a twin task file. Reads `PI_KEY` and `PI_API_BASE` from the `.env` that `PI_ENV_FILE` names (default `code/tau2-bench/.env`). Never writes the key. |
+| `capture_params.py` | Re-runs WorkBench's seeded task generators and saves each task's exact parameters (`data/task_params.jsonl`). No LLM. |
+| `twins/build.py` | Builds the DB twins and request twins from the specs, checks each one, and writes the twin task files in `data/`. No LLM. |
+| `twins/framework.py`, `twins/specs_*.py` | The verified gold rule of each no-action template, and the twin specs. |
+| `twins/readgate.py` | The read gate: a no-action pass needs a read whose output differs between the task's start state and its DB twin's. |
+| `twins/BRIEF.md` | The brief given to the agents that wrote the twin specs. |
+| `score.py` | Scores all runs: original, read gate, twins (lenient = any write, the headline; strict), means, pass^k, stability. Writes `docs/research/other-benchmarks/workbench-scoreboard.md`. No LLM. |
+| `published_readgate.py` | Applies the read gate to WorkBench's 32 published runs. No LLM. |
+| `compact_traces.py` | Writes the compact traces and gzipped CSVs that git tracks (decisions log, 2026-10-22). |
+| `restore_resume_errors.py` | One-off fix for the resume bug of findings-log §25. |
+| `data/` | Task parameters, twin task files, trial summary, and the review data (blind sample, labels, agreement). |
+| `runs/<run>/` | Every run: `original_seed<N>`, `dbtwin_seed<N>`, `requesttwin_seed<N>`, for N = 300, 301, 302. |
+
+**Re-score the saved runs (no model calls, no key).** From the repository root:
+
+```bash
+cd code/workbench
+uv sync --frozen
+uv run python ../workbench-m2/score.py --out ../../docs/research/other-benchmarks/workbench-scoreboard.md
+```
+
+The "Lenient" column of the scoreboard's §2 is the WorkBench table in the root `README.md`.
+
+**Run a model, and the other scripts.** These also run from `code/workbench/`. `run.py` needs
+the key.
+
+```bash
+uv run python ../workbench-m2/run.py --model gpt-6-luna --run original_seed300
+uv run python ../workbench-m2/run.py --model gpt-6-luna --run dbtwin_seed300 \
+  --tasks ../workbench-m2/data/twins_db_tasks_and_outcomes.csv
+uv run python ../workbench-m2/run.py --model gpt-6-luna --run requesttwin_seed300 \
+  --tasks ../workbench-m2/data/twins_request_tasks_and_outcomes.csv
+uv run python ../workbench-m2/twins/build.py --write        # rebuild and check the twins
+uv run python ../workbench-m2/published_readgate.py         # read gate on the published runs
+```
+
+## `webarena-verified/` — one check script
+
+`failure_task_checks.py` lists WebArena-Verified's 40 failure-status tasks and the page visit
+that 8 of them require. It reads the package data only. Reasoning:
+`docs/research/other-benchmarks/webarena-verified.md`.
+
+```bash
+uvx --python 3.12 --with webarena-verified==1.2.3 python code/webarena-verified/failure_task_checks.py
 ```
 
 ## Setup

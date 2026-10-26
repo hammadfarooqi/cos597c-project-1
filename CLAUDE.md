@@ -58,6 +58,9 @@ docs/
 code/
   README.md                what each part of the code does, and how to run it
   tau2-bench/              our modified copy of sierra-research/tau2-bench
+  workbench/               our modified copy of olly-styles/WorkBench
+  workbench-m2/            the gates on WorkBench: runner, twins, scorer, and every run
+  webarena-verified/       one check script for the WebArena-Verified note
 tools/build_index.py       regenerates docs/README.md and audits the docs
 ```
 
@@ -171,6 +174,8 @@ paths and reports the broken ones.
 - Results go to `code/tau2-bench/data/simulations/<run-name>/`. **These are tracked in git** so
   that both of us work from the same data. Give each run a descriptive `--save-to` name, for
   example `airline_gpt41_check`, not the default timestamp.
+- WorkBench results go to `code/workbench-m2/runs/<run-name>/`, also tracked in git. Git keeps
+  only the compact traces and gzipped CSVs (decisions log, 2026-10-22).
 - **Never put an API key in a command that writes it to disk.** tau2 saves `llm_args` in every
   results file. Our copy redacts any key named like `api_key`, `token`, `secret`, or
   `password`, but check a new results file before you commit it:
