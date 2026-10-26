@@ -1,0 +1,987 @@
+{
+  "description": "Inter-rater agreement: blind second labels (code/workbench-m2/data/blind_labels.json) vs the primary per-model reviews in docs/research/other-benchmarks/workbench-review/. Strict-rule verdicts. Cohen's kappa over TP/WM/FP. Computed 2026-10-22, no LLM calls.",
+  "exclusion_rule": "Blind rows whose (seed, task) falls in llama-4-maverick.md group 'G1 erased crash' are excluded: their errors were restored, so those originals are failures, not no-op passes.",
+  "n_blind_rows": 65,
+  "n_excluded_rows": 10,
+  "n_excluded_events": 4,
+  "pairs": [
+    {
+      "model": "gpt-6-luna",
+      "seed": 300,
+      "task_id": "analytics-111",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1 analytics-111 (300, 301)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 300,
+      "task_id": "multi_domain-170",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.2 multi_domain-170 (300)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 301,
+      "task_id": "calendar-078",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1 calendar-078 (301)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 302,
+      "task_id": "calendar-065",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-065 (300-302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 302,
+      "task_id": "calendar-065",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-065 (300-302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 302,
+      "task_id": "multi_domain-172",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1 multi_domain-172 (300, 302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 302,
+      "task_id": "calendar-060",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-060 (300-302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 302,
+      "task_id": "calendar-060",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-060 (300-302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 301,
+      "task_id": "analytics-054",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.2 analytics-054 (301, 302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 301,
+      "task_id": "analytics-068",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.2 analytics-068 (301)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 300,
+      "task_id": "multi_domain-115",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.2 multi_domain-115 (300)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 301,
+      "task_id": "calendar-060",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-060 (300-302)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "seed": 301,
+      "task_id": "calendar-060",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-6-luna.md \u00a72.1/\u00a72.2 calendar-060 (300-302)"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 301,
+      "task_id": "multi_domain-172",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-172 D"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "analytics-058",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 analytics-058 Q"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 301,
+      "task_id": "customer_relationship_manager-077",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 crm-077 D (strict FP; lenient keeps)"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 301,
+      "task_id": "multi_domain-133",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-133 D"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "calendar-062",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-062 D/Q"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "calendar-062",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-062 D/Q"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 300,
+      "task_id": "multi_domain-175",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-175 Q",
+      "why_differ": "Both say Q2 = (b)+(c) on the twin; they split on Q1. Primary: the original deferred ('Since there's no data for today yet, I cannot calculate the percent growth') and the deferral alone made the pass, so not reasoned -> WM. Blind: counted the stated missing-data fact as reasoned -> FP. This is the abstention rule that the luna/nano reviews call 'rule 1' (abstention = reasoned); the haiku primary applied the strict reading."
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "calendar-058",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-058 R/D"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "calendar-058",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-058 R/D"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 301,
+      "task_id": "multi_domain-175",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-175 Q",
+      "why_differ": "Same episode as seed 300 (haiku seeds are identical). Primary: deferral = not reasoned -> WM. Blind: reasoned -> FP. Abstention-rule split."
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 300,
+      "task_id": "calendar-060",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-060 D/Q"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 300,
+      "task_id": "calendar-060",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 calendar-060 D/Q"
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 302,
+      "task_id": "multi_domain-005",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-005 D"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-136",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 multi_domain-136 (301)",
+      "why_differ": "Both say Q1 = not reasoned (write-first: create_task with a guessed kofi e-mail was rejected before the comparison). They split on Q2. Primary: (b), the twin decided to act and the write failed on the invented address 'kofi' -> WM. Blind: (a), the twin decision did not follow the flipped fact -> TP."
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 300,
+      "task_id": "multi_domain-049",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 multi_domain-049 (300)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 300,
+      "task_id": "multi_domain-042",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 multi_domain-042 (300, 302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 302,
+      "task_id": "project_management-067",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 project_management-067 (300-302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-004",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.1 multi_domain-004 (300, 301)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-004",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 multi_domain-004 (301)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-046",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2/\u00a72.3 multi_domain-046 (300-302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-046",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2/\u00a72.3 multi_domain-046 (300-302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 302,
+      "task_id": "calendar-065",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2/\u00a72.3 calendar-065 (300-302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 302,
+      "task_id": "calendar-065",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2/\u00a72.3 calendar-065 (300-302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 300,
+      "task_id": "calendar-060",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 calendar-060 (300)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 300,
+      "task_id": "calendar-060",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.3 calendar-060 (300, 302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 300,
+      "task_id": "project_management-005",
+      "gate": "D",
+      "blind": "FP",
+      "primary": "FP",
+      "agree": true,
+      "blind_q1": "reasoned",
+      "primary_q1": "reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 project_management-005 (300)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 302,
+      "task_id": "customer_relationship_manager-063",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.1/\u00a72.2 crm-063 (302)"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 302,
+      "task_id": "customer_relationship_manager-063",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.1/\u00a72.2 crm-063 (302)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 300,
+      "task_id": "calendar-062",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #4 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 300,
+      "task_id": "calendar-062",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #4 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 300,
+      "task_id": "calendar-062",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #4 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "email-010",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #51 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "email-010",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #51 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "email-010",
+      "gate": "Q",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #51 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "multi_domain-040",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #54 (G2)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "multi_domain-040",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #54 (G2)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "multi_domain-040",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #54 (G2)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "multi_domain-085",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #99 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "multi_domain-085",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #99 (G3)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "calendar-073",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #91 (G2)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 300,
+      "task_id": "project_management-046",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #20 (G2)"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 300,
+      "task_id": "project_management-046",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "agree": true,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "llama-4-maverick.md \u00a78 #20 (G2)"
+    }
+  ],
+  "excluded": [
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "analytics-071",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "analytics-071",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "analytics-062",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "analytics-062",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 302,
+      "task_id": "analytics-062",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "analytics-072",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "analytics-072",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "analytics-072",
+      "gate": "Q",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "analytics-115",
+      "gate": "R",
+      "blind": "TP",
+      "primary": "TP",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    },
+    {
+      "model": "llama-4-maverick",
+      "seed": 301,
+      "task_id": "analytics-115",
+      "gate": "D",
+      "blind": "WM",
+      "primary": "WM",
+      "reason": "llama-4-maverick.md group G1 erased crash; original is now a failure once the error is restored"
+    }
+  ],
+  "by_gate": {
+    "R": {
+      "n": 8,
+      "agree": 8,
+      "pct": 100.0,
+      "kappa": null,
+      "p_expected": 1.0,
+      "blind_counts": {
+        "TP": 8,
+        "WM": 0,
+        "FP": 0
+      },
+      "primary_counts": {
+        "TP": 8,
+        "WM": 0,
+        "FP": 0
+      },
+      "kappa_note": "undefined: both raters used only one class (expected agreement = 1)"
+    },
+    "D": {
+      "n": 28,
+      "agree": 27,
+      "pct": 96.4,
+      "kappa": 0.934,
+      "p_expected": 0.455,
+      "blind_counts": {
+        "TP": 8,
+        "WM": 3,
+        "FP": 17
+      },
+      "primary_counts": {
+        "TP": 7,
+        "WM": 4,
+        "FP": 17
+      }
+    },
+    "Q": {
+      "n": 19,
+      "agree": 17,
+      "pct": 89.5,
+      "kappa": 0.774,
+      "p_expected": 0.535,
+      "blind_counts": {
+        "TP": 1,
+        "WM": 4,
+        "FP": 14
+      },
+      "primary_counts": {
+        "TP": 1,
+        "WM": 6,
+        "FP": 12
+      }
+    }
+  },
+  "overall": {
+    "n": 55,
+    "agree": 52,
+    "pct": 94.5,
+    "kappa": 0.908,
+    "p_expected": 0.41,
+    "blind_counts": {
+      "TP": 17,
+      "WM": 7,
+      "FP": 31
+    },
+    "primary_counts": {
+      "TP": 16,
+      "WM": 10,
+      "FP": 29
+    },
+    "confusion_blind_rows_primary_cols": {
+      "TP": {
+        "TP": 16,
+        "WM": 1,
+        "FP": 0
+      },
+      "WM": {
+        "TP": 0,
+        "WM": 7,
+        "FP": 0
+      },
+      "FP": {
+        "TP": 0,
+        "WM": 2,
+        "FP": 29
+      }
+    }
+  },
+  "by_model": {
+    "gpt-6-luna": {
+      "n": 13,
+      "agree": 13,
+      "pct": 100.0,
+      "kappa": 1.0,
+      "p_expected": 0.858,
+      "blind_counts": {
+        "TP": 0,
+        "WM": 1,
+        "FP": 12
+      },
+      "primary_counts": {
+        "TP": 0,
+        "WM": 1,
+        "FP": 12
+      }
+    },
+    "claude-haiku-4.5": {
+      "n": 13,
+      "agree": 11,
+      "pct": 84.6,
+      "kappa": 0.675,
+      "p_expected": 0.527,
+      "blind_counts": {
+        "TP": 3,
+        "WM": 0,
+        "FP": 10
+      },
+      "primary_counts": {
+        "TP": 3,
+        "WM": 2,
+        "FP": 8
+      }
+    },
+    "gpt-5.4-nano": {
+      "n": 15,
+      "agree": 14,
+      "pct": 93.3,
+      "kappa": 0.868,
+      "p_expected": 0.493,
+      "blind_counts": {
+        "TP": 6,
+        "WM": 0,
+        "FP": 9
+      },
+      "primary_counts": {
+        "TP": 5,
+        "WM": 1,
+        "FP": 9
+      }
+    },
+    "llama-4-maverick": {
+      "n": 14,
+      "agree": 14,
+      "pct": 100.0,
+      "kappa": 1.0,
+      "p_expected": 0.51,
+      "blind_counts": {
+        "TP": 8,
+        "WM": 6,
+        "FP": 0
+      },
+      "primary_counts": {
+        "TP": 8,
+        "WM": 6,
+        "FP": 0
+      }
+    }
+  },
+  "q1_agreement": {
+    "n": 36,
+    "agree": 34,
+    "pct": 94.4,
+    "kappa": 0.883,
+    "disagreements": [
+      {
+        "model": "claude-haiku-4.5",
+        "seed": 300,
+        "task_id": "multi_domain-175",
+        "blind": "reasoned",
+        "primary": "not reasoned",
+        "agree": false
+      },
+      {
+        "model": "claude-haiku-4.5",
+        "seed": 301,
+        "task_id": "multi_domain-175",
+        "blind": "reasoned",
+        "primary": "not reasoned",
+        "agree": false
+      }
+    ]
+  },
+  "disagreements": [
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 300,
+      "task_id": "multi_domain-175",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-175 Q",
+      "why_differ": "Both say Q2 = (b)+(c) on the twin; they split on Q1. Primary: the original deferred ('Since there's no data for today yet, I cannot calculate the percent growth') and the deferral alone made the pass, so not reasoned -> WM. Blind: counted the stated missing-data fact as reasoned -> FP. This is the abstention rule that the luna/nano reviews call 'rule 1' (abstention = reasoned); the haiku primary applied the strict reading."
+    },
+    {
+      "model": "claude-haiku-4.5",
+      "seed": 301,
+      "task_id": "multi_domain-175",
+      "gate": "Q",
+      "blind": "FP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "claude-haiku-4.5.md \u00a72 multi_domain-175 Q",
+      "why_differ": "Same episode as seed 300 (haiku seeds are identical). Primary: deferral = not reasoned -> WM. Blind: reasoned -> FP. Abstention-rule split."
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "seed": 301,
+      "task_id": "multi_domain-136",
+      "gate": "D",
+      "blind": "TP",
+      "primary": "WM",
+      "agree": false,
+      "blind_q1": "not reasoned",
+      "primary_q1": "not reasoned",
+      "primary_source": "gpt-5.4-nano.md \u00a72.2 multi_domain-136 (301)",
+      "why_differ": "Both say Q1 = not reasoned (write-first: create_task with a guessed kofi e-mail was rejected before the comparison). They split on Q2. Primary: (b), the twin decided to act and the write failed on the invented address 'kofi' -> WM. Blind: (a), the twin decision did not follow the flipped fact -> TP."
+    }
+  ]
+}

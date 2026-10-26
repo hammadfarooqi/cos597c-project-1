@@ -29,8 +29,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX = ROOT / "docs" / "README.md"
 
-# Never indexed. code/tau2-bench is upstream code with its own Markdown files.
-SKIP_PREFIXES = ("code/tau2-bench", "skill-observations", ".claude")
+# Never indexed. code/tau2-bench and code/workbench are upstream code with their own Markdown files.
+SKIP_PREFIXES = ("code/tau2-bench", "code/workbench/", "skill-observations", ".claude")
 SKIP_ANYWHERE = {
     ".git", ".venv", "venv", "node_modules", "__pycache__",
     ".ipynb_checkpoints", ".mypy_cache", ".pytest_cache", "site-packages",
@@ -295,6 +295,8 @@ def render(docs, warnings):
         ("code/tau2-bench/", "Our modified copy of τ²-bench. See `code/README.md`."),
         ("code/twins/", "The counterfactual twin generator and the pair scorers."),
         ("code/tau2-bench/data/simulations/", "Experiment results, tracked in git."),
+        ("code/workbench/", "Our modified copy of WorkBench. See `code/README.md`."),
+        ("code/workbench-m2/", "The gates on WorkBench, and every WorkBench run."),
         ("docs/external/", "The submitted proposal PDFs."),
         ("tools/build_index.py", "Regenerates this file and runs the audit."),
     ]:

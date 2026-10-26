@@ -37,6 +37,51 @@ models changes: llama-4-maverick is close to claude-haiku-4.5 on the original sc
 
 Full numbers, per trial, with both twin rules: `docs/research/findings-log.md` §20.
 
+## Extension: WorkBench
+
+As a small extension, we applied the same gates to [WorkBench](https://github.com/olly-styles/WorkBench)
+(Styles et al., COLM 2024), a benchmark of workplace tasks (email, calendar, analytics, CRM and
+project management). It has the same problem: 122 of its 690 tasks expect no change to the data,
+and a null agent passes 124 of them (the 122, plus 2 tasks whose gold action changes nothing).
+Each no-action task depends on the data. For example, "do X if Yuki hasn't emailed me" is a
+no-action task when the data shows that Yuki did email the user. So the agent must look before
+it can know that doing nothing is correct.
+
+We use the same two gates, with two changes:
+
+- **Read gate.** WorkBench has no list of required reads, and its search tools accept many
+  different queries, so a fixed list would reject good reads. Instead, a no-action pass needs at
+  least one read whose result changes between the task and its database twin. For the Yuki task,
+  a search for Yuki's emails counts: it shows at least one email in the original task, and none
+  in the twin.
+- **Second twin.** WorkBench has no policy text, so the second twin changes one detail of the
+  request (for example, a threshold) instead of one sentence of the policy.
+
+Same 4 models, 3 trials each, temperature 0. Mean tasks passed out of 690. On WorkBench a twin
+counts when the agent acts on the changed fact (makes any write), even if a detail is wrong:
+
+| Agent | Original score | With read gate | With read gate + twins | Change |
+|---|---|---|---|---|
+| Null agent (does nothing) | 124 | 12 | 7 | -94.4% |
+| gpt-6-luna | 611.7 | 611.7 | 610.3 | -0.2% |
+| claude-haiku-4.5 | 510.0 | 509.0 | 506.0 | -0.8% |
+| gpt-5.4-nano | 352.3 | 344.7 | 340.0 | -3.5% |
+| llama-4-maverick | 104.7 | 91.7 | 84.7 | -19.1% |
+
+The relative rankings of the real models do not change. As on airline, llama-4-maverick loses
+by far the most credit; the other models change much less. The drops are smaller than on
+airline, because no-action tasks are 18% of WorkBench and 46% of airline. An LLM reviewer judged
+all 65 read-gate removals correct, and a blind second LLM labeller agreed on every read-gate
+removal in its random sample. Under WorkBench's exact-match grading, many twin failures of the
+strong models came from a wrong detail, not from the decision; the any-write rule counts those
+twins as passed. Method, review and limits: `docs/research/other-benchmarks/workbench.md`. To
+re-score the saved runs without a key: `code/README.md`.
+
+WebArena-Verified, the audited release of WebArena, already uses the same idea, on 8 of its 40
+unachievable tasks: a "cannot be done" answer counts only if the agent also opened the page with
+the deciding data. Its other 32 unachievable tasks check only the answer
+(`docs/research/other-benchmarks/webarena-verified.md`).
+
 ---
 
 ## Quick start
@@ -154,6 +199,9 @@ code/
     data/tau2/domains/airline/   tasks, required reads, twins, policy flips
     data/simulations/     every run we report, tracked in git
   twins/                  twin generator and pair scorers
+  workbench/              our copy of olly-styles/WorkBench (upstream 49c7dfd), 4 files changed
+  workbench-m2/           WorkBench gates: runner, twins, read gate, scorer, and every run
+  webarena-verified/      script that checks the WebArena-Verified read gate
 docs/
   README.md               index of every project document (generated)
   decisions/              charter, milestones, decisions log
@@ -173,13 +221,16 @@ CLAUDE.md                 working rules for the authors and their coding agents
   §14 the read gate, §15–§17 the newer models, §20 the 3-trial results.
 - **The 23 no-action tasks, one by one:** `docs/research/no-action-tasks.md`.
 - **A policy loophole we closed (task 31):** `docs/research/loophole-airline-31.md`.
+- **The WorkBench extension:** `docs/research/other-benchmarks/workbench.md`.
 - **Scope and goals:** `docs/decisions/charter.md`.
 - **Every project document:** `docs/README.md`.
 
 ## Scope and limitations
 
-- **Airline only.** Results cover the τ²-bench airline domain. Retail and telecom are out of
-  scope.
+- **Airline is the main result; WorkBench is a small extension.** Retail and telecom are out
+  of scope. On WorkBench, the twin rule accepts any write, so it would also accept a wrong action, and 10
+  of the 122 no-action tasks have no read gate (`docs/research/other-benchmarks/workbench.md`
+  §5). For WebArena-Verified we only read the task data.
 - **Our own task change.** We lowered the user's budget in airline task 31 from $100 to $65 to
   close a policy loophole. Task 31 results from this copy are not comparable with upstream.
 - **Partial twin coverage.** Twins exist for 15 of the 23 no-action tasks (11 database twins,

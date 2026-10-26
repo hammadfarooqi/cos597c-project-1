@@ -6,15 +6,30 @@
 Every project document, with its date and status. For what the project is and how to
 run it, see the [repository README](../README.md).
 
-**Index generated:** 2026-10-24 · **Documents:** 12
+**Index generated:** 2026-10-26 · **Documents:** 21
 
 > **Agents: read [`CLAUDE.md`](../CLAUDE.md) first.** It has the read order and the rules.
 
-**Milestones:** 17 / 36 done (17 done, 7 in progress, 12 todo). See [`docs/decisions/milestones.md`](decisions/milestones.md).
+**Milestones:** 20 / 36 done (20 done, 7 in progress, 9 todo). See [`docs/decisions/milestones.md`](decisions/milestones.md).
 
 ---
 
-## ✓ Audit clean
+## ⚠ Audit: 10 warning(s)
+
+```
+DATE NOT BUMPED  code/workbench-m2/twins/BRIEF.md  says 2026-10-22, last changed 2026-10-26
+DATE NOT BUMPED  docs/research/other-benchmarks/workbench-review/claude-haiku-4.5.md  says 2026-10-22, last changed 2026-10-26
+DATE NOT BUMPED  docs/research/other-benchmarks/workbench-review/gpt-5.4-nano.md  says 2026-10-22, last changed 2026-10-26
+DATE NOT BUMPED  docs/research/other-benchmarks/workbench-review/gpt-6-luna.md  says 2026-10-22, last changed 2026-10-26
+DATE NOT BUMPED  docs/research/other-benchmarks/workbench-review/llama-4-maverick.md  says 2026-10-22, last changed 2026-10-26
+BROKEN LINK      docs/research/other-benchmarks/workbench-review/claude-haiku-4.5.md  ->  docs/research/new-models/review-handoff.md
+BROKEN LINK      docs/research/other-benchmarks/workbench-review/gpt-5.4-nano.md  ->  docs/research/new-models/review-handoff.md
+BROKEN LINK      docs/research/other-benchmarks/workbench-review/gpt-6-luna.md  ->  docs/research/new-models/review-handoff.md
+BROKEN LINK      docs/research/other-benchmarks/workbench-review/llama-4-maverick.md  ->  code/workbench-m2/logs/
+BROKEN LINK      docs/research/other-benchmarks/workbench-review/llama-4-maverick.md  ->  docs/research/new-models/review-handoff.md
+```
+
+Run `python3 tools/build_index.py` after fixing these.
 
 ---
 
@@ -32,7 +47,7 @@ run it, see the [repository README](../README.md).
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Milestones](decisions/milestones.md) | 2026-10-24 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
+| [Milestones](decisions/milestones.md) | 2026-10-26 | current | The master tracker. Every milestone, its owner, its status, and the evidence that it is done. Update it in the same commit as the work. **Note:** Due dates are TBD until we confirm the course deadlines. Owners marked "?" are not yet assigned. |
 
 ## Logs (append-only)
 
@@ -40,8 +55,8 @@ run it, see the [repository README](../README.md).
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Decisions Log](decisions/decisions-log.md) | 2026-10-24 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
-| [Findings Log](research/findings-log.md) | 2026-10-10 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
+| [Decisions Log](decisions/decisions-log.md) | 2026-10-26 | current | Append-only record of every settled decision, with the date, the reason, and the documents it affects. Newest at the bottom. This file outranks every other document. |
+| [Findings Log](research/findings-log.md) | 2026-10-26 | current | Append-only raw evidence: every experiment run that matters, with its command, results folder, numbers, and meaning. The charter holds the decisions; this holds the proof. |
 
 ## Research
 
@@ -53,6 +68,14 @@ run it, see the [repository README](../README.md).
 | [The No-Action Justification Check — Method and Implementation](research/justification-check.md) | 2026-10-08 | current | The authoritative description of how we grade a no-action pass as justified: the rule, the spec format, the matching semantics, the scoring modes, the code layout, how the airline spec was derived, validation results, limitations, and a step-by-step guide for adding the check to a new domain or benchmark. **Note:** Read this before changing evaluator_justification.py, justification_core.py, or any justification.json. Twins are not part of this check yet. |
 | [Task 31 — A Policy Loophole and Our Fix](research/loophole-airline-31.md) | 2026-10-08 | current | Airline task 31 expects "no change", but a policy-legal route (upgrade the cabin, then change the flight) cost $81 and fit the user's $100 budget. We lowered the budget to $65. This note explains the loophole, the evidence, what we changed, and what to say in the write-up. **Note:** Important finding. Any result on task 31 from our copy is NOT comparable with upstream τ²/τ³-bench results on task 31. |
 | [The 23 Airline No-Action Tasks — Required Reads and Twins](research/no-action-tasks.md) | 2026-10-08 | current | For each of the 23 airline tasks that the null agent passes: the decisive fact, the reads the task already expects, the reads we propose to make mandatory, and its counterfactual twin (natural, or a proposed one-field database flip). **Note:** Facts are from the vendored tau2-bench (upstream b7ea907). Re-check them if we pull upstream task changes. Twin flips are proposals; none is built or run yet. |
+| [WebArena-Verified Already Uses a Read Gate](research/other-benchmarks/webarena-verified.md) | 2026-10-26 | current | WebArena-Verified (ServiceNow), the audited release of WebArena, addresses the same problem we address in tau2: unachievable tasks that gave credit for a bare "N/A". On 8 of its 40 failure-status tasks it uses the same idea as our read gate, a required visit to the page that holds the deciding data. The other 32 check the status only. |
+| [WorkBench — Review Handoff (Rubric for Every Removal)](research/other-benchmarks/workbench-review-handoff.md) | 2026-10-26 | current | The rubric and data pointers for the qualitative review of every WorkBench no-op pass that a gate removes (4 newer models, 3 trials). It is the two-question rubric of the tau2 review, adapted to WorkBench, which has no simulated user and no policy text. **Note:** Written for reviewer agents. The rubric in §3 is complete here. The tau2 review it was adapted from is not part of this repository (decisions log, 2026-10-26). |
+| [WorkBench Review — claude-haiku-4.5 (3 trials)](research/other-benchmarks/workbench-review/claude-haiku-4.5.md) | 2026-10-22 | current | Hand review of all 60 claude-haiku-4.5 removal events on WorkBench (20 per seed; the 3 seeds give the same episodes). Read gate 1 TP. DB twin 2 TP / 12 FP per task. Request twin 1 WM / 4 FP per task. Most twin removals are reasoned no-op passes lost to the "first free slot" template and to calendar searches that return nothing. 7 false negatives (5 on ungated tasks). **Note:** Follows docs/research/other-benchmarks/workbench-review-handoff.md. Strict rule unless stated. No new runs were made. Evidence is from code/workbench-m2/data/ and the compact traces. |
+| [WorkBench Review — gpt-5.4-nano (3 Trials)](research/other-benchmarks/workbench-review/gpt-5.4-nano.md) | 2026-10-22 | current | Hand review of all 94 WorkBench removal events for gpt-5.4-nano (seeds 300–302; 62 task-trials): read gate 23 TP / 0 WM / 0 FP; DB twin 18 TP / 10 WM / 26 FP; request twin 1 TP / 1 WM / 15 FP. The read gate is exact for nano. Most twin FPs come from invented e-mail addresses on the twin. 5 clear FNs (9 more under a strict abstention rule). **Note:** Written by a reviewer agent from the rubric in docs/research/other-benchmarks/workbench-review-handoff.md. Not yet blind-checked by a second labeller. The README index was not regenerated (the reviewer could edit only this file). |
+| [WorkBench Review — gpt-6-luna (3 Trials)](research/other-benchmarks/workbench-review/gpt-6-luna.md) | 2026-10-22 | current | Hand review of all 44 WorkBench removal events for gpt-6-luna (seeds 300–302): read gate 0, DB twin 25, request twin 19. 0 TP; 3 WM (request twin); 41 FP. Almost every removed luna no-op pass was reasoned. The twins fail on template strictness (the "catch-up" name, first free slot, plot ranges, "for us"). 2 FNs, both "since Wednesday" growth tasks. **Note:** Written by a reviewer agent from the rubric in docs/research/other-benchmarks/workbench-review-handoff.md. Not yet blind-checked by a second labeller. The README index was not regenerated (the reviewer could edit only this file). |
+| [WorkBench Review — llama-4-maverick (3 Trials)](research/other-benchmarks/workbench-review/llama-4-maverick.md) | 2026-10-22 | current | Hand review of all 106 WorkBench removal events (226 gate removals) for llama-4-maverick, seeds 300–302. Read gate 81 TP. DB twin 9 TP / 84 WM / 6 FP. Request twin 3 TP / 43 WM / 0 FP. 7 FNs and 1 possible FN. The extra no-op passes in seeds 301–302 are not provider drift: they are 23 crashes per trial whose error the resume step erased (inference.py writes error=""). **Note:** After this review the erased errors were restored (findings-log §25). The 42 G1 events are no longer removals: those episodes are now failures. Corrected counts without them: read gate 39 TP; DB twin 9 TP / 45 WM / 6 FP; request twin 3 TP / 19 WM / 0 FP (findings-log §26). Written by a reviewer agent from the rubric in docs/research/other-benchmarks/workbench-review-handoff.md. Not yet checked by a second labeller. The README index was not regenerated (the reviewer could edit only this file). |
+| [WorkBench Scoreboard — Newer Models](research/other-benchmarks/workbench-scoreboard.md) | 2026-10-26 | current | Generated by code/workbench-m2/score.py. Scores of the 4 newer models over 3 trials under the original rule, the read gate and the twins; pass^k, stability, behaviour, twin failure causes. |
+| [WorkBench — The No-Action Gates on a Second Benchmark](research/other-benchmarks/workbench.md) | 2026-10-26 | current | M2 result. The read gate, DB twins and request twins applied to WorkBench (690 tasks, 122 no-op) for the 4 newer models over 3 trials. Twins use the lenient rule: any write on the twin counts. Same ranking and same pattern as on tau2. The read gate is exact in our review (65/65 removals right); under the strict rule the twins mostly penalise WorkBench's exact-match gold for strong models. Method, results, review, weak points, and how to reproduce. |
 
 ## Indexes
 
@@ -60,7 +83,8 @@ run it, see the [repository README](../README.md).
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Code](../code/README.md) | 2026-10-24 | current | What is in code/, what we changed in tau2-bench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [Code](../code/README.md) | 2026-10-26 | current | What is in code/, what we changed in tau2-bench and WorkBench, how to set up, and how to run the baselines. The reasoning behind each change is in docs/. |
+| [Brief for the WorkBench Twin Designers](../code/workbench-m2/twins/BRIEF.md) | 2026-10-22 | current | The instructions given to the three subagents that wrote the WorkBench twin specs: the spec contract, the design rules for flips (lessons from tau2), the checks, and the hard rules. |
 | [Drafts Index](drafts/index.md) | 2026-10-10 | current | Written, not yet submitted or shown. Expect these to change. Move a file to docs/external/ when it is sent. |
 | [External Documents Index](external/index.md) | 2026-10-03 | current | What was submitted for the course, in date order. Never edit a file here after it is sent; write a new dated document instead. |
 | [Papers Index](papers/index.md) | 2026-10-08 | current | The papers and sources the proposals cite, what each one contributed, and why this project cares. PDFs stored here: Zhu et al. [1], τ²-bench [2], SABER [3], τ-bench [6], Cao [7], Cao et al. [8]. |
@@ -74,6 +98,8 @@ run it, see the [repository README](../README.md).
 | [`code/tau2-bench/`](../code/tau2-bench) | Our modified copy of τ²-bench. See `code/README.md`. |
 | [`code/twins/`](../code/twins) | The counterfactual twin generator and the pair scorers. |
 | [`code/tau2-bench/data/simulations/`](../code/tau2-bench/data/simulations) | Experiment results, tracked in git. |
+| [`code/workbench/`](../code/workbench) | Our modified copy of WorkBench. See `code/README.md`. |
+| [`code/workbench-m2/`](../code/workbench-m2) | The gates on WorkBench, and every WorkBench run. |
 | [`docs/external/`](external) | The submitted proposal PDFs. |
 | [`tools/build_index.py`](../tools/build_index.py) | Regenerates this file and runs the audit. |
 
