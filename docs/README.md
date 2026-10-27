@@ -39,7 +39,7 @@ Run `python3 tools/build_index.py` after fixing these.
 
 | Document | Updated | Status | What it is |
 |---|---|---|---|
-| [Project Charter](decisions/charter.md) | 2026-10-08 | current | What we are doing, why the problem is real, how we grade a "justified" no-action verdict (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open questions. Authoritative on scope. **Note:** Built from the two proposals in docs/external/. The formalization (2026-10-02) narrowed the initial proposal. On 2026-10-03 the formalization's three-check rubric was replaced by two mechanisms; see the decisions log. |
+| [Project Charter](decisions/charter.md) | 2026-10-26 | current | What we are doing, why the problem is real, how we grade a "justified" no-action verdict (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open questions. Authoritative on scope. **Note:** Built from the two proposals in docs/external/. The formalization (2026-10-02) narrowed the initial proposal. On 2026-10-03 the formalization's three-check rubric was replaced by two mechanisms; see the decisions log. |
 
 ## Milestones
 

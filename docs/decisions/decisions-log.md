@@ -328,3 +328,19 @@ Both readings are reported.
 `docs/research/findings-log.md` §24–§27 · `docs/decisions/milestones.md` M2.1–M2.3
 **Replaces:** the airline-only scope in the 2026-10-24 entry; the strict headline in the
 2026-10-22 entry "WorkBench: lead with the read gate"; the count "9 of 40" in the 2026-10-21 entry
+
+## 2026-10-26 — τ² airline twins also use the "any write" lenient rule
+**By:** Hammad + Claude
+**Why:** The earlier 2026-10-26 entry moved WorkBench to "any write" and left τ² open. One rule
+on both benchmarks is simpler to explain, and it matches the intent of the lenient rule: credit
+an agent that saw the action was needed. On τ² the change is small (at most +0.6 tasks per
+model) and all of it is in the policy flips (findings-log §29). A transfer still fails the
+twin, because it is not an action on the changed fact.
+**Cost, stated plainly:** the rule credits a twin with a wrong write. On airline it restores 4
+removals; in all 4 the agent paid the wrong amount or used the wrong reservation, and 2 of the 4
+originals were judged unreasoned.
+**Affects:** `code/twins/score_pairs.py` · `code/twins/average_trials.py` · `README.md` ·
+`docs/decisions/charter.md` open question 3 · `docs/research/other-benchmarks/workbench.md` §1 ·
+`docs/research/findings-log.md` §29
+**Replaces:** the τ² lenient rule of the 2026-10-03 entry (the exact gold write), and "Not yet
+decided" for τ² in the earlier 2026-10-26 entry.

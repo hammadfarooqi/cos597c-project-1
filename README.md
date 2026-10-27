@@ -25,17 +25,18 @@ temperature 0. Numbers are mean tasks passed out of 50.
 |---|---|---|---|---|
 | Null agent (does nothing) | 23 | 7 | not run | -70% (read gate) |
 | gpt-6-luna | 39.0 | 38.0 | 35.7 | -8.5% |
-| claude-haiku-4.5 | 24.3 | 23.7 | 20.3 | -16.4% |
-| gpt-5.4-nano | 16.7 | 16.0 | 13.7 | -18.0% |
-| llama-4-maverick | 22.7 | 20.3 | 14.3 | -36.8% |
+| claude-haiku-4.5 | 24.3 | 23.7 | 20.7 | -15.1% |
+| gpt-5.4-nano | 16.7 | 16.0 | 14.3 | -14.0% |
+| llama-4-maverick | 22.7 | 20.3 | 14.7 | -35.3% |
 
-Twin pairs use the lenient rule (a twin counts when the agent makes the right write, even with
-other errors). The 7 null-agent passes left after the read gate are tasks whose refusal needs
-no data. The gates remove different amounts of credit from each model, so the gap between
+Twin pairs use the lenient rule: a twin counts when the agent acts on the changed fact (makes
+any write), even if the write is wrong. A transfer or no write fails the twin. The 7 null-agent
+passes left after the read gate are tasks whose refusal needs no data. The gates remove different amounts of credit from each model, so the gap between
 models changes: llama-4-maverick is close to claude-haiku-4.5 on the original score, and
 6 points below it after both gates.
 
-Full numbers, per trial, with both twin rules: `docs/research/findings-log.md` §20.
+Full numbers, per trial: `docs/research/findings-log.md` §20, and §29 for the any-write rule.
+The strict rule (the upstream reward on the twin) gives 35.7, 20.3, 13.3 and 14.3.
 
 ## Extension: WorkBench
 
@@ -57,8 +58,8 @@ We use the same two gates, with two changes:
 - **Second twin.** WorkBench has no policy text, so the second twin changes one detail of the
   request (for example, a threshold) instead of one sentence of the policy.
 
-Same 4 models, 3 trials each, temperature 0. Mean tasks passed out of 690. On WorkBench a twin
-counts when the agent acts on the changed fact (makes any write), even if a detail is wrong:
+Same 4 models, 3 trials each, temperature 0. Mean tasks passed out of 690. As on airline, a
+twin counts when the agent makes any write:
 
 | Agent | Original score | With read gate | With read gate + twins | Change |
 |---|---|---|---|---|
@@ -228,9 +229,12 @@ CLAUDE.md                 working rules for the authors and their coding agents
 ## Scope and limitations
 
 - **Airline is the main result; WorkBench is a small extension.** Retail and telecom are out
-  of scope. On WorkBench, the twin rule accepts any write, so it would also accept a wrong action, and 10
-  of the 122 no-action tasks have no read gate (`docs/research/other-benchmarks/workbench.md`
-  §5). For WebArena-Verified we only read the task data.
+  of scope. On WorkBench, 10 of the 122 no-action tasks have no read gate
+  (`docs/research/other-benchmarks/workbench.md` §5). For WebArena-Verified we only read the task data.
+- **Lenient twins accept a wrong action.** On both benchmarks a twin counts when the agent
+  makes any write, so a twin with the wrong write still passes. On airline this restores 4
+  policy-twin removals; in all 4 the agent paid the wrong amount or used the wrong reservation
+  (`docs/research/findings-log.md` §29).
 - **Our own task change.** We lowered the user's budget in airline task 31 from $100 to $65 to
   close a policy loophole. Task 31 results from this copy are not comparable with upstream.
 - **Partial twin coverage.** Twins exist for 15 of the 23 no-action tasks (11 database twins,

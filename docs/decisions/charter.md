@@ -2,7 +2,7 @@
 title: Project Charter
 type: charter
 status: current
-updated: 2026-10-08
+updated: 2026-10-26
 summary: >-
   What we are doing, why the problem is real, how we grade a "justified" no-action verdict
   (mandatory necessary reads + counterfactual twin tasks), the three goal tiers, and the open
@@ -15,7 +15,7 @@ note: >-
 
 # Project Charter — Differentiating No-Action Outcomes in Agent Evaluations
 
-**Last updated:** 2026-10-08 (§6 Q1 reads answered for airline; Q2–Q4 settled: pair scoring, policy flips)
+**Last updated:** 2026-10-26 (§6 Q3 settled: lenient twins, any write; 2026-10-08: Q1 reads answered for airline, Q2–Q4 pair scoring and policy flips)
 
 Hammad Farooqi, Vatsal Parikh · COS597C, Fall 2026
 
@@ -143,8 +143,8 @@ All scoring stays automatic and rule-based.
    its twin also passes. Report original, twin, and paired rates side by side.
 3. **What counts as a twin failure?** A twin can fail because the agent refused, transferred, or
    made the wrong write. Report the reason. Only the first two show a blanket refuser.
-   Partly settled: any twin failure removes the credit (strict); the lenient rate, which
-   accepts the right write despite other errors, is reported next to it.
+   Settled (decisions log, 2026-10-26): the headline is lenient. A twin counts if the agent
+   made any write on it; a transfer or no write fails it. The strict rate is reported next to it.
 4. **Twins for the compensation tasks (2, 5, 27, 38)** need a script change, not a database flip.
    Settled (decisions log, 2026-10-03): a policy flip changes one sentence of `policy.md` and
    keeps the user, the script, and the DB the same (`docs/research/counterfactual-twins.md` §6).

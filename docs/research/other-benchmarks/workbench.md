@@ -35,13 +35,13 @@ summary: >-
   | Model | Original | Reads gate | **Reads + twins** | Strict | Change (all gates) | τ² airline change (§20) |
   |---|---|---|---|---|---|---|
   | gpt-6-luna | 611.7 | 611.7 | **610.3** | 599.0 | −0.2% | −8.5% |
-  | claude-haiku-4.5 | 510.0 | 509.0 | **506.0** | 494.0 | −0.8% | −16.4% |
-  | gpt-5.4-nano | 352.3 | 344.7 | **340.0** | 331.7 | −3.5% | −18.0% |
-  | llama-4-maverick | 104.7 | 91.7 | **84.7** | 83.3 | −19.1% | −36.8% |
+  | claude-haiku-4.5 | 510.0 | 509.0 | **506.0** | 494.0 | −0.8% | −15.1% |
+  | gpt-5.4-nano | 352.3 | 344.7 | **340.0** | 331.7 | −3.5% | −14.0% |
+  | llama-4-maverick | 104.7 | 91.7 | **84.7** | 83.3 | −19.1% | −35.3% |
   | null agent | 124 | 12 | **7** | 7 | −94.4% | 23 → 7 (read gate only) |
 
   The drops are smaller than on τ², because no-op tasks are 18% of WorkBench and 46% of
-  airline. The τ² column uses the τ² lenient rule of §20 (the exact gold write).
+  airline. The τ² column uses the same any-write rule (findings-log §29).
   Full tables: `docs/research/other-benchmarks/workbench-scoreboard.md` §2.
 - **The read gate is exact in our review.** An LLM reviewer agent judged all 65 of its removals
   true positives (TP), and a blind second LLM labeller agreed on every read-gate removal in its
