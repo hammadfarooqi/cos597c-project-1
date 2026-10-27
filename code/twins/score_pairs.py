@@ -3,7 +3,9 @@
 Pair rule (decisions log, 2026-10-03): a no-action pass counts only if the
 same agent also passes the twin. A twin pass with a failed no-action task is
 a failure. Twin failures are labelled by cause, so a blanket refusal can be
-told apart from a bad write.
+told apart from a bad write. The headline paired score uses the lenient rule
+(lenient_pass: any write on the twin counts); the strict paired score is also
+printed.
 
 Usage (from code/tau2-bench/):
   uv run python ../twins/score_pairs.py claude-sonnet-4.5 gpt-4.1 ...
@@ -63,6 +65,14 @@ def failure_cause(sim: dict, gold: dict) -> str:
     if any(c["name"] == "transfer_to_human_agents" for c in calls):
         return "transfer"
     return "no write"
+
+
+def lenient_pass(cause: str) -> bool:
+    """Lenient twin rule (decisions log 2026-10-26): any write counts as acting.
+
+    A transfer or no write fails the twin. The strict rule is the upstream reward.
+    """
+    return cause in ("right write + other error", "wrong write")
 
 
 def twin_runs(model: str) -> dict:
@@ -127,12 +137,21 @@ def main(models: list[str]):
         print()
 
     print("### Full airline score, no-action verdicts replaced by paired verdicts\n")
-    print("| Model | Score now | Paired score | Credit removed |")
-    print("|---|---|---|---|")
+    print(
+        "| Model | Score now | Paired score (lenient) | Credit removed | "
+        "Paired score (strict) |"
+    )
+    print("|---|---|---|---|---|")
     for m in models:
-        removed = sum(1 for _, o, t, _ in per_task[m] if o and not t)
+        strict = sum(1 for _, o, t, _ in per_task[m] if o and not t)
+        removed = sum(
+            1 for _, o, t, c in per_task[m] if o and not t and not lenient_pass(c)
+        )
         now, n = totals[m]
-        print(f"| {m} | {now}/{n} | **{now - removed}/{n}** | {removed} |")
+        print(
+            f"| {m} | {now}/{n} | **{now - removed}/{n}** | {removed} | "
+            f"{now - strict}/{n} |"
+        )
 
     print("\n### Per task (no-op/twin, 1 = pass)\n")
     print("| Task | Twin | " + " | ".join(models) + " |")

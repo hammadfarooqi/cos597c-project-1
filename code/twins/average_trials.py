@@ -4,7 +4,8 @@ A trial is one set of three runs with the same config and seed:
 airline_<run>, airline_twins_<run> and airline_twins_pf_<run>, where <run> is
 the model name for trial 1 (seed 300) and <model>_seed<N> for later trials.
 Each trial is scored with the pair rule of score_pairs.py, then the trials are
-averaged per model.
+averaged per model. "Reads gate + twins" uses the lenient twin rule (any write
+counts; decisions log 2026-10-26); "+ twins, strict" uses the upstream reward.
 
 Usage (from code/tau2-bench/):
   uv run python ../twins/average_trials.py gpt-6-luna:300,301,302 ...
@@ -20,6 +21,7 @@ from score_pairs import (
     AIRLINE,
     SIM,
     failure_cause,
+    lenient_pass,
     load,
     passed,
     tool_calls,
@@ -40,7 +42,7 @@ COLUMNS = [
     "DB pairs (11)",
     "Policy pairs (4)",
     "Reads gate + twins",
-    "+ twins, lenient",
+    "+ twins, strict",
     "No-action (23)",
     "Transfers on no-action",
     "Cost $",
@@ -71,17 +73,15 @@ def score_trial(
     orig = load(SIM / f"airline_{run}" / "results.json")
     twin = twin_runs(run)
     paired = {"DB": 0, "policy": 0}
-    removed = lenient_removed = 0
+    removed = strict_removed = 0
     for tid, kind in kinds.items():
         o, t = passed(orig[tid.split("_")[0]]), passed(twin[tid])
-        paired[kind] += o and t
-        removed += o and not t
-        # Lenient rule (decisions log 2026-10-03): the twin also counts if the
-        # agent made the right write despite other errors.
-        right_write = not t and (
-            failure_cause(twin[tid], gold[tid]) == "right write + other error"
-        )
-        lenient_removed += o and not t and not right_write
+        # Lenient rule (decisions log 2026-10-26, replaces 2026-10-03): the twin
+        # also counts if the agent made any write, even a wrong one.
+        t_lenient = t or lenient_pass(failure_cause(twin[tid], gold[tid]))
+        paired[kind] += o and t_lenient
+        removed += o and not t_lenient
+        strict_removed += o and not t
     gate = sum(passed(s) for s in orig.values())
     return {
         "Original (50)": sum(
@@ -91,7 +91,7 @@ def score_trial(
         "DB pairs (11)": paired["DB"],
         "Policy pairs (4)": paired["policy"],
         "Reads gate + twins": gate - removed,
-        "+ twins, lenient": gate - lenient_removed,
+        "+ twins, strict": gate - strict_removed,
         "No-action (23)": sum(
             orig[t]["reward_info"]["original_reward"] == 1.0 for t in no_action
         ),
@@ -148,8 +148,8 @@ def main(specs: list[str]):
 
     print("\n### Change from the original score (mean over trials)\n")
     print(
-        "| Model | Original | Reads gate | Reads gate + twins | + twins, lenient | "
-        "Gate change | Gate + twins change | Lenient change |"
+        "| Model | Original | Reads gate | Reads gate + twins | + twins, strict | "
+        "Gate change | Gate + twins change | Strict change |"
     )
     print("|---|---|---|---|---|---|---|---|")
     for model, trials in results.items():
@@ -159,7 +159,7 @@ def main(specs: list[str]):
                 "Original (50)",
                 "Reads gate",
                 "Reads gate + twins",
-                "+ twins, lenient",
+                "+ twins, strict",
             )
         )
         print(

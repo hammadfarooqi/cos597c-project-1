@@ -13,7 +13,7 @@ summary: >-
 **Append only. Newest section at the bottom.** Each entry has: what was run, the exact command,
 the results folder, the numbers, and what they mean. Sign each entry (`**By:**`).
 
-**Last updated:** 2026-10-26 (§24–§27 added from the WorkBench branch; §28 added; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
+**Last updated:** 2026-10-26 (§24–§27 added from the WorkBench branch; §28 and §29 added; §10–§14 renumbered from §8–§12 at the 2026-10-08 merge)
 
 ---
 
@@ -1010,3 +1010,49 @@ is not part of this repository.*
   record. The τ² numbers above come from a scratch script that was not committed; it only
   re-labels the causes that `score_pairs.py` already reports.
 
+## 29. τ² airline re-scored with the "any write" lenient rule; it is now the headline (2026-10-26)
+**By:** Hammad + Claude
+
+- **What changed.** `code/twins/score_pairs.py` has a new `lenient_pass()`: a twin counts if the
+  agent made any write on it (a right write with other errors, or a wrong write). A transfer or
+  no write fails it. `code/twins/average_trials.py` uses it for "Reads gate + twins", the
+  headline column, and reports the upstream reward on the twin as "+ twins, strict". This
+  replaces the exact-gold-write lenient rule of §20 (decisions log, 2026-10-26).
+- **Command**, from `code/tau2-bench/`, no model calls, same runs as §20:
+  `uv run python ../twins/average_trials.py gpt-6-luna:300,301,302 claude-haiku-4.5:300,301,302 gpt-5.4-nano:300,301,302 llama-4-maverick:300,301,302`
+- **Mean over 3 trials, out of 50:**
+
+  | Model | Original | Reads gate | **Reads gate + twins (any write)** | Strict | Old lenient, exact write (§20) | Change |
+  |---|---|---|---|---|---|---|
+  | gpt-6-luna | 39.0 | 38.0 | **35.7** | 35.7 | 35.7 | −8.5% |
+  | claude-haiku-4.5 | 24.3 | 23.7 | **20.7** | 20.3 | 20.3 | −15.1% |
+  | gpt-5.4-nano | 16.7 | 16.0 | **14.3** | 13.3 | 13.7 | −14.0% |
+  | llama-4-maverick | 22.7 | 20.3 | **14.7** | 14.3 | 14.3 | −35.3% |
+
+  The numbers equal the scratch preview in §28.
+- **By twin type, from the original score (no read gate), mean points removed:**
+
+  | Model | DB flips (11) | Policy flips (4), exact write | Policy flips (4), any write |
+  |---|---|---|---|
+  | gpt-6-luna | 0.0 | 2.3 | 2.3 |
+  | claude-haiku-4.5 | 1.3 | 2.0 | 1.7 |
+  | gpt-5.4-nano | 0.3 | 2.0 | 1.3 |
+  | llama-4-maverick | 3.7 | 3.3 | 3.0 |
+
+  The rule changes no DB-flip result. All of the change is in the policy flips.
+- **The 4 removals the new rule gives back**, with the verdicts of the 3-trial review (commit
+  `2d4ffe4` on `analysis/new-models`, `review-3-trials.md`; LLM reviewers, no blind labeller):
+
+  | Event | Verdict | What the agent did on the twin |
+  |---|---|---|
+  | haiku, seed 301, task 2 | FP | Paid $100 on the wrong reservation (gold: $50) |
+  | nano, seed 300, task 5 | FP | Paid $150 on a booking that was not eligible |
+  | nano, seed 301, task 2 | WM | Paid $100 (gold: $50); the original pass was not reasoned |
+  | maverick, seed 301, task 2 | WM | Paid $100 (gold: $50); the original pass was not reasoned |
+
+  Review counts under the new rule: DB twin 9 FP of 16 removals (no change); policy twin 11 FP
+  of 25 removals (was 13 of 29).
+- **Meaning.** The ranking does not change. The new rule removes 2 FPs, but it also keeps 2
+  no-action passes that the review judged unreasoned, and it credits 4 twins with a wrong
+  payment. Most remaining twin failures are transfers or no write (§28), which a twin is
+  designed to catch.
